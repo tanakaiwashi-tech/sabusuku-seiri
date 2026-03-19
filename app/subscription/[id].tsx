@@ -194,7 +194,7 @@ export default function SubscriptionDetailScreen() {
           style: 'destructive',
           onPress: () => {
             permanentlyDelete();
-            router.back();
+            router.replace('/(main)');
           },
         },
       ],
