@@ -39,6 +39,8 @@ interface SummaryBarProps {
   summary: SubscriptionSummary;
   /** 年払い・3ヶ月払いのサブスクが存在するか（注意書き表示用） */
   hasNonMonthly?: boolean;
+  /** 不定期課金のサブスクが存在するか（集計対象外の注意書き表示用） */
+  hasIrregular?: boolean;
   /** 「見直し中」セルをタップしたときのコールバック */
   onReviewingPress?: () => void;
   /** 「更新が近い / 要確認」セルをタップしたときのコールバック */
@@ -48,6 +50,7 @@ interface SummaryBarProps {
 export function SummaryBar({
   summary,
   hasNonMonthly = false,
+  hasIrregular = false,
   onReviewingPress,
   onRenewalAlertPress,
 }: SummaryBarProps) {
@@ -87,6 +90,10 @@ export function SummaryBar({
       {/* ドル建てサブスク含む場合の注意書き */}
       {hasUSD && (
         <Text style={styles.hint}>※ ドル建ては1ドル=150円で換算しています</Text>
+      )}
+      {/* 不定期課金（集計対象外）が存在する場合の注意書き */}
+      {hasIrregular && (
+        <Text style={styles.hint}>※ 不定期課金は月額集計の対象外です</Text>
       )}
 
       <View style={styles.statsRow}>

@@ -162,6 +162,7 @@ export default function SubscriptionDetailScreen() {
             const formData: SubscriptionFormData = {
               serviceName: current.serviceName,
               amount: current.amount,
+              currency: current.currency,
               billingCycle: current.billingCycle,
               category: current.category,
               status: current.status,
@@ -184,8 +185,8 @@ export default function SubscriptionDetailScreen() {
   const handleDelete = () => {
     if (!current) return;
     Alert.alert(
-      '削除しますか？',
-      `「${current.serviceName}」を完全に削除します。\nこの操作は取り消せません。`,
+      '完全に削除しますか？',
+      `「${current.serviceName}」のデータを完全に削除します。\nこの操作は取り消せません。`,
       [
         { text: 'キャンセル', style: 'cancel' },
         {

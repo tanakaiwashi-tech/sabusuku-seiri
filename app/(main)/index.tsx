@@ -95,6 +95,14 @@ export default function HomeScreen() {
     [subscriptions],
   );
 
+  // 不定期課金は月額換算できないため集計対象外。その旨を SummaryBar で表示するためのフラグ。
+  const hasIrregular = useMemo(
+    () => subscriptions.some(
+      (s) => s.status === 'active' && s.billingCycle === 'irregular',
+    ),
+    [subscriptions],
+  );
+
   const displayedSubscriptions = useMemo(() => {
     let list = filterStatus === 'all'
       ? subscriptions
@@ -147,6 +155,7 @@ export default function HomeScreen() {
       <SummaryBar
         summary={summary}
         hasNonMonthly={hasNonMonthly}
+        hasIrregular={hasIrregular}
         onReviewingPress={() => setFilterStatus('reviewing')}
         onRenewalAlertPress={() => setSortKey('nextRenewalDate')}
       />
