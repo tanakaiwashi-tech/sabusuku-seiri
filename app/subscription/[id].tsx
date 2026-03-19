@@ -430,7 +430,7 @@ export default function SubscriptionDetailScreen() {
             size="sm"
           />
           <Button
-            label="削除"
+            label="完全に削除"
             onPress={handleDelete}
             variant="destructive"
             size="sm"

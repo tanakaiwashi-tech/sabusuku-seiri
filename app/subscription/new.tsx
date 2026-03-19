@@ -62,9 +62,8 @@ export default function NewSubscriptionScreen() {
     if (entry.defaultAmount !== null) {
       setAmount(String(entry.defaultAmount));
     }
-    if (entry.currency) {
-      setCurrency(entry.currency);
-    }
+    // USD/JPY を問わず常にリセット（JPY サービス選択後も USD が残り続けるバグを防ぐ）
+    setCurrency(entry.currency ?? 'JPY');
     if (entry.officialCancelUrl) {
       setCustomCancelUrl(entry.officialCancelUrl);
     }

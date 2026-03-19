@@ -135,7 +135,7 @@ export function ServiceNameAutocomplete({
                 <Text style={styles.itemName}>{entry.name}</Text>
                 <Text style={styles.itemMeta}>
                   {entry.defaultAmount !== null
-                    ? `¥${entry.defaultAmount.toLocaleString()}〜`
+                    ? `${entry.currency === 'USD' ? '$' : '¥'}${entry.defaultAmount.toLocaleString()}〜`
                     : entry.category}
                 </Text>
               </TouchableOpacity>
