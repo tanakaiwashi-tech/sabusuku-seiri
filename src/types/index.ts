@@ -16,12 +16,15 @@ export type CategoryOption = (typeof CATEGORY_OPTIONS)[number];
 
 export type SubscriptionStatus = 'active' | 'reviewing' | 'cancel_planned' | 'stopped';
 export type BillingCycle = 'monthly' | 'yearly' | 'quarterly' | 'irregular' | 'free';
+export type Currency = 'JPY' | 'USD';
 
 export interface Subscription {
   id: string;
   serviceName: string;
   normalizedName: string;
   amount: number;
+  /** 金額の通貨。省略時は JPY として扱う */
+  currency?: Currency;
   billingCycle: BillingCycle;
   category: CategoryOption | null;
   /** ビジネス状態。isArchived とは独立 */
@@ -58,6 +61,8 @@ export interface RemoteConfigMeta {
 
 export interface SubscriptionSummary {
   totalMonthlyAmount: number;
+  /** ドル建てサブスクが1件以上あるか（SummaryBar の注記表示用） */
+  hasUSD: boolean;
   activeCount: number;
   reviewingCount: number;
   cancelPlannedCount: number;
@@ -74,6 +79,8 @@ export interface ServiceDictionaryEntry {
   category: CategoryOption;
   defaultBillingCycle: BillingCycle;
   defaultAmount: number | null;
+  /** サービスの請求通貨。省略時は JPY */
+  currency?: Currency;
   popularityRank: number;
   officialCancelUrl: string | null;
 }
@@ -81,6 +88,8 @@ export interface ServiceDictionaryEntry {
 export interface SubscriptionFormData {
   serviceName: string;
   amount: number;
+  /** 金額の通貨。省略時は JPY */
+  currency?: Currency;
   billingCycle: BillingCycle;
   category: CategoryOption | null;
   status: SubscriptionStatus;

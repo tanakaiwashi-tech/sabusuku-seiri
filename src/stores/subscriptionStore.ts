@@ -15,7 +15,7 @@ export interface SubscriptionState {
   subscriptions: Subscription[];
   add: (data: SubscriptionFormData) => SaveResult;
   update: (id: string, data: SubscriptionFormData) => SaveResult;
-  /** アーカイブ済みデータを完全削除する。isArchived でない場合は何もしない（安全ガード）。 */
+  /** 指定 ID のサブスクリプションを完全削除する。 */
   remove: (id: string) => void;
   getById: (id: string) => Subscription | undefined;
 }
@@ -39,6 +39,7 @@ const subscriptionCreator: StateCreator<SubscriptionState> = (set, get) => ({
         serviceName: data.serviceName,
         normalizedName: normalizeServiceName(data.serviceName),
         amount: data.amount,
+        currency: data.currency,
         billingCycle: data.billingCycle,
         category: data.category,
         status: data.status,
@@ -85,6 +86,7 @@ const subscriptionCreator: StateCreator<SubscriptionState> = (set, get) => ({
         serviceName: data.serviceName,
         normalizedName: normalizeServiceName(data.serviceName),
         amount: data.amount,
+        currency: data.currency,
         billingCycle: data.billingCycle,
         category: data.category,
         status: data.status,
@@ -112,9 +114,6 @@ const subscriptionCreator: StateCreator<SubscriptionState> = (set, get) => ({
   },
 
   remove: (id: string): void => {
-    const target = get().subscriptions.find((s: Subscription) => s.id === id);
-    // アーカイブ済みのみ削除可能（誤操作で有効なデータを消さないための安全ガード）
-    if (!target?.isArchived) return;
     set((state: SubscriptionState) => ({
       subscriptions: state.subscriptions.filter((s: Subscription) => s.id !== id),
     }));

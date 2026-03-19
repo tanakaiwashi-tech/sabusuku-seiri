@@ -20,6 +20,7 @@ import {
   type BillingCycle,
   type SubscriptionStatus,
   type SubscriptionFormData,
+  type Currency,
 } from '@/src/types';
 import { useSubscription } from '@/src/hooks/useSubscription';
 import { SelectField } from '@/src/components/ui/SelectField';
@@ -63,6 +64,7 @@ export default function SubscriptionDetailScreen() {
   // 編集フォームの state
   const [serviceName, setServiceName] = useState('');
   const [amount, setAmount] = useState('');
+  const [currency, setCurrency] = useState<Currency>('JPY');
   const [billingCycle, setBillingCycle] = useState<BillingCycle>('monthly');
   const [category, setCategory] = useState<CategoryOption | null>(null);
   const [status, setStatus] = useState<SubscriptionStatus>('active');
@@ -78,7 +80,9 @@ export default function SubscriptionDetailScreen() {
     const next: Record<string, string> = {};
     if (!serviceName.trim()) next.serviceName = 'サービス名を入力してください';
     if (billingCycle !== 'free' && !isValidAmount(amount)) {
-      next.amount = `1〜${AMOUNT_MAX.toLocaleString()}円の整数を入力してください`;
+      next.amount = currency === 'USD'
+        ? '1以上のドル金額（整数）を入力してください'
+        : `1〜${AMOUNT_MAX.toLocaleString()}円の整数を入力してください`;
     }
     if (nextRenewalDate && !isValidDateString(nextRenewalDate)) next.nextRenewalDate = '実在する日付を入力してください';
     if (trialEndDate && !isValidDateString(trialEndDate)) next.trialEndDate = '実在する日付を入力してください';
@@ -94,6 +98,7 @@ export default function SubscriptionDetailScreen() {
     if (!current) return;
     setServiceName(current.serviceName);
     setAmount(current.amount > 0 ? String(current.amount) : '');
+    setCurrency(current.currency ?? 'JPY');
     setBillingCycle(current.billingCycle);
     setCategory(current.category);
     setStatus(current.status);
@@ -118,6 +123,7 @@ export default function SubscriptionDetailScreen() {
     const formData: SubscriptionFormData = {
       serviceName: serviceName.trim(),
       amount: billingCycle === 'free' ? 0 : Number(amount),
+      currency: billingCycle === 'free' ? undefined : currency,
       billingCycle,
       category,
       status,
@@ -176,10 +182,10 @@ export default function SubscriptionDetailScreen() {
   };
 
   const handleDelete = () => {
-    if (!current?.isArchived) return;
+    if (!current) return;
     Alert.alert(
-      '完全に削除しますか？',
-      'この操作は取り消せません。データは完全に削除されます。',
+      '削除しますか？',
+      `「${current.serviceName}」を完全に削除します。\nこの操作は取り消せません。`,
       [
         { text: 'キャンセル', style: 'cancel' },
         {
@@ -238,14 +244,30 @@ export default function SubscriptionDetailScreen() {
                 displayLabel={(v) => BILLING_CYCLE_LABELS[v]}
                 onChange={(v) => v && setBillingCycle(v)}
               />
-              <TextInput
-                label="金額（円）"
-                value={amount}
-                onChangeText={setAmount}
-                keyboardType="numeric"
-                editable={billingCycle !== 'free'}
-                error={errors.amount}
-              />
+              <View>
+                <View style={styles.amountLabelRow}>
+                  <Text style={styles.fieldLabel}>金額</Text>
+                  {billingCycle !== 'free' && (
+                    <TouchableOpacity
+                      style={styles.currencyToggle}
+                      onPress={() => setCurrency((c) => (c === 'JPY' ? 'USD' : 'JPY'))}
+                      activeOpacity={0.7}
+                    >
+                      <Text style={styles.currencyToggleText}>
+                        {currency === 'JPY' ? '¥ 円' : '$ USD'}
+                      </Text>
+                    </TouchableOpacity>
+                  )}
+                </View>
+                <TextInput
+                  value={billingCycle === 'free' ? '' : amount}
+                  onChangeText={setAmount}
+                  placeholder={billingCycle === 'free' ? '無料' : currency === 'USD' ? '例: 20' : '例: 980'}
+                  keyboardType="numeric"
+                  editable={billingCycle !== 'free'}
+                  error={errors.amount}
+                />
+              </View>
               <SelectField
                 label="カテゴリ"
                 value={category}
@@ -352,7 +374,7 @@ export default function SubscriptionDetailScreen() {
             <Text style={styles.amountLabel}>
               {current.billingCycle === 'free'
                 ? '無料'
-                : `${formatAmount(current.amount)} / ${BILLING_CYCLE_LABELS[current.billingCycle]}`}
+                : `${formatAmount(current.amount, current.currency ?? 'JPY')} / ${BILLING_CYCLE_LABELS[current.billingCycle]}`}
             </Text>
             <StatusBadge status={current.status} />
           </View>
@@ -399,7 +421,7 @@ export default function SubscriptionDetailScreen() {
           </View>
         )}
 
-        {/* アーカイブ / 完全削除 */}
+        {/* アーカイブ / 削除 */}
         <View style={styles.archiveRow}>
           <Button
             label={current.isArchived ? '一覧に戻す' : '一覧から外す'}
@@ -407,14 +429,12 @@ export default function SubscriptionDetailScreen() {
             variant="ghost"
             size="sm"
           />
-          {current.isArchived && (
-            <Button
-              label="完全に削除"
-              onPress={handleDelete}
-              variant="destructive"
-              size="sm"
-            />
-          )}
+          <Button
+            label="削除"
+            onPress={handleDelete}
+            variant="destructive"
+            size="sm"
+          />
         </View>
       </ScrollView>
     </SafeAreaView>
@@ -549,4 +569,26 @@ const styles = StyleSheet.create({
   },
   textarea: { minHeight: 72, textAlignVertical: 'top' },
   footer: { padding: 16, borderTopWidth: 1, borderTopColor: COLORS.border },
+  amountLabelRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 6,
+  },
+  fieldLabel: {
+    fontSize: 14,
+    fontWeight: '500',
+    color: COLORS.text,
+  },
+  currencyToggle: {
+    backgroundColor: COLORS.primaryLight,
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 20,
+  },
+  currencyToggleText: {
+    fontSize: 13,
+    fontWeight: '600',
+    color: COLORS.primary,
+  },
 });

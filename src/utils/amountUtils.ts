@@ -1,5 +1,5 @@
-import type { BillingCycle } from '@/src/types';
-import { BILLING_CYCLE_MONTHLY_FACTOR } from '@/src/constants/app';
+import type { BillingCycle, Currency } from '@/src/types';
+import { BILLING_CYCLE_MONTHLY_FACTOR, USD_TO_JPY_RATE } from '@/src/constants/app';
 
 export function toMonthlyAmount(amount: number, billingCycle: BillingCycle): number | null {
   const factor = BILLING_CYCLE_MONTHLY_FACTOR[billingCycle];
@@ -11,7 +11,13 @@ export function toYearlyAmount(monthlyAmount: number): number {
   return monthlyAmount * 12;
 }
 
-export function formatAmount(amount: number, currency = 'JPY'): string {
+/** USD を JPY に換算する（固定レート。集計・合計表示用）。JPY はそのまま返す。 */
+export function toJPY(amount: number, currency: Currency = 'JPY'): number {
+  if (currency === 'USD') return Math.round(amount * USD_TO_JPY_RATE);
+  return amount;
+}
+
+export function formatAmount(amount: number, currency: Currency = 'JPY'): string {
   return new Intl.NumberFormat('ja-JP', {
     style: 'currency',
     currency,

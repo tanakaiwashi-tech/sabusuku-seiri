@@ -36,7 +36,7 @@ export function SubscriptionListItem({ subscription, onPress }: SubscriptionList
           <Text style={styles.amount}>
             {subscription.billingCycle === 'free'
               ? '無料'
-              : `${formatAmount(subscription.amount)} / ${BILLING_CYCLE_LABELS[subscription.billingCycle]}`}
+              : `${formatAmount(subscription.amount, subscription.currency ?? 'JPY')} / ${BILLING_CYCLE_LABELS[subscription.billingCycle]}`}
           </Text>
         </View>
         <View style={styles.bottomRow}>

@@ -2,6 +2,8 @@ import type { BillingCycle, SubscriptionStatus } from '@/src/types';
 
 export const FREE_LIMIT_COUNT = 15;
 export const UPCOMING_RENEWAL_DAYS = 30;
+/** USD → JPY 換算レート（概算固定値）。集計・表示用のみ使用。 */
+export const USD_TO_JPY_RATE = 150;
 
 export const BILLING_CYCLE_LABELS: Record<BillingCycle, string> = {
   monthly: '月払い',

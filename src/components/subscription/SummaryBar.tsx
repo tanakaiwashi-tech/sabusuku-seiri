@@ -51,7 +51,7 @@ export function SummaryBar({
   onReviewingPress,
   onRenewalAlertPress,
 }: SummaryBarProps) {
-  const { totalMonthlyAmount, reviewingCount, upcomingRenewalCount, overdueRenewalCount } = summary;
+  const { totalMonthlyAmount, hasUSD, reviewingCount, upcomingRenewalCount, overdueRenewalCount } = summary;
   // 更新日セルは「超過」優先表示。超過がない場合のみ「更新が近い」を表示。
   // 合算することで件数とラベルの意味がずれるのを防ぐ。
   const renewalAlertCount = overdueRenewalCount > 0 ? overdueRenewalCount : upcomingRenewalCount;
@@ -83,6 +83,10 @@ export function SummaryBar({
       {/* 年払い・3ヶ月払い含む場合の注意書き */}
       {hasNonMonthly && (
         <Text style={styles.hint}>※ 年払い・3ヶ月払いは月額換算で集計しています</Text>
+      )}
+      {/* ドル建てサブスク含む場合の注意書き */}
+      {hasUSD && (
+        <Text style={styles.hint}>※ ドル建ては1ドル=150円で換算しています</Text>
       )}
 
       <View style={styles.statsRow}>

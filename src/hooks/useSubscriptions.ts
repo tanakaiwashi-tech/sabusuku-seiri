@@ -2,7 +2,7 @@ import { useMemo } from 'react';
 import { useSubscriptionStore, type SubscriptionState } from '@/src/stores/subscriptionStore';
 import type { Subscription, SubscriptionSummary } from '@/src/types';
 import { isWithinNextDays, isOverdueRenewal } from '@/src/utils/dateUtils';
-import { toMonthlyAmount } from '@/src/utils/amountUtils';
+import { toMonthlyAmount, toJPY } from '@/src/utils/amountUtils';
 import { UPCOMING_RENEWAL_DAYS } from '@/src/constants/app';
 
 /** サブスクリプション一覧と集計を返すフック。Zustand ストアの薄いラッパー。 */
@@ -20,6 +20,7 @@ export function useSubscriptions(includeArchived = false) {
 
   const summary: SubscriptionSummary = useMemo(() => {
     let totalMonthlyAmount = 0;
+    let hasUSD = false;
     let activeCount = 0;
     let reviewingCount = 0;
     let cancelPlannedCount = 0;
@@ -30,7 +31,12 @@ export function useSubscriptions(includeArchived = false) {
       if (s.status === 'active') {
         activeCount++;
         const monthly = toMonthlyAmount(s.amount, s.billingCycle);
-        if (monthly !== null) totalMonthlyAmount += monthly;
+        if (monthly !== null) {
+          // USD は JPY 換算してから合計する
+          const monthlyJPY = toJPY(monthly, s.currency ?? 'JPY');
+          totalMonthlyAmount += monthlyJPY;
+          if (s.currency === 'USD') hasUSD = true;
+        }
       }
       if (s.status === 'reviewing') reviewingCount++;
       if (s.status === 'cancel_planned') cancelPlannedCount++;
@@ -40,7 +46,7 @@ export function useSubscriptions(includeArchived = false) {
       if (s.status === 'active' && isOverdueRenewal(s.nextRenewalDate)) overdueRenewalCount++;
     }
 
-    return { totalMonthlyAmount, activeCount, reviewingCount, cancelPlannedCount, upcomingRenewalCount, overdueRenewalCount };
+    return { totalMonthlyAmount, hasUSD, activeCount, reviewingCount, cancelPlannedCount, upcomingRenewalCount, overdueRenewalCount };
   }, [subscriptions]);
 
   // Zustand はリアクティブなので手動 refresh は不要。互換性のため no-op を返す。
