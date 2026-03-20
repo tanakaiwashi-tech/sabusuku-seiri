@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import type { SubscriptionSummary } from '@/src/types';
 import { COLORS } from '@/src/constants/colors';
+import { USD_TO_JPY_RATE } from '@/src/constants/app';
 import { formatAmount, toYearlyAmount } from '@/src/utils/amountUtils';
 
 interface StatCellProps {
@@ -88,7 +89,7 @@ export function SummaryBar({
         <Text style={styles.hint}>
           {'※ ' + [
             hasNonMonthly && '年払い換算含む',
-            hasUSD && 'USD=¥150換算',
+            hasUSD && `USD=¥${USD_TO_JPY_RATE}換算`,
             hasIrregular && '不定期除く',
           ].filter(Boolean).join(' · ')}
         </Text>

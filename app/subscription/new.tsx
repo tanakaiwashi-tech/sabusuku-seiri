@@ -33,7 +33,7 @@ import { Button } from '@/src/components/ui/Button';
 import { AmountField } from '@/src/components/ui/AmountField';
 import { ServiceNameAutocomplete } from '@/src/components/subscription/ServiceNameAutocomplete';
 import { COLORS } from '@/src/constants/colors';
-import { validateSubscriptionForm } from '@/src/utils/validationUtils';
+import { validateSubscriptionForm, type SubscriptionFormErrors } from '@/src/utils/validationUtils';
 import type { PricingPlan } from '@/src/types';
 
 export default function NewSubscriptionScreen() {
@@ -54,7 +54,7 @@ export default function NewSubscriptionScreen() {
   const [memo, setMemo] = useState('');
   const [customCancelUrl, setCustomCancelUrl] = useState('');
 
-  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [errors, setErrors] = useState<SubscriptionFormErrors>({});
 
   const handleSelectSuggestion = (entry: ServiceDictionaryEntry) => {
     setCategory(entry.category);

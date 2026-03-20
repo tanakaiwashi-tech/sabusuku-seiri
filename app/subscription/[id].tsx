@@ -38,7 +38,7 @@ import type { ServiceDictionaryEntry } from '@/src/types';
 import { COLORS } from '@/src/constants/colors';
 import { formatDisplayDate, suggestNextRenewalDate } from '@/src/utils/dateUtils';
 import { formatAmount } from '@/src/utils/amountUtils';
-import { isSafeUrl, validateSubscriptionForm } from '@/src/utils/validationUtils';
+import { isSafeUrl, validateSubscriptionForm, type SubscriptionFormErrors } from '@/src/utils/validationUtils';
 import { subscriptionToFormData } from '@/src/utils/subscriptionUtils';
 
 function DetailRow({ label, value }: { label: string; value: string }) {
@@ -77,7 +77,7 @@ export default function SubscriptionDetailScreen() {
   const [memo, setMemo] = useState('');
   const [cancelMemo, setCancelMemo] = useState('');
   const [customCancelUrl, setCustomCancelUrl] = useState('');
-  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [errors, setErrors] = useState<SubscriptionFormErrors>({});
 
   const startEditing = () => {
     if (!current) return;

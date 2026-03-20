@@ -31,8 +31,15 @@ export const useSettingsStore = create<SettingsState>()(
     name: 'mieru-toroku-settings',
     version: 1,
     storage: createJSONStorage(() => safeStorage),
-    // v0 → v1: スキーマ変更なし。既存データをそのまま引き継ぐ。
+    // v0 → v1: スキーマ変更なし。必須フィールドを DEFAULT_SETTINGS で補完する。
     // 次回スキーマ変更時は version を 2 に上げて、ここに変換処理を追加する。
-    migrate: (persistedState: unknown) => persistedState as SettingsState,
+    migrate: (persistedState: unknown): SettingsState => {
+      const raw = persistedState as Partial<SettingsState> | null | undefined;
+      const saved = raw?.settings ?? {};
+      return {
+        settings: { ...DEFAULT_SETTINGS, ...saved },
+        update: (() => {}) as SettingsState['update'], // Zustand が実際の実装で上書きする
+      };
+    },
   }),
 );

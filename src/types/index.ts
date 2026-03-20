@@ -97,6 +97,12 @@ export interface ServiceDictionaryEntry {
   officialCancelUrl: string | null;
   /** 複数の価格帯がある場合のプランリスト。省略時は単一価格 */
   plans?: PricingPlan[];
+  /**
+   * Google Favicon API 取得用のドメイン（例: "netflix.com"）。
+   * 設定されている場合は serviceLogos.ts のハードコードより優先される。
+   * ロゴ不要なサービスは省略。
+   */
+  domain?: string;
 }
 
 export interface SubscriptionFormData {

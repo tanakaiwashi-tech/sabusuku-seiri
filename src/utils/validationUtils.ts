@@ -37,6 +37,20 @@ export function isValidDateString(dateStr: string): boolean {
   return !isNaN(d.getTime()) && d.toISOString().startsWith(dateStr);
 }
 
+// ─── サービス名 ──────────────────────────────────────────
+
+/** サービス名の最大文字数（フォームの maxLength と揃える）。 */
+export const SERVICE_NAME_MAX = 50;
+
+/**
+ * サービス名として有効かを検証する。
+ * 空文字・空白のみ・50文字超えを拒否する。
+ */
+export function isValidServiceName(name: string): boolean {
+  const trimmed = name.trim();
+  return trimmed.length >= 1 && trimmed.length <= SERVICE_NAME_MAX;
+}
+
 // ─── 金額 ────────────────────────────────────────────────
 
 /** 金額として有効な整数かを検証する（1以上・上限1千万円）。¥0は free サイクルを使うべき。 */
@@ -77,8 +91,10 @@ export function validateSubscriptionForm(fields: {
 }): SubscriptionFormErrors {
   const errors: SubscriptionFormErrors = {};
 
-  if (!fields.serviceName.trim()) {
-    errors.serviceName = 'サービス名を入力してください';
+  if (!isValidServiceName(fields.serviceName)) {
+    errors.serviceName = fields.serviceName.trim().length > SERVICE_NAME_MAX
+      ? `サービス名は${SERVICE_NAME_MAX}文字以内で入力してください`
+      : 'サービス名を入力してください';
   }
   if (fields.billingCycle !== 'free' && !isValidAmount(fields.amount)) {
     errors.amount = fields.currency === 'USD'
