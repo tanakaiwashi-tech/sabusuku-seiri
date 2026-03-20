@@ -4,7 +4,7 @@
     "updatePolicy": "辞書を更新する場合はこのファイルを編集し version を上げる。リモート配信機能を追加した際はこのコメントも合わせて更新すること。",
     "branding": "企業ロゴ・公式カラー・外部参照URLは含めない方針。"
   },
-  "version": "10",
+  "version": "11",
   "entries": [
     {
       "id": "amazon_prime",
@@ -253,7 +253,11 @@
       "defaultAmount": 14900,
       "popularityRank": 12,
       "officialCancelUrl": "https://account.microsoft.com/services",
-      "domain": "microsoft.com"
+      "domain": "microsoft.com",
+      "plans": [
+        { "label": "月払い", "amount": 1490,  "billingCycle": "monthly" },
+        { "label": "年払い", "amount": 14900, "billingCycle": "yearly"  }
+      ]
     },
     {
       "id": "u_next",
@@ -373,7 +377,11 @@
       "defaultAmount": 15000,
       "popularityRank": 22,
       "officialCancelUrl": "https://www.dropbox.com/account/plan",
-      "domain": "dropbox.com"
+      "domain": "dropbox.com",
+      "plans": [
+        { "label": "月払い", "amount": 1499,  "billingCycle": "monthly" },
+        { "label": "年払い", "amount": 15000, "billingCycle": "yearly"  }
+      ]
     },
     {
       "id": "github",
@@ -398,7 +406,11 @@
       "defaultAmount": 9600,
       "popularityRank": 24,
       "officialCancelUrl": "https://www.duolingo.com/settings/super",
-      "domain": "duolingo.com"
+      "domain": "duolingo.com",
+      "plans": [
+        { "label": "月払い", "amount": 1067, "billingCycle": "monthly" },
+        { "label": "年払い", "amount": 9600,  "billingCycle": "yearly"  }
+      ]
     },
     {
       "id": "claude_pro",

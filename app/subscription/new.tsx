@@ -176,9 +176,16 @@ export default function NewSubscriptionScreen() {
                 >
                   {availablePlans.map((plan, i) => {
                     const active = selectedPlanIndex === i;
-                    const priceStr = plan.currency === 'USD'
+                    const rawPrice = plan.currency === 'USD'
                       ? `$${plan.amount}`
                       : `¥${plan.amount.toLocaleString()}`;
+                    // plan に billingCycle が設定されている場合のみ周期サフィックスを表示
+                    const cycleSuffix: Partial<Record<BillingCycle, string>> = {
+                      monthly: '/月', yearly: '/年', quarterly: '/3ヶ月',
+                    };
+                    const priceStr = plan.billingCycle
+                      ? rawPrice + (cycleSuffix[plan.billingCycle] ?? '')
+                      : rawPrice;
                     return (
                       <TouchableOpacity
                         key={i}
