@@ -12,7 +12,7 @@ export interface ExportData {
 
 /**
  * サブスクリプション一覧を JSON ファイルとしてブラウザダウンロードする（Web のみ）。
- * ファイル名: mieru-toroku-YYYY-MM-DD.json
+ * ファイル名: sabusuku-seiri-YYYY-MM-DD.json
  */
 export function exportSubscriptionsAsJSON(subscriptions: Subscription[]): void {
   const today = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
@@ -30,7 +30,7 @@ export function exportSubscriptionsAsJSON(subscriptions: Subscription[]): void {
   try {
     const a = document.createElement('a');
     a.href = url;
-    a.download = `mieru-toroku-${today}.json`;
+    a.download = `sabusuku-seiri-${today}.json`;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
@@ -102,7 +102,7 @@ function csvEscape(value: string | null | undefined): string {
 /**
  * サブスクリプション一覧を CSV ファイルとしてブラウザダウンロードする（Web のみ）。
  * BOM 付き UTF-8 で出力するため Excel でも文字化けしない。
- * ファイル名: mieru-toroku-YYYY-MM-DD.csv
+ * ファイル名: sabusuku-seiri-YYYY-MM-DD.csv
  */
 export function exportSubscriptionsAsCSV(subscriptions: Subscription[]): void {
   const today = new Date().toISOString().slice(0, 10);
@@ -135,7 +135,7 @@ export function exportSubscriptionsAsCSV(subscriptions: Subscription[]): void {
   try {
     const a = document.createElement('a');
     a.href = url;
-    a.download = `mieru-toroku-${today}.csv`;
+    a.download = `sabusuku-seiri-${today}.csv`;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);

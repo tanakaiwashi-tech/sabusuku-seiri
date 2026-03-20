@@ -1,4 +1,4 @@
-# みえる登録
+# サブスク整理
 
 > 「気づいたら払い続けていた」をなくす、サブスク整理アプリ。
 
@@ -41,7 +41,7 @@
 ## 開発情報
 
 ```
-cd mieru-toroku
+cd mieru-toroku  # フォルダ名は変更なし
 npx expo export --platform web
 npx serve dist --listen 8082 --single
 ```

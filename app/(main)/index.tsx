@@ -129,7 +129,7 @@ export default function HomeScreen() {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.headerTitle}>みえる登録</Text>
+        <Text style={styles.headerTitle}>サブスク整理</Text>
         <View style={styles.headerRight}>
           <TouchableOpacity
             style={styles.iconButton}

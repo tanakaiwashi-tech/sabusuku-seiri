@@ -26,7 +26,7 @@ export default function RootLayout() {
     <ErrorBoundary>
       <Head>
         <html lang="ja" />
-        <title>みえる登録</title>
+        <title>サブスク整理</title>
         <meta name="description" content="サブスクを整理する、静かなツール。" />
         <style>{`body { background-color: ${COLORS.background}; }`}</style>
       </Head>
