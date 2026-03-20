@@ -22,7 +22,7 @@ interface MessageMeta {
 
 /**
  * Googleアカウントにポップアップでサインインし、アクセストークンを返す。
- * - スコープ: gmail.metadata（件名・差出人・日付のみ）
+ * - スコープ: gmail.readonly（件名・差出人・日付のみ取得）
  * - トークンはメモリのみ保持（LocalStorageへの書き込みなし）
  */
 export async function signInWithGoogle(): Promise<string> {
@@ -40,7 +40,7 @@ export async function signInWithGoogle(): Promise<string> {
     `&redirect_uri=${encodeURIComponent(redirectUri)}` +
     `&response_type=token` +
     `&scope=${encodeURIComponent(scope)}` +
-    `&prompt=select_account`;
+    `&prompt=consent`;
 
   return new Promise((resolve, reject) => {
     const popup = window.open(
