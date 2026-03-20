@@ -14,16 +14,13 @@ import { router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import {
   BILLING_CYCLE_LABELS,
-  STATUS_LABELS,
   FREE_LIMIT_COUNT,
   BILLING_CYCLE_OPTIONS,
-  STATUS_OPTIONS,
 } from '@/src/constants/app';
 import {
   CATEGORY_OPTIONS,
   type CategoryOption,
   type BillingCycle,
-  type SubscriptionStatus,
   type SubscriptionFormData,
   type ServiceDictionaryEntry,
   type Currency,
@@ -47,7 +44,6 @@ export default function NewSubscriptionScreen() {
   const [currency, setCurrency] = useState<Currency>('JPY');
   const [billingCycle, setBillingCycle] = useState<BillingCycle>('monthly');
   const [category, setCategory] = useState<CategoryOption | null>(null);
-  const [status, setStatus] = useState<SubscriptionStatus>('active');
   const [nextRenewalDate, setNextRenewalDate] = useState('');
   const [trialEndDate, setTrialEndDate] = useState('');
   const [startDate, setStartDate] = useState('');
@@ -91,7 +87,7 @@ export default function NewSubscriptionScreen() {
       currency: billingCycle === 'free' ? undefined : currency,
       billingCycle,
       category,
-      status,
+      status: 'active',
       nextRenewalDate: nextRenewalDate || null,
       trialEndDate: trialEndDate || null,
       startDate: startDate || null,
@@ -172,13 +168,6 @@ export default function NewSubscriptionScreen() {
               displayLabel={(v) => v}
               onChange={setCategory}
               clearable
-            />
-            <SelectField
-              label="ステータス"
-              value={status}
-              options={STATUS_OPTIONS}
-              displayLabel={(v) => STATUS_LABELS[v]}
-              onChange={(v) => v && setStatus(v)}
             />
             <DatePickerField
               label="次回更新日"

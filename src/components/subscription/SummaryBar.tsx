@@ -94,24 +94,26 @@ export function SummaryBar({
         </Text>
       )}
 
-      <View style={styles.statsRow}>
-        <StatCell
-          label="見直し中"
-          value={`${reviewingCount}件`}
-          bold={reviewingCount > 0}
-          accent={reviewingCount > 0}
-          dimmed={reviewingCount === 0}
-          onPress={reviewingCount > 0 ? onReviewingPress : undefined}
-        />
-        <View style={styles.divider} />
-        <StatCell
-          label={renewalAlertLabel}
-          value={`${renewalAlertCount}件`}
-          bold={renewalAlertCount > 0}
-          accent={overdueRenewalCount > 0}
-          onPress={renewalAlertCount > 0 ? onRenewalAlertPress : undefined}
-        />
-      </View>
+      {(reviewingCount > 0 || renewalAlertCount > 0) && (
+        <View style={styles.statsRow}>
+          <StatCell
+            label="見直し中"
+            value={`${reviewingCount}件`}
+            bold={reviewingCount > 0}
+            accent={reviewingCount > 0}
+            dimmed={reviewingCount === 0}
+            onPress={reviewingCount > 0 ? onReviewingPress : undefined}
+          />
+          <View style={styles.divider} />
+          <StatCell
+            label={renewalAlertLabel}
+            value={`${renewalAlertCount}件`}
+            bold={renewalAlertCount > 0}
+            accent={overdueRenewalCount > 0}
+            onPress={renewalAlertCount > 0 ? onRenewalAlertPress : undefined}
+          />
+        </View>
+      )}
     </View>
   );
 }

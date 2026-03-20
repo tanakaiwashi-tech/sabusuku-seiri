@@ -327,7 +327,7 @@ export default function SubscriptionDetailScreen() {
                 ? '無料'
                 : `${formatAmount(current.amount, current.currency ?? 'JPY')} / ${BILLING_CYCLE_LABELS[current.billingCycle]}`}
             </Text>
-            <StatusBadge status={current.status} />
+            {current.status !== 'active' && <StatusBadge status={current.status} />}
           </View>
           {current.category && <Text style={styles.category}>{current.category}</Text>}
         </View>
