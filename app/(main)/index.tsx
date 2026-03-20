@@ -12,14 +12,17 @@ import { router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { COLORS } from '@/src/constants/colors';
 import { useSubscriptions } from '@/src/hooks/useSubscriptions';
+import { useSubscriptionStore } from '@/src/stores/subscriptionStore';
+import { useUiPrefsStore } from '@/src/stores/uiPrefsStore';
 import { SummaryBar } from '@/src/components/subscription/SummaryBar';
 import { SubscriptionListItem } from '@/src/components/subscription/SubscriptionListItem';
 import { CategoryBreakdown } from '@/src/components/subscription/CategoryBreakdown';
 import { toMonthlyAmount } from '@/src/utils/amountUtils';
+import { STALE_CANCEL_DAYS } from '@/src/constants/app';
+import type { SortKey } from '@/src/constants/app';
 import type { Subscription, SubscriptionStatus } from '@/src/types';
 
 type FilterStatus = 'all' | SubscriptionStatus;
-type SortKey = 'createdAt' | 'nextRenewalDate' | 'amount';
 
 const FILTER_LABELS: Record<FilterStatus, string> = {
   all: '全て',
@@ -69,8 +72,9 @@ function FilteredEmptyState({ onClear }: { onClear: () => void }) {
 
 export default function HomeScreen() {
   const { subscriptions, summary } = useSubscriptions();
+  const batchRolloverRenewalDates = useSubscriptionStore((s) => s.batchRolloverRenewalDates);
+  const { sortKey, setSortKey } = useUiPrefsStore();
   const [filterStatus, setFilterStatus] = useState<FilterStatus>('all');
-  const [sortKey, setSortKey] = useState<SortKey>('createdAt');
 
   const handleItemPress = (item: Subscription) => {
     router.push(`/subscription/${item.id}`);
@@ -178,6 +182,35 @@ export default function HomeScreen() {
         ))}
       </ScrollView>
 
+      {/* 解約する放置バナー: STALE_CANCEL_DAYS 日以上手続きが止まっている場合に表示 */}
+      {summary.staleCancelCount > 0 && (
+        <TouchableOpacity
+          style={styles.staleBanner}
+          onPress={() => setFilterStatus('cancel_planned')}
+          activeOpacity={0.7}
+        >
+          <Ionicons name="time-outline" size={15} color={COLORS.warning.text} />
+          <Text style={styles.staleBannerText}>
+            {`解約手続き中が${STALE_CANCEL_DAYS}日以上経過 (${summary.staleCancelCount}件) — 確認する`}
+          </Text>
+          <Ionicons name="chevron-forward" size={13} color={COLORS.warning.text} />
+        </TouchableOpacity>
+      )}
+
+      {/* 更新日超過バナー: まとめて繰り越す */}
+      {summary.overdueRenewalCount > 0 && (
+        <TouchableOpacity
+          style={styles.renewalOverdueBanner}
+          onPress={batchRolloverRenewalDates}
+          activeOpacity={0.7}
+        >
+          <Ionicons name="refresh-outline" size={15} color={COLORS.primary} />
+          <Text style={styles.renewalOverdueBannerText}>
+            {`更新日が過ぎています (${summary.overdueRenewalCount}件) — まとめて次回に繰り越す`}
+          </Text>
+        </TouchableOpacity>
+      )}
+
       <FlatList
         data={displayedSubscriptions}
         keyExtractor={(item) => item.id}
@@ -275,6 +308,38 @@ const styles = StyleSheet.create({
   },
   chipTextActive: {
     color: '#FFFFFF',
+  },
+  staleBanner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    paddingHorizontal: 14,
+    paddingVertical: 9,
+    backgroundColor: COLORS.warning.bg,
+    borderBottomWidth: 1,
+    borderBottomColor: COLORS.warning.border,
+  },
+  staleBannerText: {
+    flex: 1,
+    fontSize: 12,
+    color: COLORS.warning.text,
+    fontWeight: '500',
+  },
+  renewalOverdueBanner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    paddingHorizontal: 14,
+    paddingVertical: 9,
+    backgroundColor: COLORS.primaryLight,
+    borderBottomWidth: 1,
+    borderBottomColor: COLORS.border,
+  },
+  renewalOverdueBannerText: {
+    flex: 1,
+    fontSize: 12,
+    color: COLORS.primary,
+    fontWeight: '500',
   },
   emptyContainer: { flex: 1, paddingBottom: 100 },
   listContent: { paddingBottom: 100 },

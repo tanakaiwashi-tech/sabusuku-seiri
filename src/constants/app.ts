@@ -1,9 +1,15 @@
 import type { BillingCycle, SubscriptionStatus } from '@/src/types';
 
-export const FREE_LIMIT_COUNT = 15;
+/** サブスク登録の上限（制限を撤廃し実質無制限）。削除せず new.tsx の型整合性のために残置。 */
+export const FREE_LIMIT_COUNT = 9999;
 export const UPCOMING_RENEWAL_DAYS = 30;
 /** USD → JPY 換算レート（概算固定値）。集計・表示用のみ使用。 */
 export const USD_TO_JPY_RATE = 150;
+/** cancel_planned ステータスが「放置」とみなす経過日数 */
+export const STALE_CANCEL_DAYS = 7;
+
+/** ホーム画面の並び替えキー */
+export type SortKey = 'createdAt' | 'nextRenewalDate' | 'amount';
 
 export const BILLING_CYCLE_LABELS: Record<BillingCycle, string> = {
   monthly: '月払い',

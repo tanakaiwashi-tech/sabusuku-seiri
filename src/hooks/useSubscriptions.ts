@@ -1,9 +1,9 @@
 import { useMemo } from 'react';
 import { useSubscriptionStore, type SubscriptionState } from '@/src/stores/subscriptionStore';
 import type { Subscription, SubscriptionSummary } from '@/src/types';
-import { isWithinNextDays, isOverdueRenewal } from '@/src/utils/dateUtils';
+import { isWithinNextDays, isOverdueRenewal, isStaleUpdate } from '@/src/utils/dateUtils';
 import { toMonthlyAmount, toJPY } from '@/src/utils/amountUtils';
-import { UPCOMING_RENEWAL_DAYS } from '@/src/constants/app';
+import { UPCOMING_RENEWAL_DAYS, STALE_CANCEL_DAYS } from '@/src/constants/app';
 
 /** サブスクリプション一覧と集計を返すフック。Zustand ストアの薄いラッパー。 */
 export function useSubscriptions(includeArchived = false) {
@@ -27,6 +27,7 @@ export function useSubscriptions(includeArchived = false) {
     let cancelPlannedCount = 0;
     let upcomingRenewalCount = 0;
     let overdueRenewalCount = 0;
+    let staleCancelCount = 0;
 
     for (const s of subscriptions) {
       if (s.status === 'active') {
@@ -54,9 +55,11 @@ export function useSubscriptions(includeArchived = false) {
       if (s.status === 'active' && isWithinNextDays(s.nextRenewalDate, UPCOMING_RENEWAL_DAYS)) upcomingRenewalCount++;
       // active で更新日が過去 → 更新日の更新忘れ候補
       if (s.status === 'active' && isOverdueRenewal(s.nextRenewalDate)) overdueRenewalCount++;
+      // cancel_planned で STALE_CANCEL_DAYS 日以上放置 → 手続き促進バナー用
+      if (s.status === 'cancel_planned' && isStaleUpdate(s.updatedAt, STALE_CANCEL_DAYS)) staleCancelCount++;
     }
 
-    return { totalMonthlyAmount, pendingCancellationMonthlyAmount, hasUSD, activeCount, reviewingCount, cancelPlannedCount, upcomingRenewalCount, overdueRenewalCount };
+    return { totalMonthlyAmount, pendingCancellationMonthlyAmount, hasUSD, activeCount, reviewingCount, cancelPlannedCount, upcomingRenewalCount, overdueRenewalCount, staleCancelCount };
   }, [subscriptions]);
 
   return { subscriptions, summary, isLoading: false };

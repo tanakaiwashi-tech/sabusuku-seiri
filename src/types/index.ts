@@ -78,6 +78,8 @@ export interface SubscriptionSummary {
   upcomingRenewalCount: number;
   /** アクティブで更新日が過去のもの（更新し忘れ候補） */
   overdueRenewalCount: number;
+  /** cancel_planned で STALE_CANCEL_DAYS 日以上放置されているサブスク数 */
+  staleCancelCount: number;
 }
 
 /** サービス辞書内で複数価格帯がある場合のプラン選択肢 */

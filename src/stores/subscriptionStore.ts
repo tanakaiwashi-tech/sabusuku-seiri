@@ -3,9 +3,8 @@ import { persist, createJSONStorage } from 'zustand/middleware';
 import { safeStorage } from '@/src/utils/storageUtils';
 import type { Subscription, SubscriptionFormData } from '@/src/types';
 import { generateId } from '@/src/utils/idUtils';
-import { nowISOString } from '@/src/utils/dateUtils';
+import { nowISOString, suggestNextRenewalDate } from '@/src/utils/dateUtils';
 import { normalizeServiceName } from '@/src/utils/amountUtils';
-import { FREE_LIMIT_COUNT } from '@/src/constants/app';
 
 export type SaveResult =
   | { ok: true; subscription: Subscription }
@@ -18,6 +17,13 @@ export interface SubscriptionState {
   /** 指定 ID のサブスクリプションを完全削除する。 */
   remove: (id: string) => void;
   getById: (id: string) => Subscription | undefined;
+  /**
+   * インポート: 'replace' は全データを置き換え、'merge' は id が重複しないものだけ追加する。
+   * インポート後に Zustand の persist が localStorage に書き込む。
+   */
+  importSubscriptions: (mode: 'replace' | 'merge', incoming: Subscription[]) => void;
+  /** active でかつ更新日が過去のサブスクの nextRenewalDate を次回サイクルへ一括繰り越す。 */
+  batchRolloverRenewalDates: () => void;
 }
 
 // StateCreator<T> で明示的に型付けし、persist ラッパー内の implicit any を防ぐ
@@ -25,14 +31,8 @@ const subscriptionCreator: StateCreator<SubscriptionState> = (set, get) => ({
   subscriptions: [],
 
   add: (data: SubscriptionFormData): SaveResult => {
+    // 上限チェックは撤廃（FREE_LIMIT_COUNT は new.tsx の型整合性のために app.ts に残置）
     try {
-      const nonArchivedCount = get().subscriptions.filter(
-        (s: Subscription) => !s.isArchived,
-      ).length;
-      if (nonArchivedCount >= FREE_LIMIT_COUNT) {
-        return { ok: false, error: 'limit_reached' };
-      }
-
       const now = nowISOString();
       const newSub: Subscription = {
         id: generateId(),
@@ -121,6 +121,31 @@ const subscriptionCreator: StateCreator<SubscriptionState> = (set, get) => ({
 
   getById: (id: string): Subscription | undefined =>
     get().subscriptions.find((s: Subscription) => s.id === id),
+
+  importSubscriptions: (mode: 'replace' | 'merge', incoming: Subscription[]): void => {
+    set((state: SubscriptionState) => {
+      if (mode === 'replace') {
+        return { subscriptions: incoming };
+      }
+      // merge: 既存に id が存在しないものだけ追加
+      const existingIds = new Set(state.subscriptions.map((s: Subscription) => s.id));
+      const toAdd = incoming.filter((s: Subscription) => !existingIds.has(s.id));
+      return { subscriptions: [...state.subscriptions, ...toAdd] };
+    });
+  },
+
+  batchRolloverRenewalDates: (): void => {
+    const now = nowISOString();
+    set((state: SubscriptionState) => {
+      const updated = state.subscriptions.map((s: Subscription) => {
+        if (s.status !== 'active') return s;
+        const suggested = suggestNextRenewalDate(s.nextRenewalDate, s.billingCycle);
+        if (!suggested) return s;
+        return { ...s, nextRenewalDate: suggested, updatedAt: now };
+      });
+      return { subscriptions: updated };
+    });
+  },
 });
 
 export const useSubscriptionStore = create<SubscriptionState>()(

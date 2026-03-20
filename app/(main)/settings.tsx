@@ -12,21 +12,33 @@ import { router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { COLORS } from '@/src/constants/colors';
 import { useSubscriptionStore } from '@/src/stores/subscriptionStore';
-import { exportSubscriptionsAsJSON } from '@/src/utils/exportUtils';
+import {
+  exportSubscriptionsAsJSON,
+  exportSubscriptionsAsCSV,
+  parseImportFile,
+  type ExportData,
+} from '@/src/utils/exportUtils';
+
+type ImportPhase =
+  | { phase: 'idle' }
+  | { phase: 'previewing'; data: ExportData }
+  | { phase: 'error'; message: string };
 
 export default function SettingsScreen() {
   const subscriptions = useSubscriptionStore((s) => s.subscriptions);
+  const importSubscriptions = useSubscriptionStore((s) => s.importSubscriptions);
   const [isExporting, setIsExporting] = useState(false);
+  const [importPhase, setImportPhase] = useState<ImportPhase>({ phase: 'idle' });
 
-  const handleExport = () => {
+  // ─── JSON エクスポート ───────────────────────────────────────
+  const handleExportJSON = () => {
     if (subscriptions.length === 0) {
       Alert.alert('エクスポート', '登録データがありません。');
       return;
     }
-
     Alert.alert(
-      'データをエクスポート',
-      `${subscriptions.length}件のデータをJSONファイルでダウンロードします。\nブラウザのダウンロードフォルダに保存されます。`,
+      'JSONでエクスポート',
+      `${subscriptions.length}件のデータをJSONファイルでダウンロードします。`,
       [
         { text: 'キャンセル', style: 'cancel' },
         {
@@ -46,6 +58,65 @@ export default function SettingsScreen() {
     );
   };
 
+  // ─── CSV エクスポート ────────────────────────────────────────
+  const handleExportCSV = () => {
+    if (subscriptions.length === 0) {
+      Alert.alert('エクスポート', '登録データがありません。');
+      return;
+    }
+    Alert.alert(
+      'CSVでエクスポート',
+      `${subscriptions.length}件をCSVファイルでダウンロードします。\nExcelなどの表計算ソフトで開けます。`,
+      [
+        { text: 'キャンセル', style: 'cancel' },
+        {
+          text: 'ダウンロード',
+          onPress: () => {
+            try {
+              exportSubscriptionsAsCSV(subscriptions);
+            } catch {
+              Alert.alert('エラー', 'エクスポートに失敗しました。');
+            }
+          },
+        },
+      ],
+    );
+  };
+
+  // ─── インポート ──────────────────────────────────────────────
+  const triggerImportPicker = () => {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = '.json';
+    input.onchange = async (e) => {
+      const file = (e.target as HTMLInputElement).files?.[0];
+      if (!file) return;
+      try {
+        const data = await parseImportFile(file);
+        setImportPhase({ phase: 'previewing', data });
+      } catch (err) {
+        const msg = err instanceof Error ? err.message : 'ファイルの読み込みに失敗しました。';
+        setImportPhase({ phase: 'error', message: msg });
+      }
+    };
+    input.click();
+  };
+
+  const executeImport = (mode: 'merge' | 'replace') => {
+    if (importPhase.phase !== 'previewing') return;
+    const count = importPhase.data.subscriptionCount;
+    importSubscriptions(mode, importPhase.data.subscriptions);
+    setImportPhase({ phase: 'idle' });
+    Alert.alert(
+      'インポート完了',
+      mode === 'replace'
+        ? `${count}件のデータで置き換えました。`
+        : `${count}件を追加しました。`,
+    );
+  };
+
+  const cancelImport = () => setImportPhase({ phase: 'idle' });
+
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
@@ -61,9 +132,11 @@ export default function SettingsScreen() {
         {/* データ管理 */}
         <Text style={styles.groupLabel}>データ管理</Text>
         <View style={styles.group}>
+
+          {/* JSON エクスポート */}
           <TouchableOpacity
-            style={styles.row}
-            onPress={handleExport}
+            style={[styles.row, styles.rowBorder]}
+            onPress={handleExportJSON}
             activeOpacity={0.7}
             disabled={isExporting}
           >
@@ -72,20 +145,99 @@ export default function SettingsScreen() {
                 <Ionicons name="download-outline" size={19} color={COLORS.primary} />
               </View>
               <View style={styles.rowTexts}>
-                <Text style={styles.rowLabel}>データをエクスポート</Text>
+                <Text style={styles.rowLabel}>JSONでエクスポート</Text>
                 <Text style={styles.rowDesc}>
                   {subscriptions.length === 0
                     ? 'まだ登録がありません'
-                    : `${subscriptions.length}件 — JSON形式でダウンロード`}
+                    : `${subscriptions.length}件 — バックアップ用`}
                 </Text>
               </View>
             </View>
             <Ionicons name="chevron-forward" size={16} color={COLORS.textMuted} />
           </TouchableOpacity>
+
+          {/* CSV エクスポート */}
+          <TouchableOpacity
+            style={[styles.row, styles.rowBorder]}
+            onPress={handleExportCSV}
+            activeOpacity={0.7}
+          >
+            <View style={styles.rowLeft}>
+              <View style={styles.iconWrap}>
+                <Ionicons name="grid-outline" size={19} color={COLORS.primary} />
+              </View>
+              <View style={styles.rowTexts}>
+                <Text style={styles.rowLabel}>CSVでエクスポート</Text>
+                <Text style={styles.rowDesc}>Excel・スプレッドシートで開ける形式</Text>
+              </View>
+            </View>
+            <Ionicons name="chevron-forward" size={16} color={COLORS.textMuted} />
+          </TouchableOpacity>
+
+          {/* インポート */}
+          <TouchableOpacity
+            style={styles.row}
+            onPress={triggerImportPicker}
+            activeOpacity={0.7}
+          >
+            <View style={styles.rowLeft}>
+              <View style={styles.iconWrap}>
+                <Ionicons name="push-outline" size={19} color={COLORS.primary} />
+              </View>
+              <View style={styles.rowTexts}>
+                <Text style={styles.rowLabel}>データをインポート</Text>
+                <Text style={styles.rowDesc}>バックアップJSONから復元する</Text>
+              </View>
+            </View>
+            <Ionicons name="chevron-forward" size={16} color={COLORS.textMuted} />
+          </TouchableOpacity>
         </View>
+
         <Text style={styles.hint}>
-          {'ブラウザのデータ消去前にエクスポートしておくと、\nデータを手元に残せます。'}
+          {'JSONエクスポートしたファイルを使ってデータを復元できます。\nブラウザのデータ消去前にエクスポートしておくと安心です。'}
         </Text>
+
+        {/* インポートエラーカード */}
+        {importPhase.phase === 'error' && (
+          <View style={styles.importErrorCard}>
+            <Ionicons name="alert-circle-outline" size={18} color={COLORS.destructive} />
+            <Text style={styles.importErrorText}>{importPhase.message}</Text>
+            <TouchableOpacity onPress={cancelImport} style={styles.importCancelBtn} activeOpacity={0.7}>
+              <Text style={styles.importCancelText}>閉じる</Text>
+            </TouchableOpacity>
+          </View>
+        )}
+
+        {/* インポートプレビューカード */}
+        {importPhase.phase === 'previewing' && (
+          <View style={styles.importPreviewCard}>
+            <Text style={styles.importPreviewTitle}>
+              {`${importPhase.data.subscriptionCount}件のデータが見つかりました`}
+            </Text>
+            <Text style={styles.importPreviewDesc}>インポート方法を選んでください</Text>
+            <View style={styles.importButtons}>
+              <TouchableOpacity
+                style={[styles.importBtn, styles.importBtnMerge]}
+                onPress={() => executeImport('merge')}
+                activeOpacity={0.75}
+              >
+                <Text style={styles.importBtnMergeText}>追加する</Text>
+                <Text style={styles.importBtnSub}>既存データに追加</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.importBtn, styles.importBtnReplace]}
+                onPress={() => executeImport('replace')}
+                activeOpacity={0.75}
+              >
+                <Text style={styles.importBtnReplaceText}>置き換える</Text>
+                <Text style={styles.importBtnSub}>全データを上書き</Text>
+              </TouchableOpacity>
+            </View>
+            <TouchableOpacity onPress={cancelImport} style={styles.importCancelBtn} activeOpacity={0.7}>
+              <Text style={styles.importCancelText}>キャンセル</Text>
+            </TouchableOpacity>
+          </View>
+        )}
 
         {/* このアプリについて */}
         <Text style={[styles.groupLabel, styles.groupLabelGap]}>このアプリについて</Text>
@@ -197,5 +349,88 @@ const styles = StyleSheet.create({
     lineHeight: 18,
     paddingHorizontal: 4,
     marginTop: 8,
+  },
+  // ─── インポートカード ───
+  importPreviewCard: {
+    marginTop: 12,
+    backgroundColor: COLORS.surface,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+    padding: 16,
+    gap: 10,
+    alignItems: 'center',
+  },
+  importPreviewTitle: {
+    fontSize: 15,
+    fontWeight: '600',
+    color: COLORS.text,
+    textAlign: 'center',
+  },
+  importPreviewDesc: {
+    fontSize: 13,
+    color: COLORS.textMuted,
+    textAlign: 'center',
+  },
+  importButtons: {
+    flexDirection: 'row',
+    gap: 10,
+    width: '100%',
+    marginTop: 4,
+  },
+  importBtn: {
+    flex: 1,
+    alignItems: 'center',
+    paddingVertical: 10,
+    paddingHorizontal: 8,
+    borderRadius: 10,
+    borderWidth: 1,
+    gap: 3,
+  },
+  importBtnMerge: {
+    backgroundColor: COLORS.primaryLight,
+    borderColor: COLORS.primary,
+  },
+  importBtnMergeText: {
+    fontSize: 14,
+    fontWeight: '700',
+    color: COLORS.primary,
+  },
+  importBtnReplace: {
+    backgroundColor: COLORS.destructiveLight,
+    borderColor: COLORS.destructiveBorder,
+  },
+  importBtnReplaceText: {
+    fontSize: 14,
+    fontWeight: '700',
+    color: COLORS.destructive,
+  },
+  importBtnSub: {
+    fontSize: 11,
+    color: COLORS.textMuted,
+  },
+  importCancelBtn: {
+    paddingVertical: 6,
+    paddingHorizontal: 16,
+  },
+  importCancelText: {
+    fontSize: 13,
+    color: COLORS.textMuted,
+  },
+  importErrorCard: {
+    marginTop: 12,
+    backgroundColor: COLORS.destructiveLight,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: COLORS.destructiveBorder,
+    padding: 16,
+    gap: 8,
+    alignItems: 'center',
+  },
+  importErrorText: {
+    fontSize: 13,
+    color: COLORS.destructive,
+    textAlign: 'center',
+    lineHeight: 20,
   },
 });

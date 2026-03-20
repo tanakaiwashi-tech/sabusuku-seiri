@@ -36,16 +36,33 @@ import { StatusBadge } from '@/src/components/ui/StatusBadge';
 import { ServiceNameAutocomplete } from '@/src/components/subscription/ServiceNameAutocomplete';
 import type { ServiceDictionaryEntry } from '@/src/types';
 import { COLORS } from '@/src/constants/colors';
-import { formatDisplayDate, suggestNextRenewalDate } from '@/src/utils/dateUtils';
+import { formatDisplayDate, suggestNextRenewalDate, isOverdueRenewal } from '@/src/utils/dateUtils';
 import { formatAmount } from '@/src/utils/amountUtils';
 import { isSafeUrl, validateSubscriptionForm, type SubscriptionFormErrors } from '@/src/utils/validationUtils';
 import { subscriptionToFormData } from '@/src/utils/subscriptionUtils';
 
-function DetailRow({ label, value }: { label: string; value: string }) {
+function DetailRow({
+  label,
+  value,
+  actionLabel,
+  onAction,
+}: {
+  label: string;
+  value: string;
+  actionLabel?: string;
+  onAction?: () => void;
+}) {
   return (
     <View style={styles.detailRow}>
       <Text style={styles.detailLabel}>{label}</Text>
-      <Text style={styles.detailValue}>{value}</Text>
+      <View style={styles.detailValueRow}>
+        <Text style={styles.detailValue}>{value}</Text>
+        {actionLabel && onAction && (
+          <TouchableOpacity onPress={onAction} style={styles.detailActionBtn} activeOpacity={0.7}>
+            <Text style={styles.detailActionText}>{actionLabel}</Text>
+          </TouchableOpacity>
+        )}
+      </View>
     </View>
   );
 }
@@ -158,6 +175,14 @@ export default function SubscriptionDetailScreen() {
   const handleQuickStatusChange = async (newStatus: SubscriptionStatus) => {
     if (!current) return;
     await save(subscriptionToFormData(current, { status: newStatus }));
+  };
+
+  /** VIEW モードで更新日を次回サイクルへ一発繰り越す */
+  const handleRolloverRenewalDate = async () => {
+    if (!current) return;
+    const suggested = suggestNextRenewalDate(current.nextRenewalDate, current.billingCycle);
+    if (!suggested) return;
+    await save(subscriptionToFormData(current, { nextRenewalDate: suggested }));
   };
 
   // ─── ローディング中 / データなし ───
@@ -399,7 +424,19 @@ export default function SubscriptionDetailScreen() {
         {(current.nextRenewalDate || current.trialEndDate || current.startDate || current.cancelledAt) && (
           <View style={styles.detailSection}>
             {current.nextRenewalDate && (
-              <DetailRow label="次回更新日" value={formatDisplayDate(current.nextRenewalDate)} />
+              <DetailRow
+                label="次回更新日"
+                value={formatDisplayDate(current.nextRenewalDate)}
+                actionLabel={
+                  current.status === 'active' &&
+                  isOverdueRenewal(current.nextRenewalDate) &&
+                  current.billingCycle !== 'free' &&
+                  current.billingCycle !== 'irregular'
+                    ? '繰り越す'
+                    : undefined
+                }
+                onAction={handleRolloverRenewalDate}
+              />
             )}
             {current.trialEndDate && (
               <DetailRow label="トライアル終了日" value={formatDisplayDate(current.trialEndDate)} />
@@ -568,7 +605,23 @@ const styles = StyleSheet.create({
     borderBottomColor: COLORS.borderLight,
   },
   detailLabel: { fontSize: 14, color: COLORS.textSecondary },
+  detailValueRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
   detailValue: { fontSize: 14, color: COLORS.text, fontWeight: '500' },
+  detailActionBtn: {
+    paddingVertical: 3,
+    paddingHorizontal: 9,
+    borderRadius: 6,
+    backgroundColor: COLORS.primaryLight,
+  },
+  detailActionText: {
+    fontSize: 11,
+    fontWeight: '600',
+    color: COLORS.primary,
+  },
   memoSection: {
     backgroundColor: COLORS.surface,
     borderRadius: 12,

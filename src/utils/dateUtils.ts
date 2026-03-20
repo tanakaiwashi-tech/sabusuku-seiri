@@ -1,4 +1,4 @@
-import { format, parseISO, isWithinInterval, addDays, addMonths, addYears, differenceInMonths, differenceInYears } from 'date-fns';
+import { format, parseISO, isWithinInterval, addDays, addMonths, addYears, differenceInMonths, differenceInYears, differenceInCalendarDays } from 'date-fns';
 import { ja } from 'date-fns/locale';
 import type { BillingCycle } from '@/src/types';
 
@@ -88,6 +88,22 @@ export function suggestNextRenewalDate(
     return format(date, 'yyyy-MM-dd');
   } catch {
     return null;
+  }
+}
+
+/**
+ * 最終更新日時が staleDays 日以上前かどうかを返す。
+ * cancel_planned の放置チェックなどに使用する。
+ */
+export function isStaleUpdate(updatedAt: string | null, staleDays: number): boolean {
+  if (!updatedAt) return false;
+  try {
+    const updated = parseISO(updatedAt);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    return differenceInCalendarDays(today, updated) >= staleDays;
+  } catch {
+    return false;
   }
 }
 
