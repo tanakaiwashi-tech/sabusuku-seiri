@@ -13,6 +13,30 @@
 const fs = require('fs');
 const path = require('path');
 
+// このパッチが動作確認済みの Zustand バージョン。
+// Zustand を更新したときは必ずここも合わせて更新し、パッチ対象を再検証すること。
+const TESTED_ZUSTAND_VERSION = '5.0.11';
+
+// 実際にインストールされている Zustand のバージョンを確認し、差異があれば警告する。
+try {
+  const zustandPkg = JSON.parse(
+    fs.readFileSync(
+      path.join(__dirname, '..', 'node_modules', 'zustand', 'package.json'),
+      'utf-8',
+    ),
+  );
+  if (zustandPkg.version !== TESTED_ZUSTAND_VERSION) {
+    console.warn(
+      `\n⚠️  WARNING: patch-zustand.js は Zustand v${TESTED_ZUSTAND_VERSION} 用です。` +
+      `\n   現在の Zustand: v${zustandPkg.version}` +
+      '\n   import.meta.env の使われ方が変わっている可能性があります。' +
+      '\n   パッチ適用後に残存チェックを行い、問題があれば PATTERN を更新してください。\n',
+    );
+  }
+} catch {
+  console.warn('⚠️  Zustand のバージョン確認に失敗しました。node_modules が存在するか確認してください。');
+}
+
 const TARGET_FILES = [
   path.join(__dirname, '..', 'node_modules', 'zustand', 'esm', 'middleware.mjs'),
 ];

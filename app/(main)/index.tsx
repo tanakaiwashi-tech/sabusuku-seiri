@@ -125,11 +125,11 @@ export default function HomeScreen() {
         <View style={styles.headerRight}>
           <TouchableOpacity
             style={styles.iconButton}
-            onPress={() => router.push('/privacy')}
+            onPress={() => router.push('/(main)/settings')}
             activeOpacity={0.7}
-            accessibilityLabel="プライバシーポリシー"
+            accessibilityLabel="設定"
           >
-            <Ionicons name="information-circle-outline" size={20} color={COLORS.textSecondary} />
+            <Ionicons name="settings-outline" size={20} color={COLORS.textSecondary} />
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.iconButton}
