@@ -54,7 +54,7 @@ export function SubscriptionListItem({ subscription, onPress }: SubscriptionList
                 isOverdue && styles.renewalOverdue,
                 isUpcoming && styles.renewalUpcoming,
               ]}>
-                {isOverdue ? '要確認 ' : '更新が近い '}
+                {isOverdue ? '更新日超過 ' : '更新が近い '}
                 {formatShortDate(subscription.nextRenewalDate)}
               </Text>
             </View>

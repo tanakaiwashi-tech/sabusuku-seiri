@@ -151,7 +151,7 @@ export default function HomeScreen() {
         hasNonMonthly={hasNonMonthly}
         hasIrregular={hasIrregular}
         onReviewingPress={() => setFilterStatus('reviewing')}
-        onRenewalAlertPress={() => setSortKey('nextRenewalDate')}
+        onRenewalAlertPress={() => { setFilterStatus('active'); setSortKey('nextRenewalDate'); }}
       />
 
       <ScrollView

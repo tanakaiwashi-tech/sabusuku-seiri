@@ -332,21 +332,23 @@ export default function SubscriptionDetailScreen() {
           {current.category && <Text style={styles.category}>{current.category}</Text>}
         </View>
 
-        {/* 詳細行 */}
-        <View style={styles.detailSection}>
-          {current.nextRenewalDate && (
-            <DetailRow label="次回更新日" value={formatDisplayDate(current.nextRenewalDate)} />
-          )}
-          {current.trialEndDate && (
-            <DetailRow label="トライアル終了" value={formatDisplayDate(current.trialEndDate)} />
-          )}
-          {current.startDate && (
-            <DetailRow label="利用開始日" value={formatDisplayDate(current.startDate)} />
-          )}
-          {current.cancelledAt && (
-            <DetailRow label="停止日" value={formatDisplayDate(current.cancelledAt)} />
-          )}
-        </View>
+        {/* 詳細行: 表示する行がある場合のみ描画 */}
+        {(current.nextRenewalDate || current.trialEndDate || current.startDate || current.cancelledAt) && (
+          <View style={styles.detailSection}>
+            {current.nextRenewalDate && (
+              <DetailRow label="次回更新日" value={formatDisplayDate(current.nextRenewalDate)} />
+            )}
+            {current.trialEndDate && (
+              <DetailRow label="トライアル終了" value={formatDisplayDate(current.trialEndDate)} />
+            )}
+            {current.startDate && (
+              <DetailRow label="利用開始日" value={formatDisplayDate(current.startDate)} />
+            )}
+            {current.cancelledAt && (
+              <DetailRow label="停止日" value={formatDisplayDate(current.cancelledAt)} />
+            )}
+          </View>
+        )}
 
         {/* メモ・解約URL */}
         {(current.memo || current.cancelMemo || (current.customCancelUrl && isSafeUrl(current.customCancelUrl))) && (
@@ -441,7 +443,7 @@ export default function SubscriptionDetailScreen() {
                 style={styles.deleteLink}
                 activeOpacity={0.7}
               >
-                <Text style={styles.deleteLinkText}>削除する（取り消し不可）</Text>
+                <Text style={styles.deleteLinkText}>削除する</Text>
               </TouchableOpacity>
             </>
           )}
