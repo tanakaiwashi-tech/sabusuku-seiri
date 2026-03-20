@@ -32,7 +32,7 @@ export async function signInWithGoogle(): Promise<string> {
   }
 
   const redirectUri = window.location.origin;
-  const scope = 'https://www.googleapis.com/auth/gmail.metadata';
+  const scope = 'https://www.googleapis.com/auth/gmail.readonly';
 
   const authUrl =
     'https://accounts.google.com/o/oauth2/v2/auth?' +
