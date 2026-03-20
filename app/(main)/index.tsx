@@ -81,9 +81,13 @@ export default function HomeScreen() {
     setSortKey(SORTS[(idx + 1) % SORTS.length]);
   };
 
+  // 課金中と見なすステータス（active / reviewing / cancel_planned）のサブスクかを判定
+  const isPayingStatus = (s: Subscription) =>
+    s.status === 'active' || s.status === 'reviewing' || s.status === 'cancel_planned';
+
   const hasNonMonthly = useMemo(
     () => subscriptions.some(
-      (s) => s.status === 'active' && (s.billingCycle === 'yearly' || s.billingCycle === 'quarterly'),
+      (s) => isPayingStatus(s) && (s.billingCycle === 'yearly' || s.billingCycle === 'quarterly'),
     ),
     [subscriptions],
   );
@@ -91,7 +95,7 @@ export default function HomeScreen() {
   // 不定期課金は月額換算できないため集計対象外。その旨を SummaryBar で表示するためのフラグ。
   const hasIrregular = useMemo(
     () => subscriptions.some(
-      (s) => s.status === 'active' && s.billingCycle === 'irregular',
+      (s) => isPayingStatus(s) && s.billingCycle === 'irregular',
     ),
     [subscriptions],
   );

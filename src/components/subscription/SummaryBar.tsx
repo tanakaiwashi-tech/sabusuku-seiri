@@ -55,17 +55,28 @@ export function SummaryBar({
   onReviewingPress,
   onRenewalAlertPress,
 }: SummaryBarProps) {
-  const { totalMonthlyAmount, hasUSD, reviewingCount, upcomingRenewalCount, overdueRenewalCount } = summary;
+  const { totalMonthlyAmount, pendingCancellationMonthlyAmount, hasUSD, reviewingCount, upcomingRenewalCount, overdueRenewalCount } = summary;
   // 更新日セルは「超過」優先表示。超過がない場合のみ「更新が近い」を表示。
   // 合算することで件数とラベルの意味がずれるのを防ぐ。
   const renewalAlertCount = overdueRenewalCount > 0 ? overdueRenewalCount : upcomingRenewalCount;
   const renewalAlertLabel = overdueRenewalCount > 0 ? '更新日を確認' : '更新が近い';
 
+  // 現在実際に課金されている合計 = active + reviewing + cancel_planned
+  const currentMonthlyAmount = totalMonthlyAmount + pendingCancellationMonthlyAmount;
+
   // 月額 ↔ 年額トグル
   const [showYearly, setShowYearly] = useState(false);
   const displayAmount = showYearly
+    ? toYearlyAmount(currentMonthlyAmount)
+    : currentMonthlyAmount;
+  // 解約後の着地点（active のみ）
+  const afterCancellationAmount = showYearly
     ? toYearlyAmount(totalMonthlyAmount)
     : totalMonthlyAmount;
+  const savingsAmount = showYearly
+    ? toYearlyAmount(pendingCancellationMonthlyAmount)
+    : pendingCancellationMonthlyAmount;
+  const savingsUnit = showYearly ? '/年' : '/月';
   const displayLabel = showYearly ? '年額合計（概算）' : '月額合計（概算）';
 
   return (
@@ -83,6 +94,16 @@ export function SummaryBar({
         </View>
         <Text style={styles.totalAmount}>{formatAmount(displayAmount)}</Text>
       </TouchableOpacity>
+
+      {/* 解約後の金額比較: 見直す/解約する が存在する場合のみ表示 */}
+      {pendingCancellationMonthlyAmount > 0 && (
+        <View style={styles.savingsRow}>
+          <Text style={styles.savingsLabel}>解約後</Text>
+          <Text style={styles.savingsArrow}>→</Text>
+          <Text style={styles.savingsAfterAmount}>{formatAmount(afterCancellationAmount)}</Text>
+          <Text style={styles.savingsDiff}>{`${formatAmount(savingsAmount)}${savingsUnit}削減`}</Text>
+        </View>
+      )}
 
       {/* 注意書き: 該当するものを1行にまとめて表示 */}
       {(hasNonMonthly || hasUSD || hasIrregular) && (
@@ -194,5 +215,30 @@ const styles = StyleSheet.create({
   },
   cellLabelTappable: {
     color: COLORS.primary,
+  },
+  savingsRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 5,
+    marginTop: -2,
+  },
+  savingsLabel: {
+    fontSize: 12,
+    color: COLORS.textMuted,
+  },
+  savingsArrow: {
+    fontSize: 12,
+    color: COLORS.textMuted,
+  },
+  savingsAfterAmount: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: COLORS.text,
+  },
+  savingsDiff: {
+    fontSize: 12,
+    fontWeight: '500',
+    color: COLORS.primary,
+    marginLeft: 2,
   },
 });

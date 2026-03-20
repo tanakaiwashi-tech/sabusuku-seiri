@@ -62,7 +62,14 @@ export interface RemoteConfigMeta {
 }
 
 export interface SubscriptionSummary {
+  /** active のみの月額合計（解約後の着地点）。USD は JPY 換算済み */
   totalMonthlyAmount: number;
+  /**
+   * reviewing + cancel_planned の月額合計（JPY 換算済み）。
+   * これらはまだ実際に課金されているが、解約手続き中のサブスク。
+   * currentMonthlyAmount = totalMonthlyAmount + pendingCancellationMonthlyAmount
+   */
+  pendingCancellationMonthlyAmount: number;
   /** ドル建てサブスクが1件以上あるか（SummaryBar の注記表示用） */
   hasUSD: boolean;
   activeCount: number;

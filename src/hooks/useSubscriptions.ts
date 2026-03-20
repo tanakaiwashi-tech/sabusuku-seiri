@@ -20,6 +20,7 @@ export function useSubscriptions(includeArchived = false) {
 
   const summary: SubscriptionSummary = useMemo(() => {
     let totalMonthlyAmount = 0;
+    let pendingCancellationMonthlyAmount = 0;
     let hasUSD = false;
     let activeCount = 0;
     let reviewingCount = 0;
@@ -38,15 +39,24 @@ export function useSubscriptions(includeArchived = false) {
           if (s.currency === 'USD') hasUSD = true;
         }
       }
-      if (s.status === 'reviewing') reviewingCount++;
-      if (s.status === 'cancel_planned') cancelPlannedCount++;
+      // reviewing / cancel_planned は「まだ課金中だが見直し中」なので別集計
+      if (s.status === 'reviewing' || s.status === 'cancel_planned') {
+        if (s.status === 'reviewing') reviewingCount++;
+        else cancelPlannedCount++;
+        const monthly = toMonthlyAmount(s.amount, s.billingCycle);
+        if (monthly !== null) {
+          const monthlyJPY = toJPY(monthly, s.currency ?? 'JPY');
+          pendingCancellationMonthlyAmount += monthlyJPY;
+          if (s.currency === 'USD') hasUSD = true;
+        }
+      }
       // active のみカウント（停止済み・見直し中の更新日は警告対象外）
       if (s.status === 'active' && isWithinNextDays(s.nextRenewalDate, UPCOMING_RENEWAL_DAYS)) upcomingRenewalCount++;
       // active で更新日が過去 → 更新日の更新忘れ候補
       if (s.status === 'active' && isOverdueRenewal(s.nextRenewalDate)) overdueRenewalCount++;
     }
 
-    return { totalMonthlyAmount, hasUSD, activeCount, reviewingCount, cancelPlannedCount, upcomingRenewalCount, overdueRenewalCount };
+    return { totalMonthlyAmount, pendingCancellationMonthlyAmount, hasUSD, activeCount, reviewingCount, cancelPlannedCount, upcomingRenewalCount, overdueRenewalCount };
   }, [subscriptions]);
 
   return { subscriptions, summary, isLoading: false };
