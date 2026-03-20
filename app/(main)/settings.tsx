@@ -129,6 +129,27 @@ export default function SettingsScreen() {
 
       <ScrollView contentContainerStyle={styles.scroll}>
 
+        {/* Gmail連携 */}
+        <Text style={styles.groupLabel}>Gmail連携</Text>
+        <View style={styles.group}>
+          <TouchableOpacity
+            style={styles.row}
+            onPress={() => router.push('/(main)/gmail-scan')}
+            activeOpacity={0.7}
+          >
+            <View style={styles.rowLeft}>
+              <View style={styles.iconWrap}>
+                <Ionicons name="mail-outline" size={19} color={COLORS.primary} />
+              </View>
+              <View style={styles.rowTexts}>
+                <Text style={styles.rowLabel}>Gmailからサブスクを探す</Text>
+                <Text style={styles.rowDesc}>件名・差出人のみ読み取り。本文は読みません</Text>
+              </View>
+            </View>
+            <Ionicons name="chevron-forward" size={16} color={COLORS.textMuted} />
+          </TouchableOpacity>
+        </View>
+
         {/* データ管理 */}
         <Text style={styles.groupLabel}>データ管理</Text>
         <View style={styles.group}>
