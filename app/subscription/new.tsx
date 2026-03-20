@@ -12,7 +12,13 @@ import {
 } from 'react-native';
 import { router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import { BILLING_CYCLE_LABELS, STATUS_LABELS, FREE_LIMIT_COUNT } from '@/src/constants/app';
+import {
+  BILLING_CYCLE_LABELS,
+  STATUS_LABELS,
+  FREE_LIMIT_COUNT,
+  BILLING_CYCLE_OPTIONS,
+  STATUS_OPTIONS,
+} from '@/src/constants/app';
 import {
   CATEGORY_OPTIONS,
   type CategoryOption,
@@ -27,16 +33,10 @@ import { SelectField } from '@/src/components/ui/SelectField';
 import { TextInput } from '@/src/components/ui/TextInput';
 import { DatePickerField } from '@/src/components/ui/DatePickerField';
 import { Button } from '@/src/components/ui/Button';
+import { AmountField } from '@/src/components/ui/AmountField';
 import { ServiceNameAutocomplete } from '@/src/components/subscription/ServiceNameAutocomplete';
 import { COLORS } from '@/src/constants/colors';
-import { isSafeUrl, isValidDateString, isValidAmount, AMOUNT_MAX } from '@/src/utils/validationUtils';
-
-const BILLING_CYCLES: readonly BillingCycle[] = [
-  'monthly', 'yearly', 'quarterly', 'irregular', 'free',
-];
-const STATUSES: readonly SubscriptionStatus[] = [
-  'active', 'reviewing', 'cancel_planned', 'stopped',
-];
+import { validateSubscriptionForm } from '@/src/utils/validationUtils';
 
 export default function NewSubscriptionScreen() {
   const { save } = useSubscription();
@@ -69,26 +69,20 @@ export default function NewSubscriptionScreen() {
     }
   };
 
-  const validate = (): boolean => {
-    const next: Record<string, string> = {};
-    if (!serviceName.trim()) next.serviceName = 'サービス名を入力してください';
-    if (billingCycle !== 'free' && !isValidAmount(amount)) {
-      next.amount = currency === 'USD'
-        ? '1以上のドル金額（整数）を入力してください'
-        : `1〜${AMOUNT_MAX.toLocaleString()}円の整数を入力してください`;
-    }
-    if (nextRenewalDate && !isValidDateString(nextRenewalDate)) next.nextRenewalDate = '実在する日付を入力してください';
-    if (trialEndDate && !isValidDateString(trialEndDate)) next.trialEndDate = '実在する日付を入力してください';
-    if (startDate && !isValidDateString(startDate)) next.startDate = '実在する日付を入力してください';
-    if (customCancelUrl.trim() && !isSafeUrl(customCancelUrl.trim())) {
-      next.customCancelUrl = 'https:// または http:// で始まるURLを入力してください';
-    }
-    setErrors(next);
-    return Object.keys(next).length === 0;
-  };
-
   const handleSave = async () => {
-    if (!validate()) return;
+    const nextErrors = validateSubscriptionForm({
+      serviceName,
+      billingCycle,
+      amount,
+      currency,
+      nextRenewalDate,
+      trialEndDate,
+      startDate,
+      customCancelUrl,
+    });
+    setErrors(nextErrors);
+    if (Object.keys(nextErrors).length > 0) return;
+
     setIsSaving(true);
 
     const formData: SubscriptionFormData = {
@@ -155,36 +149,18 @@ export default function NewSubscriptionScreen() {
             <SelectField
               label="支払いサイクル *"
               value={billingCycle}
-              options={BILLING_CYCLES}
+              options={BILLING_CYCLE_OPTIONS}
               displayLabel={(v) => BILLING_CYCLE_LABELS[v]}
               onChange={(v) => v && setBillingCycle(v)}
             />
-            <View>
-              <View style={styles.amountLabelRow}>
-                <Text style={styles.amountLabel}>
-                  {billingCycle === 'free' ? '金額（無料）' : '金額 *'}
-                </Text>
-                {billingCycle !== 'free' && (
-                  <TouchableOpacity
-                    style={styles.currencyToggle}
-                    onPress={() => setCurrency((c) => (c === 'JPY' ? 'USD' : 'JPY'))}
-                    activeOpacity={0.7}
-                  >
-                    <Text style={styles.currencyToggleText}>
-                      {currency === 'JPY' ? '¥ 円' : '$ USD'}
-                    </Text>
-                  </TouchableOpacity>
-                )}
-              </View>
-              <TextInput
-                value={billingCycle === 'free' ? '' : amount}
-                onChangeText={setAmount}
-                placeholder={billingCycle === 'free' ? '無料' : currency === 'USD' ? '例: 20' : '例: 980'}
-                keyboardType="numeric"
-                editable={billingCycle !== 'free'}
-                error={errors.amount}
-              />
-            </View>
+            <AmountField
+              billingCycle={billingCycle}
+              amount={amount}
+              currency={currency}
+              onChangeAmount={setAmount}
+              onToggleCurrency={() => setCurrency((c) => (c === 'JPY' ? 'USD' : 'JPY'))}
+              error={errors.amount}
+            />
           </View>
 
           <Text style={styles.sectionTitle}>詳細（任意）</Text>
@@ -200,7 +176,7 @@ export default function NewSubscriptionScreen() {
             <SelectField
               label="ステータス"
               value={status}
-              options={STATUSES}
+              options={STATUS_OPTIONS}
               displayLabel={(v) => STATUS_LABELS[v]}
               onChange={(v) => v && setStatus(v)}
             />
@@ -209,6 +185,18 @@ export default function NewSubscriptionScreen() {
               value={nextRenewalDate}
               onChange={setNextRenewalDate}
               error={errors.nextRenewalDate}
+            />
+            <DatePickerField
+              label="トライアル終了日"
+              value={trialEndDate}
+              onChange={setTrialEndDate}
+              error={errors.trialEndDate}
+            />
+            <DatePickerField
+              label="利用開始日"
+              value={startDate}
+              onChange={setStartDate}
+              error={errors.startDate}
             />
           </View>
 
@@ -260,9 +248,8 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 13,
     fontWeight: '600',
-    color: COLORS.textMuted,
-    textTransform: 'uppercase',
-    letterSpacing: 0.5,
+    color: COLORS.textSecondary,
+    letterSpacing: 0.3,
     marginTop: 8,
     marginBottom: 4,
   },
@@ -277,26 +264,4 @@ const styles = StyleSheet.create({
   },
   textarea: { minHeight: 80, textAlignVertical: 'top' },
   footer: { padding: 16, borderTopWidth: 1, borderTopColor: COLORS.border },
-  amountLabelRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    marginBottom: 6,
-  },
-  amountLabel: {
-    fontSize: 14,
-    fontWeight: '500',
-    color: COLORS.text,
-  },
-  currencyToggle: {
-    backgroundColor: COLORS.primaryLight,
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderRadius: 20,
-  },
-  currencyToggleText: {
-    fontSize: 13,
-    fontWeight: '600',
-    color: COLORS.primary,
-  },
 });

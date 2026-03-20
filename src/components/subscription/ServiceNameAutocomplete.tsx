@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
   StyleSheet,
   ScrollView,
+  type LayoutChangeEvent,
 } from 'react-native';
 import { COLORS } from '@/src/constants/colors';
 import type { ServiceDictionaryEntry } from '@/src/types';
@@ -87,6 +88,8 @@ export function ServiceNameAutocomplete({
   maxLength,
 }: Props) {
   const [showSuggestions, setShowSuggestions] = useState(false);
+  // ラベル + 入力欄の実際の高さを onLayout で計測し、ドロップダウンの top に使う
+  const [inputAreaHeight, setInputAreaHeight] = useState(label ? 72 : 46);
   const inputRef = useRef<RNTextInput>(null);
 
   const suggestions = getSuggestions(value);
@@ -97,30 +100,37 @@ export function ServiceNameAutocomplete({
     setShowSuggestions(false);
   };
 
+  const handleLayout = (e: LayoutChangeEvent) => {
+    // エラーテキスト非表示時も含め、4px のバッファで余裕を持たせる
+    setInputAreaHeight(e.nativeEvent.layout.height + 4);
+  };
+
   const visible = showSuggestions && suggestions.length > 0;
 
   return (
     <View style={styles.wrapper}>
-      {label && <Text style={styles.label}>{label}</Text>}
-      <RNTextInput
-        ref={inputRef}
-        style={[styles.input, !!error && styles.inputError]}
-        value={value}
-        onChangeText={(t) => {
-          onChangeText(t);
-          setShowSuggestions(true);
-        }}
-        onFocus={() => setShowSuggestions(true)}
-        onBlur={() => setTimeout(() => setShowSuggestions(false), 150)}
-        placeholder={placeholder}
-        placeholderTextColor={COLORS.textMuted}
-        autoCorrect={false}
-        maxLength={maxLength}
-      />
-      {!!error && <Text style={styles.error}>{error}</Text>}
+      <View onLayout={handleLayout}>
+        {label && <Text style={styles.label}>{label}</Text>}
+        <RNTextInput
+          ref={inputRef}
+          style={[styles.input, !!error && styles.inputError]}
+          value={value}
+          onChangeText={(t) => {
+            onChangeText(t);
+            setShowSuggestions(true);
+          }}
+          onFocus={() => setShowSuggestions(true)}
+          onBlur={() => setTimeout(() => setShowSuggestions(false), 150)}
+          placeholder={placeholder}
+          placeholderTextColor={COLORS.textMuted}
+          autoCorrect={false}
+          maxLength={maxLength}
+        />
+        {!!error && <Text style={styles.error}>{error}</Text>}
+      </View>
 
       {visible && (
-        <View style={styles.dropdown}>
+        <View style={[styles.dropdown, { top: inputAreaHeight }]}>
           <ScrollView keyboardShouldPersistTaps="handled" scrollEnabled={false}>
             {suggestions.map((entry, i) => (
               <TouchableOpacity
@@ -149,13 +159,13 @@ export function ServiceNameAutocomplete({
 
 const styles = StyleSheet.create({
   wrapper: {
-    gap: 6,
     zIndex: 100,
   },
   label: {
     fontSize: 14,
     fontWeight: '500',
     color: COLORS.text,
+    marginBottom: 6,
   },
   input: {
     backgroundColor: COLORS.surface,
@@ -173,10 +183,10 @@ const styles = StyleSheet.create({
   error: {
     fontSize: 12,
     color: COLORS.destructive,
+    marginTop: 4,
   },
   dropdown: {
     position: 'absolute',
-    top: 72,
     left: 0,
     right: 0,
     backgroundColor: COLORS.surface,

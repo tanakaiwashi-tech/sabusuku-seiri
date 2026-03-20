@@ -10,23 +10,24 @@ import {
 import { router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { COLORS } from '@/src/constants/colors';
-import { useSubscriptions } from '@/src/hooks/useSubscriptions';
+import { useSubscriptionStore } from '@/src/stores/subscriptionStore';
 import { SubscriptionListItem } from '@/src/components/subscription/SubscriptionListItem';
-import type { Subscription } from '@/src/types';
 
 function EmptyState() {
   return (
     <View style={styles.empty}>
-      <Ionicons name="archive-outline" size={48} color={COLORS.textMuted} />
-      <Text style={styles.emptyTitle}>アーカイブはありません</Text>
-      <Text style={styles.emptyDesc}>詳細画面でアーカイブしたサブスクがここに表示されます</Text>
+      <Ionicons name="eye-off-outline" size={48} color={COLORS.textMuted} />
+      <Text style={styles.emptyTitle}>非表示にした項目はありません</Text>
+      <Text style={styles.emptyDesc}>詳細画面で「非表示にする」を押すと、ここに保管されます</Text>
     </View>
   );
 }
 
 export default function ArchivedScreen() {
-  const { subscriptions } = useSubscriptions(true);
-  const archived = subscriptions.filter((s: Subscription) => s.isArchived);
+  // subscriptions を安定した参照で取得し、render 内で filter（selector 内で filter すると
+  // 毎回新しい配列参照が返され Zustand が無限ループを起こすため）
+  const subscriptions = useSubscriptionStore((s) => s.subscriptions);
+  const archived = subscriptions.filter((sub) => sub.isArchived);
 
   return (
     <SafeAreaView style={styles.container}>
@@ -34,7 +35,7 @@ export default function ArchivedScreen() {
         <TouchableOpacity onPress={() => router.back()} hitSlop={8}>
           <Ionicons name="arrow-back" size={24} color={COLORS.text} />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>アーカイブ一覧</Text>
+        <Text style={styles.headerTitle}>非表示にした項目</Text>
         <View style={{ width: 24 }} />
       </View>
 

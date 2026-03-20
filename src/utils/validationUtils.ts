@@ -3,6 +3,8 @@
  * URL インジェクション・無効な日付・異常金額を防ぐ。
  */
 
+import type { BillingCycle, Currency } from '@/src/types';
+
 // ─── URL ────────────────────────────────────────────────
 
 /**
@@ -46,4 +48,55 @@ export function isValidAmount(value: string): boolean {
   if (!/^\d+$/.test(value)) return false;
   const n = Number(value);
   return n >= 1 && n <= AMOUNT_MAX;
+}
+
+// ─── フォームバリデーション ────────────────────────────────
+
+export interface SubscriptionFormErrors {
+  serviceName?: string;
+  amount?: string;
+  nextRenewalDate?: string;
+  trialEndDate?: string;
+  startDate?: string;
+  customCancelUrl?: string;
+}
+
+/**
+ * サブスクフォームのバリデーション（new.tsx / [id].tsx 共通）。
+ * エラーがなければ空オブジェクトを返す。
+ */
+export function validateSubscriptionForm(fields: {
+  serviceName: string;
+  billingCycle: BillingCycle;
+  amount: string;
+  currency: Currency;
+  nextRenewalDate: string;
+  trialEndDate: string;
+  startDate: string;
+  customCancelUrl: string;
+}): SubscriptionFormErrors {
+  const errors: SubscriptionFormErrors = {};
+
+  if (!fields.serviceName.trim()) {
+    errors.serviceName = 'サービス名を入力してください';
+  }
+  if (fields.billingCycle !== 'free' && !isValidAmount(fields.amount)) {
+    errors.amount = fields.currency === 'USD'
+      ? '1以上のドル金額（整数）を入力してください'
+      : `1〜${AMOUNT_MAX.toLocaleString()}円の整数を入力してください`;
+  }
+  if (fields.nextRenewalDate && !isValidDateString(fields.nextRenewalDate)) {
+    errors.nextRenewalDate = '実在する日付を入力してください';
+  }
+  if (fields.trialEndDate && !isValidDateString(fields.trialEndDate)) {
+    errors.trialEndDate = '実在する日付を入力してください';
+  }
+  if (fields.startDate && !isValidDateString(fields.startDate)) {
+    errors.startDate = '実在する日付を入力してください';
+  }
+  if (fields.customCancelUrl.trim() && !isSafeUrl(fields.customCancelUrl.trim())) {
+    errors.customCancelUrl = 'https:// または http:// で始まるURLを入力してください';
+  }
+
+  return errors;
 }

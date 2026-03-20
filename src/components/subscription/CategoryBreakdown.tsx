@@ -3,7 +3,7 @@ import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import type { Subscription } from '@/src/types';
 import { COLORS } from '@/src/constants/colors';
-import { toMonthlyAmount, formatAmount } from '@/src/utils/amountUtils';
+import { toMonthlyAmount, toJPY, formatAmount } from '@/src/utils/amountUtils';
 
 interface CategoryBreakdownProps {
   subscriptions: Subscription[];
@@ -20,7 +20,9 @@ export function CategoryBreakdown({ subscriptions }: CategoryBreakdownProps) {
   const byCategory = new Map<string, number>();
   let total = 0;
   for (const s of active) {
-    const monthly = toMonthlyAmount(s.amount, s.billingCycle) ?? 0;
+    // SummaryBar と同じ換算ロジック: 月額換算 → JPY 換算
+    const monthlyRaw = toMonthlyAmount(s.amount, s.billingCycle) ?? 0;
+    const monthly = toJPY(monthlyRaw, s.currency ?? 'JPY');
     const cat = s.category ?? 'その他';
     byCategory.set(cat, (byCategory.get(cat) ?? 0) + monthly);
     total += monthly;

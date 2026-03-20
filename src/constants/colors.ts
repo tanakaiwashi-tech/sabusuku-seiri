@@ -15,6 +15,14 @@ export const COLORS = {
 
   destructive: '#B04040',
   destructiveLight: '#F5EDED',
+  destructiveBorder: '#FFCDD2',
+
+  /** 更新日超過バナー・注意表示用 */
+  warning: {
+    bg: '#FFF9F0',
+    border: '#E6C87A',
+    text: '#8D6200',
+  },
 
   status: {
     active: { bg: '#EBF0EE', text: '#3D5A52' },

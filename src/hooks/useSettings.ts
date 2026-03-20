@@ -17,8 +17,9 @@ export function useSettings() {
   useEffect(() => {
     if (!isLoading) return;
 
-    // 5秒以内に hydration が完了しない場合は強制起動（永久ローディング防止）
-    const timer = setTimeout(() => setIsLoading(false), 5000);
+    // 500ms 以内に hydration が完了しない場合は強制起動（永久ローディング防止）
+    // localStorage の読み込みは通常 < 50ms のため、500ms あれば十分。
+    const timer = setTimeout(() => setIsLoading(false), 500);
 
     const unsub = useSettingsStore.persist.onFinishHydration(() => {
       clearTimeout(timer);

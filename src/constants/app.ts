@@ -31,3 +31,13 @@ export const BILLING_CYCLE_MONTHLY_FACTOR: Record<BillingCycle, number | null> =
   irregular: null,
   free: null,
 };
+
+/** フォームで使う支払いサイクル選択肢（new.tsx / [id].tsx 共通） */
+export const BILLING_CYCLE_OPTIONS: readonly BillingCycle[] = [
+  'monthly', 'yearly', 'quarterly', 'irregular', 'free',
+];
+
+/** フォームで使うステータス選択肢（new.tsx / [id].tsx 共通） */
+export const STATUS_OPTIONS: readonly SubscriptionStatus[] = [
+  'active', 'reviewing', 'cancel_planned', 'stopped',
+];

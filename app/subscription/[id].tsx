@@ -4,7 +4,6 @@ import {
   Text,
   ScrollView,
   StyleSheet,
-  Alert,
   SafeAreaView,
   TouchableOpacity,
   KeyboardAvoidingView,
@@ -13,7 +12,12 @@ import {
 } from 'react-native';
 import { useLocalSearchParams, router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import { BILLING_CYCLE_LABELS, STATUS_LABELS } from '@/src/constants/app';
+import {
+  BILLING_CYCLE_LABELS,
+  STATUS_LABELS,
+  BILLING_CYCLE_OPTIONS,
+  STATUS_OPTIONS,
+} from '@/src/constants/app';
 import {
   CATEGORY_OPTIONS,
   type CategoryOption,
@@ -27,18 +31,15 @@ import { SelectField } from '@/src/components/ui/SelectField';
 import { TextInput } from '@/src/components/ui/TextInput';
 import { DatePickerField } from '@/src/components/ui/DatePickerField';
 import { Button } from '@/src/components/ui/Button';
+import { AmountField } from '@/src/components/ui/AmountField';
 import { StatusBadge } from '@/src/components/ui/StatusBadge';
+import { ServiceNameAutocomplete } from '@/src/components/subscription/ServiceNameAutocomplete';
+import type { ServiceDictionaryEntry } from '@/src/types';
 import { COLORS } from '@/src/constants/colors';
 import { formatDisplayDate, suggestNextRenewalDate } from '@/src/utils/dateUtils';
 import { formatAmount } from '@/src/utils/amountUtils';
-import { isSafeUrl, isValidDateString, isValidAmount, AMOUNT_MAX } from '@/src/utils/validationUtils';
-
-const BILLING_CYCLES: readonly BillingCycle[] = [
-  'monthly', 'yearly', 'quarterly', 'irregular', 'free',
-];
-const STATUSES: readonly SubscriptionStatus[] = [
-  'active', 'reviewing', 'cancel_planned', 'stopped',
-];
+import { isSafeUrl, validateSubscriptionForm } from '@/src/utils/validationUtils';
+import { subscriptionToFormData } from '@/src/utils/subscriptionUtils';
 
 function DetailRow({ label, value }: { label: string; value: string }) {
   return (
@@ -53,11 +54,13 @@ export default function SubscriptionDetailScreen() {
   const { id: rawId } = useLocalSearchParams<{ id: string }>();
   // useLocalSearchParams は string[] を返すことがあるため単一値に正規化
   const id = Array.isArray(rawId) ? rawId[0] : rawId;
-  // useSubscription に id を渡すと自動ロード（useEffect 不要）
   const { current, isLoading, save, permanentlyDelete } = useSubscription(id);
 
   const [isEditing, setIsEditing] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const [saveError, setSaveError] = useState(false);
+  // インライン確認UI用 state
+  const [confirmAction, setConfirmAction] = useState<'hide' | 'delete' | null>(null);
   // 更新日繰り越し提案（インラインバナー用）
   const [suggestedRenewalDate, setSuggestedRenewalDate] = useState<string | null>(null);
 
@@ -75,24 +78,6 @@ export default function SubscriptionDetailScreen() {
   const [cancelMemo, setCancelMemo] = useState('');
   const [customCancelUrl, setCustomCancelUrl] = useState('');
   const [errors, setErrors] = useState<Record<string, string>>({});
-
-  const validate = (): boolean => {
-    const next: Record<string, string> = {};
-    if (!serviceName.trim()) next.serviceName = 'サービス名を入力してください';
-    if (billingCycle !== 'free' && !isValidAmount(amount)) {
-      next.amount = currency === 'USD'
-        ? '1以上のドル金額（整数）を入力してください'
-        : `1〜${AMOUNT_MAX.toLocaleString()}円の整数を入力してください`;
-    }
-    if (nextRenewalDate && !isValidDateString(nextRenewalDate)) next.nextRenewalDate = '実在する日付を入力してください';
-    if (trialEndDate && !isValidDateString(trialEndDate)) next.trialEndDate = '実在する日付を入力してください';
-    if (startDate && !isValidDateString(startDate)) next.startDate = '実在する日付を入力してください';
-    if (customCancelUrl.trim() && !isSafeUrl(customCancelUrl.trim())) {
-      next.customCancelUrl = 'https:// または http:// で始まるURLを入力してください';
-    }
-    setErrors(next);
-    return Object.keys(next).length === 0;
-  };
 
   const startEditing = () => {
     if (!current) return;
@@ -117,7 +102,19 @@ export default function SubscriptionDetailScreen() {
 
   const handleSave = async () => {
     if (!current) return;
-    if (!validate()) return;
+    const nextErrors = validateSubscriptionForm({
+      serviceName,
+      billingCycle,
+      amount,
+      currency,
+      nextRenewalDate,
+      trialEndDate,
+      startDate,
+      customCancelUrl,
+    });
+    setErrors(nextErrors);
+    if (Object.keys(nextErrors).length > 0) return;
+
     setIsSaving(true);
 
     const formData: SubscriptionFormData = {
@@ -140,65 +137,22 @@ export default function SubscriptionDetailScreen() {
     setIsSaving(false);
 
     if (result.ok) {
+      setSaveError(false);
       setIsEditing(false);
     } else {
-      Alert.alert('エラー', '保存できませんでした。もう一度試してください。');
+      setSaveError(true);
     }
   };
 
-  const handleArchive = () => {
+  const executeHide = async () => {
     if (!current) return;
-    const label = current.isArchived ? '一覧に戻す' : '一覧から外す';
-    Alert.alert(
-      `${label}しますか？`,
-      current.isArchived
-        ? 'このサブスクを一覧に戻します。'
-        : 'このサブスクを一覧から外します。データは残ります。',
-      [
-        { text: 'キャンセル', style: 'cancel' },
-        {
-          text: current.isArchived ? '一覧に戻す' : '一覧から外す',
-          onPress: async () => {
-            const formData: SubscriptionFormData = {
-              serviceName: current.serviceName,
-              amount: current.amount,
-              currency: current.currency,
-              billingCycle: current.billingCycle,
-              category: current.category,
-              status: current.status,
-              nextRenewalDate: current.nextRenewalDate,
-              trialEndDate: current.trialEndDate,
-              startDate: current.startDate,
-              memo: current.memo,
-              cancelMemo: current.cancelMemo,
-              customCancelUrl: current.customCancelUrl,
-              isArchived: !current.isArchived,
-            };
-            const result = await save(formData);
-            if (result.ok) router.back();
-          },
-        },
-      ],
-    );
+    const result = await save(subscriptionToFormData(current, { isArchived: !current.isArchived }));
+    if (result.ok) router.back();
   };
 
-  const handleDelete = () => {
-    if (!current) return;
-    Alert.alert(
-      '完全に削除しますか？',
-      `「${current.serviceName}」のデータを完全に削除します。\nこの操作は取り消せません。`,
-      [
-        { text: 'キャンセル', style: 'cancel' },
-        {
-          text: '削除する',
-          style: 'destructive',
-          onPress: () => {
-            permanentlyDelete();
-            router.replace('/(main)');
-          },
-        },
-      ],
-    );
+  const executeDelete = () => {
+    permanentlyDelete();
+    router.replace('/(main)');
   };
 
   // ─── ローディング中 / データなし ───
@@ -237,38 +191,29 @@ export default function SubscriptionDetailScreen() {
             keyboardShouldPersistTaps="handled"
           >
             <View style={styles.section}>
-              <TextInput label="サービス名 *" value={serviceName} onChangeText={setServiceName} error={errors.serviceName} maxLength={50} />
+              <ServiceNameAutocomplete
+                label="サービス名 *"
+                value={serviceName}
+                onChangeText={setServiceName}
+                onSelectSuggestion={(entry: ServiceDictionaryEntry) => setServiceName(entry.name)}
+                error={errors.serviceName}
+                maxLength={50}
+              />
               <SelectField
                 label="支払いサイクル"
                 value={billingCycle}
-                options={BILLING_CYCLES}
+                options={BILLING_CYCLE_OPTIONS}
                 displayLabel={(v) => BILLING_CYCLE_LABELS[v]}
                 onChange={(v) => v && setBillingCycle(v)}
               />
-              <View>
-                <View style={styles.amountLabelRow}>
-                  <Text style={styles.fieldLabel}>金額</Text>
-                  {billingCycle !== 'free' && (
-                    <TouchableOpacity
-                      style={styles.currencyToggle}
-                      onPress={() => setCurrency((c) => (c === 'JPY' ? 'USD' : 'JPY'))}
-                      activeOpacity={0.7}
-                    >
-                      <Text style={styles.currencyToggleText}>
-                        {currency === 'JPY' ? '¥ 円' : '$ USD'}
-                      </Text>
-                    </TouchableOpacity>
-                  )}
-                </View>
-                <TextInput
-                  value={billingCycle === 'free' ? '' : amount}
-                  onChangeText={setAmount}
-                  placeholder={billingCycle === 'free' ? '無料' : currency === 'USD' ? '例: 20' : '例: 980'}
-                  keyboardType="numeric"
-                  editable={billingCycle !== 'free'}
-                  error={errors.amount}
-                />
-              </View>
+              <AmountField
+                billingCycle={billingCycle}
+                amount={amount}
+                currency={currency}
+                onChangeAmount={setAmount}
+                onToggleCurrency={() => setCurrency((c) => (c === 'JPY' ? 'USD' : 'JPY'))}
+                error={errors.amount}
+              />
               <SelectField
                 label="カテゴリ"
                 value={category}
@@ -280,14 +225,14 @@ export default function SubscriptionDetailScreen() {
               <SelectField
                 label="ステータス"
                 value={status}
-                options={STATUSES}
+                options={STATUS_OPTIONS}
                 displayLabel={(v) => STATUS_LABELS[v]}
                 onChange={(v) => v && setStatus(v)}
               />
               {/* 更新日過期バナー */}
               {suggestedRenewalDate && (
                 <View style={styles.renewalBanner}>
-                  <Ionicons name="time-outline" size={16} color="#8D6200" />
+                  <Ionicons name="time-outline" size={16} color={COLORS.warning.text} />
                   <View style={styles.renewalBannerBody}>
                     <Text style={styles.renewalBannerText}>
                       更新日が過ぎています。次の更新日 {suggestedRenewalDate} に更新しますか？
@@ -346,6 +291,9 @@ export default function SubscriptionDetailScreen() {
           </ScrollView>
 
           <View style={styles.footer}>
+            {saveError && (
+              <Text style={styles.saveErrorText}>保存できませんでした。もう一度試してください。</Text>
+            )}
             <Button label="保存する" onPress={handleSave} loading={isSaving} fullWidth />
           </View>
         </KeyboardAvoidingView>
@@ -372,7 +320,7 @@ export default function SubscriptionDetailScreen() {
         {/* サマリーカード */}
         <View style={styles.summaryCard}>
           <View style={styles.summaryRow}>
-            <Text style={styles.amountLabel}>
+            <Text style={styles.summaryAmount}>
               {current.billingCycle === 'free'
                 ? '無料'
                 : `${formatAmount(current.amount, current.currency ?? 'JPY')} / ${BILLING_CYCLE_LABELS[current.billingCycle]}`}
@@ -422,20 +370,80 @@ export default function SubscriptionDetailScreen() {
           </View>
         )}
 
-        {/* アーカイブ / 削除 */}
-        <View style={styles.archiveRow}>
-          <Button
-            label={current.isArchived ? '一覧に戻す' : '一覧から外す'}
-            onPress={handleArchive}
-            variant="ghost"
-            size="sm"
-          />
-          <Button
-            label="完全に削除"
-            onPress={handleDelete}
-            variant="destructive"
-            size="sm"
-          />
+        {/* 非表示 / 削除 */}
+        <View style={styles.actionSection}>
+          {confirmAction === 'hide' ? (
+            <View style={styles.confirmCard}>
+              <Text style={styles.confirmTitle}>
+                {current.isArchived ? '一覧に戻しますか？' : '非表示にしますか？'}
+              </Text>
+              {!current.isArchived && (
+                <Text style={styles.confirmDesc}>
+                  後から「非表示にした項目」で確認できます
+                </Text>
+              )}
+              <View style={styles.confirmButtons}>
+                <Button
+                  label="キャンセル"
+                  onPress={() => setConfirmAction(null)}
+                  variant="ghost"
+                  size="sm"
+                  style={styles.confirmBtn}
+                />
+                <Button
+                  label={current.isArchived ? '一覧に戻す' : '非表示にする'}
+                  onPress={executeHide}
+                  variant="primary"
+                  size="sm"
+                  style={styles.confirmBtn}
+                />
+              </View>
+            </View>
+          ) : confirmAction === 'delete' ? (
+            <View style={styles.confirmCardDestructive}>
+              <Text style={styles.confirmTitleDestructive}>
+                「{current.serviceName}」を削除しますか？
+              </Text>
+              <Text style={styles.confirmDescDestructive}>
+                記録ごと消えます。この操作は取り消せません
+              </Text>
+              <View style={styles.confirmButtons}>
+                <Button
+                  label="キャンセル"
+                  onPress={() => setConfirmAction(null)}
+                  variant="ghost"
+                  size="sm"
+                  style={styles.confirmBtn}
+                />
+                <Button
+                  label="削除する"
+                  onPress={executeDelete}
+                  variant="destructive"
+                  size="sm"
+                  style={styles.confirmBtn}
+                />
+              </View>
+            </View>
+          ) : (
+            <>
+              <Button
+                label={current.isArchived ? '一覧に戻す' : '非表示にする'}
+                onPress={() => setConfirmAction('hide')}
+                variant="ghost"
+                size="sm"
+              />
+              {!current.isArchived && (
+                <Text style={styles.actionHint}>後から見返せます</Text>
+              )}
+              <TouchableOpacity
+                onPress={() => setConfirmAction('delete')}
+                style={styles.deleteLink}
+                activeOpacity={0.7}
+              >
+                <Text style={styles.deleteLinkText}>削除する（取り消し不可）</Text>
+              </TouchableOpacity>
+            </>
+          )}
         </View>
       </ScrollView>
     </SafeAreaView>
@@ -476,7 +484,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
   },
-  amountLabel: { fontSize: 20, fontWeight: '700', color: COLORS.text },
+  summaryAmount: { fontSize: 20, fontWeight: '700', color: COLORS.text },
   category: { fontSize: 13, color: COLORS.textMuted },
   detailSection: {
     backgroundColor: COLORS.surface,
@@ -517,21 +525,93 @@ const styles = StyleSheet.create({
     fontWeight: '500',
     textDecorationLine: 'underline',
   },
-  archiveRow: { flexDirection: 'row', justifyContent: 'center', alignItems: 'center', gap: 12, paddingTop: 8 },
+  actionSection: {
+    paddingTop: 8,
+    gap: 8,
+    alignItems: 'center',
+  },
+  actionHint: {
+    fontSize: 12,
+    color: COLORS.textMuted,
+    textAlign: 'center',
+  },
+  deleteLink: {
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    marginTop: 4,
+  },
+  deleteLinkText: {
+    fontSize: 13,
+    color: COLORS.textMuted,
+    textDecorationLine: 'underline',
+  },
+  confirmCard: {
+    backgroundColor: COLORS.surface,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+    padding: 16,
+    gap: 8,
+    width: '100%',
+    alignItems: 'center',
+  },
+  confirmCardDestructive: {
+    backgroundColor: COLORS.destructiveLight,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: COLORS.destructiveBorder,
+    padding: 16,
+    gap: 8,
+    width: '100%',
+    alignItems: 'center',
+  },
+  confirmTitle: {
+    fontSize: 15,
+    fontWeight: '600',
+    color: COLORS.text,
+    textAlign: 'center',
+  },
+  confirmDesc: {
+    fontSize: 13,
+    color: COLORS.textMuted,
+    textAlign: 'center',
+    lineHeight: 18,
+  },
+  confirmTitleDestructive: {
+    fontSize: 15,
+    fontWeight: '600',
+    color: COLORS.destructive,
+    textAlign: 'center',
+  },
+  confirmDescDestructive: {
+    fontSize: 13,
+    color: COLORS.destructive,
+    textAlign: 'center',
+    lineHeight: 18,
+    opacity: 0.85,
+  },
+  confirmButtons: {
+    flexDirection: 'row',
+    gap: 12,
+    marginTop: 4,
+  },
+  confirmBtn: {
+    minWidth: 100,
+  },
   renewalBanner: {
     flexDirection: 'row',
     gap: 10,
-    backgroundColor: '#FFF9F0',
+    backgroundColor: COLORS.warning.bg,
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: '#E6C87A',
+    borderColor: COLORS.warning.border,
     padding: 12,
     alignItems: 'flex-start',
   },
   renewalBannerBody: { flex: 1, gap: 8 },
   renewalBannerText: {
     fontSize: 13,
-    color: '#8D6200',
+    color: COLORS.warning.text,
     lineHeight: 18,
   },
   renewalBannerActions: {
@@ -539,7 +619,7 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   bannerBtn: {
-    backgroundColor: '#8D6200',
+    backgroundColor: COLORS.warning.text,
     paddingVertical: 5,
     paddingHorizontal: 12,
     borderRadius: 6,
@@ -554,11 +634,11 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     borderRadius: 6,
     borderWidth: 1,
-    borderColor: '#8D6200',
+    borderColor: COLORS.warning.text,
   },
   bannerBtnGhostText: {
     fontSize: 12,
-    color: '#8D6200',
+    color: COLORS.warning.text,
   },
   section: {
     gap: 14,
@@ -569,27 +649,10 @@ const styles = StyleSheet.create({
     padding: 16,
   },
   textarea: { minHeight: 72, textAlignVertical: 'top' },
-  footer: { padding: 16, borderTopWidth: 1, borderTopColor: COLORS.border },
-  amountLabelRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    marginBottom: 6,
-  },
-  fieldLabel: {
-    fontSize: 14,
-    fontWeight: '500',
-    color: COLORS.text,
-  },
-  currencyToggle: {
-    backgroundColor: COLORS.primaryLight,
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderRadius: 20,
-  },
-  currencyToggleText: {
+  footer: { padding: 16, borderTopWidth: 1, borderTopColor: COLORS.border, gap: 8 },
+  saveErrorText: {
     fontSize: 13,
-    fontWeight: '600',
-    color: COLORS.primary,
+    color: COLORS.destructive,
+    textAlign: 'center',
   },
 });

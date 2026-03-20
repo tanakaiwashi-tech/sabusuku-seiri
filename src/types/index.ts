@@ -1,6 +1,7 @@
 export const CATEGORY_OPTIONS = [
   '動画配信',
   '音楽',
+  '電子書籍',
   'ゲーム',
   'ニュース・雑誌',
   'クラウドストレージ',
@@ -8,6 +9,7 @@ export const CATEGORY_OPTIONS = [
   'フィットネス',
   '学習',
   'ショッピング',
+  'フード',
   '金融',
   'その他',
 ] as const;

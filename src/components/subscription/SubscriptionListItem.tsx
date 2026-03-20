@@ -40,7 +40,7 @@ export function SubscriptionListItem({ subscription, onPress }: SubscriptionList
           </Text>
         </View>
         <View style={styles.bottomRow}>
-          <StatusBadge status={subscription.status} />
+          {subscription.status !== 'active' && <StatusBadge status={subscription.status} />}
           {(isOverdue || isUpcoming) && subscription.nextRenewalDate && (
             <View style={styles.renewalRow}>
               {isOverdue && (
@@ -106,9 +106,9 @@ const styles = StyleSheet.create({
     color: COLORS.text,
   },
   amount: {
-    fontSize: 13,
-    color: COLORS.textSecondary,
-    fontWeight: '500',
+    fontSize: 15,
+    color: COLORS.text,
+    fontWeight: '700',
   },
   avatarOverdue: {
     backgroundColor: COLORS.destructiveLight,

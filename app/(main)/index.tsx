@@ -1,4 +1,4 @@
-import React, { useCallback, useState, useMemo } from 'react';
+import React, { useState, useMemo } from 'react';
 import {
   View,
   Text,
@@ -8,7 +8,7 @@ import {
   StyleSheet,
   SafeAreaView,
 } from 'react-native';
-import { router, useFocusEffect } from 'expo-router';
+import { router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { COLORS } from '@/src/constants/colors';
 import { useSubscriptions } from '@/src/hooks/useSubscriptions';
@@ -68,16 +68,9 @@ function FilteredEmptyState({ onClear }: { onClear: () => void }) {
 }
 
 export default function HomeScreen() {
-  const { subscriptions, summary, refresh } = useSubscriptions();
+  const { subscriptions, summary } = useSubscriptions();
   const [filterStatus, setFilterStatus] = useState<FilterStatus>('all');
   const [sortKey, setSortKey] = useState<SortKey>('createdAt');
-
-  // 画面に戻るたびにリストを再取得
-  useFocusEffect(
-    useCallback(() => {
-      refresh();
-    }, [refresh]),
-  );
 
   const handleItemPress = (item: Subscription) => {
     router.push(`/subscription/${item.id}`);
@@ -142,8 +135,9 @@ export default function HomeScreen() {
             style={styles.iconButton}
             onPress={() => router.push('/(main)/archived')}
             activeOpacity={0.7}
+            accessibilityLabel="非表示にした項目"
           >
-            <Ionicons name="archive-outline" size={20} color={COLORS.textSecondary} />
+            <Ionicons name="eye-off-outline" size={20} color={COLORS.textSecondary} />
           </TouchableOpacity>
           <TouchableOpacity style={styles.sortButton} onPress={cycleSortKey} activeOpacity={0.7}>
             <Ionicons name="swap-vertical-outline" size={16} color={COLORS.primary} />

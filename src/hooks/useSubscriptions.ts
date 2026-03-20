@@ -49,8 +49,5 @@ export function useSubscriptions(includeArchived = false) {
     return { totalMonthlyAmount, hasUSD, activeCount, reviewingCount, cancelPlannedCount, upcomingRenewalCount, overdueRenewalCount };
   }, [subscriptions]);
 
-  // Zustand はリアクティブなので手動 refresh は不要。互換性のため no-op を返す。
-  const refresh = () => {};
-
-  return { subscriptions, summary, isLoading: false as const, refresh };
+  return { subscriptions, summary, isLoading: false };
 }
