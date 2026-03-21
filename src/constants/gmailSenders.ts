@@ -2,7 +2,7 @@
  * Gmailスキャンで差出人ドメインと照合するサービスパターン辞書。
  * senderDomain は From ヘッダーのドメイン部分との部分一致で使用する。
  */
-import type { CategoryOption } from '../types';
+import type { CategoryOption, PricingPlan } from '../types';
 
 export interface GmailSenderPattern {
   /** 差出人メールアドレスに含まれるドメイン文字列（部分一致） */
@@ -19,12 +19,39 @@ export interface GmailSenderPattern {
   defaultCategory?: CategoryOption;
   /** 請求通貨（省略時はJPY） */
   defaultCurrency?: 'JPY' | 'USD';
+  /** 複数の価格帯がある場合のプランリスト */
+  plans?: PricingPlan[];
 }
 
 export const GMAIL_SENDER_PATTERNS: GmailSenderPattern[] = [
   // 動画配信
-  { senderDomain: 'netflix.com',      normalizedName: 'netflix',          displayName: 'Netflix',              defaultAmount: 1490, defaultBillingCycle: 'monthly', defaultCategory: '動画配信' },
-  { senderDomain: 'disneyplus.com',   normalizedName: 'disney+',          displayName: 'Disney+',              defaultAmount: 990,  defaultBillingCycle: 'monthly', defaultCategory: '動画配信' },
+  {
+    senderDomain: 'netflix.com',
+    normalizedName: 'netflix',
+    displayName: 'Netflix',
+    defaultAmount: 1490,
+    defaultBillingCycle: 'monthly',
+    defaultCategory: '動画配信',
+    plans: [
+      { label: '広告つきスタンダード', amount: 790,  billingCycle: 'monthly' },
+      { label: 'スタンダード',         amount: 1490, billingCycle: 'monthly' },
+      { label: 'プレミアム',           amount: 1980, billingCycle: 'monthly' },
+    ],
+  },
+  {
+    senderDomain: 'disneyplus.com',
+    normalizedName: 'disney+',
+    displayName: 'Disney+',
+    defaultAmount: 990,
+    defaultBillingCycle: 'monthly',
+    defaultCategory: '動画配信',
+    plans: [
+      { label: 'スタンダード(月)', amount: 990,   billingCycle: 'monthly' },
+      { label: 'プレミアム(月)',   amount: 1320,  billingCycle: 'monthly' },
+      { label: 'スタンダード(年)', amount: 9900,  billingCycle: 'yearly'  },
+      { label: 'プレミアム(年)',   amount: 13200, billingCycle: 'yearly'  },
+    ],
+  },
   { senderDomain: 'hulu.com',         normalizedName: 'hulu',             displayName: 'Hulu',                 defaultAmount: 1026, defaultBillingCycle: 'monthly', defaultCategory: '動画配信' },
   { senderDomain: 'unext.jp',         normalizedName: 'u-next',           displayName: 'U-NEXT',               defaultAmount: 2189, defaultBillingCycle: 'monthly', defaultCategory: '動画配信' },
   { senderDomain: 'd-anime.ne.jp',    normalizedName: 'd anime',          displayName: 'dアニメストア',           defaultAmount: 550,  defaultBillingCycle: 'monthly', defaultCategory: '動画配信' },
@@ -35,19 +62,105 @@ export const GMAIL_SENDER_PATTERNS: GmailSenderPattern[] = [
   { senderDomain: 'wowow.co.jp',      normalizedName: 'wowow',            displayName: 'WOWOW',                defaultAmount: 2530, defaultBillingCycle: 'monthly', defaultCategory: '動画配信' },
 
   // 音楽
-  { senderDomain: 'spotify.com',      normalizedName: 'spotify',          displayName: 'Spotify',              defaultAmount: 980,  defaultBillingCycle: 'monthly', defaultCategory: '音楽' },
+  {
+    senderDomain: 'spotify.com',
+    normalizedName: 'spotify',
+    displayName: 'Spotify',
+    defaultAmount: 980,
+    defaultBillingCycle: 'monthly',
+    defaultCategory: '音楽',
+    plans: [
+      { label: 'Individual', amount: 980,  billingCycle: 'monthly' },
+      { label: 'Duo',        amount: 1280, billingCycle: 'monthly' },
+      { label: 'Family',     amount: 1580, billingCycle: 'monthly' },
+      { label: 'Student',    amount: 480,  billingCycle: 'monthly' },
+    ],
+  },
   { senderDomain: 'line-music.jp',    normalizedName: 'line music',       displayName: 'LINE MUSIC',           defaultAmount: 980,  defaultBillingCycle: 'monthly', defaultCategory: '音楽' },
-  { senderDomain: 'music.amazon.co.jp', normalizedName: 'amazon music',  displayName: 'Amazon Music',         defaultAmount: 980,  defaultBillingCycle: 'monthly', defaultCategory: '音楽' },
+  { senderDomain: 'music.amazon.co.jp', normalizedName: 'amazon music',   displayName: 'Amazon Music',         defaultAmount: 980,  defaultBillingCycle: 'monthly', defaultCategory: '音楽' },
 
   // Apple / Google / Microsoft
-  { senderDomain: 'apple.com',        normalizedName: 'apple music',      displayName: 'Apple（Music/TV+/iCloud）', defaultCategory: '音楽' },
-  { senderDomain: 'google.com',       normalizedName: 'google one',       displayName: 'Google（One/YouTube）',    defaultCategory: 'クラウドストレージ' },
-  { senderDomain: 'youtube.com',      normalizedName: 'youtube premium',  displayName: 'YouTube Premium',      defaultAmount: 1280, defaultBillingCycle: 'monthly', defaultCategory: '動画配信' },
-  { senderDomain: 'microsoft.com',    normalizedName: 'microsoft 365',    displayName: 'Microsoft 365',        defaultAmount: 1284, defaultBillingCycle: 'monthly', defaultCategory: 'ソフトウェア' },
+  {
+    senderDomain: 'apple.com',
+    normalizedName: 'apple music',
+    displayName: 'Apple（Music/TV+/iCloud）',
+    defaultCategory: '音楽',
+    plans: [
+      { label: 'Music Individual', amount: 1080, billingCycle: 'monthly' },
+      { label: 'Music Family',     amount: 1680, billingCycle: 'monthly' },
+      { label: 'Music Student',    amount: 580,  billingCycle: 'monthly' },
+      { label: 'iCloud+ 50GB',     amount: 130,  billingCycle: 'monthly', currency: 'JPY' },
+      { label: 'iCloud+ 200GB',    amount: 400,  billingCycle: 'monthly', currency: 'JPY' },
+      { label: 'iCloud+ 2TB',      amount: 1300, billingCycle: 'monthly', currency: 'JPY' },
+      { label: 'TV+ / One / Other', amount: 0,   billingCycle: 'monthly' },
+    ],
+  },
+  {
+    senderDomain: 'google.com',
+    normalizedName: 'google one',
+    displayName: 'Google（One/YouTube）',
+    defaultCategory: 'クラウドストレージ',
+    plans: [
+      { label: 'One 100GB',  amount: 250,  billingCycle: 'monthly' },
+      { label: 'One 200GB',  amount: 380,  billingCycle: 'monthly' },
+      { label: 'One 2TB',    amount: 1300, billingCycle: 'monthly' },
+      { label: 'One 5TB',    amount: 2500, billingCycle: 'monthly' },
+      { label: 'YouTube Premium (個人)',       amount: 1280, billingCycle: 'monthly' },
+      { label: 'YouTube Premium (ファミリー)', amount: 2280, billingCycle: 'monthly' },
+    ],
+  },
+  {
+    senderDomain: 'youtube.com',
+    normalizedName: 'youtube premium',
+    displayName: 'YouTube Premium',
+    defaultAmount: 1280,
+    defaultBillingCycle: 'monthly',
+    defaultCategory: '動画配信',
+    plans: [
+      { label: '個人',       amount: 1280, billingCycle: 'monthly' },
+      { label: 'ファミリー', amount: 2280, billingCycle: 'monthly' },
+    ],
+  },
+  {
+    senderDomain: 'microsoft.com',
+    normalizedName: 'microsoft 365',
+    displayName: 'Microsoft 365',
+    defaultAmount: 1284,
+    defaultBillingCycle: 'monthly',
+    defaultCategory: 'ソフトウェア',
+    plans: [
+      { label: 'Personal (月払い)', amount: 1284,  billingCycle: 'monthly' },
+      { label: 'Family (月払い)',   amount: 1850,  billingCycle: 'monthly' },
+      { label: 'Personal (年払い)', amount: 12984, billingCycle: 'yearly'  },
+      { label: 'Family (年払い)',   amount: 18400, billingCycle: 'yearly'  },
+    ],
+  },
 
   // Amazon
-  { senderDomain: 'amazon.co.jp',     normalizedName: 'amazon prime',     displayName: 'Amazon',               defaultAmount: 600,  defaultBillingCycle: 'monthly', defaultCategory: 'ショッピング' },
-  { senderDomain: 'amazon.com',       normalizedName: 'amazon prime',     displayName: 'Amazon',               defaultAmount: 600,  defaultBillingCycle: 'monthly', defaultCategory: 'ショッピング' },
+  {
+    senderDomain: 'amazon.co.jp',
+    normalizedName: 'amazon prime',
+    displayName: 'Amazon',
+    defaultAmount: 600,
+    defaultBillingCycle: 'monthly',
+    defaultCategory: 'ショッピング',
+    plans: [
+      { label: 'Prime (月払い)', amount: 600,  billingCycle: 'monthly' },
+      { label: 'Prime (年払い)', amount: 5900, billingCycle: 'yearly'  },
+    ],
+  },
+  {
+    senderDomain: 'amazon.com',
+    normalizedName: 'amazon prime',
+    displayName: 'Amazon',
+    defaultAmount: 600,
+    defaultBillingCycle: 'monthly',
+    defaultCategory: 'ショッピング',
+    plans: [
+      { label: 'Prime (月払い)', amount: 600,  billingCycle: 'monthly' },
+      { label: 'Prime (年払い)', amount: 5900, billingCycle: 'yearly'  },
+    ],
+  },
 
   // クラウド / ストレージ
   { senderDomain: 'dropbox.com',      normalizedName: 'dropbox',          displayName: 'Dropbox',              defaultCategory: 'クラウドストレージ', defaultCurrency: 'USD' },
@@ -65,7 +178,19 @@ export const GMAIL_SENDER_PATTERNS: GmailSenderPattern[] = [
   { senderDomain: 'github.com',       normalizedName: 'github',           displayName: 'GitHub',               defaultCategory: 'ソフトウェア', defaultCurrency: 'USD' },
 
   // AI
-  { senderDomain: 'openai.com',       normalizedName: 'chatgpt plus',     displayName: 'ChatGPT Plus',         defaultAmount: 20,   defaultBillingCycle: 'monthly', defaultCategory: 'ソフトウェア', defaultCurrency: 'USD' },
+  {
+    senderDomain: 'openai.com',
+    normalizedName: 'chatgpt plus',
+    displayName: 'ChatGPT',
+    defaultAmount: 20,
+    defaultBillingCycle: 'monthly',
+    defaultCategory: 'ソフトウェア',
+    defaultCurrency: 'USD',
+    plans: [
+      { label: 'Plus', amount: 20,  billingCycle: 'monthly', currency: 'USD' },
+      { label: 'Pro',  amount: 200, billingCycle: 'monthly', currency: 'USD' },
+    ],
+  },
   { senderDomain: 'anthropic.com',    normalizedName: 'claude pro',       displayName: 'Claude Pro',           defaultAmount: 20,   defaultBillingCycle: 'monthly', defaultCategory: 'ソフトウェア', defaultCurrency: 'USD' },
 
   // セキュリティ

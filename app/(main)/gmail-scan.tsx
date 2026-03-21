@@ -35,6 +35,8 @@ interface CandidateDetail {
   amount: string;
   billingCycle: 'monthly' | 'yearly';
   currency: 'JPY' | 'USD';
+  /** plans が定義されている場合に選択中のインデックス。null は未選択（カスタム） */
+  selectedPlanIndex: number | null;
 }
 
 export default function GmailScanScreen() {
@@ -97,12 +99,36 @@ export default function GmailScanScreen() {
       if (isCurrentlySelected) {
         next.delete(key);
       } else {
+        // plans が定義されている場合は先頭プランを自動選択
+        const firstPlan = pattern.plans?.[0];
         next.set(key, {
-          amount: pattern.defaultAmount ? String(pattern.defaultAmount) : '',
-          billingCycle: pattern.defaultBillingCycle ?? 'monthly',
-          currency: pattern.defaultCurrency ?? 'JPY',
+          amount: firstPlan
+            ? String(firstPlan.amount)
+            : pattern.defaultAmount ? String(pattern.defaultAmount) : '',
+          billingCycle: (firstPlan?.billingCycle ?? pattern.defaultBillingCycle ?? 'monthly') as 'monthly' | 'yearly',
+          currency: (firstPlan?.currency ?? pattern.defaultCurrency ?? 'JPY') as 'JPY' | 'USD',
+          selectedPlanIndex: firstPlan ? 0 : null,
         });
       }
+      return next;
+    });
+  };
+
+  // ─── プラン選択 ───────────────────────────────────────────────
+  const selectPlan = (key: string, planIndex: number, pattern: GmailSenderPattern) => {
+    const plan = pattern.plans?.[planIndex];
+    if (!plan) return;
+    setDetails((prev) => {
+      const next = new Map(prev);
+      const current = next.get(key);
+      if (!current) return prev;
+      next.set(key, {
+        ...current,
+        selectedPlanIndex: planIndex,
+        amount: String(plan.amount),
+        billingCycle: (plan.billingCycle ?? pattern.defaultBillingCycle ?? 'monthly') as 'monthly' | 'yearly',
+        currency: (plan.currency ?? pattern.defaultCurrency ?? 'JPY') as 'JPY' | 'USD',
+      });
       return next;
     });
   };
@@ -309,6 +335,39 @@ export default function GmailScanScreen() {
               {/* インライン入力（選択時のみ展開） */}
               {isSelected && !alreadyRegistered && detail && (
                 <View style={styles.inlineInputs}>
+
+                  {/* プランピッカー（plans が定義されている場合のみ） */}
+                  {candidate.pattern.plans && candidate.pattern.plans.length > 0 && (
+                    <View style={styles.planSection}>
+                      <Text style={styles.inlineLabel}>プラン</Text>
+                      <ScrollView
+                        horizontal
+                        showsHorizontalScrollIndicator={false}
+                        contentContainerStyle={styles.planScrollContent}
+                      >
+                        {candidate.pattern.plans.map((plan, idx) => {
+                          const isActive = detail.selectedPlanIndex === idx;
+                          const sym = (plan.currency ?? candidate.pattern.defaultCurrency ?? 'JPY') === 'USD' ? '$' : '¥';
+                          return (
+                            <TouchableOpacity
+                              key={idx}
+                              style={[styles.planBtn, isActive && styles.planBtnActive]}
+                              onPress={() => selectPlan(key, idx, candidate.pattern)}
+                              activeOpacity={0.7}
+                            >
+                              <Text style={[styles.planBtnLabel, isActive && styles.planBtnLabelActive]}>
+                                {plan.label}
+                              </Text>
+                              <Text style={[styles.planBtnAmount, isActive && styles.planBtnAmountActive]}>
+                                {plan.amount === 0 ? '要確認' : `${sym}${plan.amount.toLocaleString()}`}
+                              </Text>
+                            </TouchableOpacity>
+                          );
+                        })}
+                      </ScrollView>
+                    </View>
+                  )}
+
                   {/* 支払いサイクル */}
                   <View style={styles.cycleRow}>
                     <Text style={styles.inlineLabel}>サイクル</Text>
@@ -639,6 +698,47 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: '600',
     color: COLORS.primary,
+  },
+  // ─── プランピッカー ───────────────────────────────────────────
+  planSection: {
+    gap: 8,
+  },
+  planScrollContent: {
+    gap: 8,
+    paddingVertical: 2,
+  },
+  planBtn: {
+    alignItems: 'center',
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+    borderRadius: 10,
+    borderWidth: 1.5,
+    borderColor: COLORS.border,
+    backgroundColor: COLORS.surface,
+    minWidth: 88,
+    gap: 2,
+  },
+  planBtnActive: {
+    backgroundColor: COLORS.primary,
+    borderColor: COLORS.primary,
+  },
+  planBtnLabel: {
+    fontSize: 11,
+    fontWeight: '600',
+    color: COLORS.textSecondary,
+    textAlign: 'center',
+  },
+  planBtnLabelActive: {
+    color: '#fff',
+  },
+  planBtnAmount: {
+    fontSize: 13,
+    fontWeight: '700',
+    color: COLORS.text,
+    textAlign: 'center',
+  },
+  planBtnAmountActive: {
+    color: '#fff',
   },
   // ─── インライン入力 ───────────────────────────────────────────
   inlineInputs: {
