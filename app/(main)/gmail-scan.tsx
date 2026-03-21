@@ -6,6 +6,7 @@ import {
   StyleSheet,
   SafeAreaView,
   TouchableOpacity,
+  TextInput,
   ActivityIndicator,
   Alert,
   Platform,
@@ -20,6 +21,7 @@ import {
   type GmailCandidate,
 } from '@/src/utils/gmailUtils';
 import type { SubscriptionFormData } from '@/src/types';
+import type { GmailSenderPattern } from '@/src/constants/gmailSenders';
 
 type ScanPhase =
   | { phase: 'idle' }
@@ -28,12 +30,18 @@ type ScanPhase =
   | { phase: 'done'; candidates: GmailCandidate[] }
   | { phase: 'error'; message: string };
 
+interface CandidateDetail {
+  amount: string;
+  billingCycle: 'monthly' | 'yearly';
+}
+
 export default function GmailScanScreen() {
   const add = useSubscriptionStore((s) => s.add);
   const subscriptions = useSubscriptionStore((s) => s.subscriptions);
 
   const [scanPhase, setScanPhase] = useState<ScanPhase>({ phase: 'idle' });
   const [selected, setSelected] = useState<Set<string>>(new Set());
+  const [details, setDetails] = useState<Map<string, CandidateDetail>>(new Map());
   const [isRegistering, setIsRegistering] = useState(false);
 
   // ─── スキャン開始 ──────────────────────────────────────────────
@@ -52,23 +60,11 @@ export default function GmailScanScreen() {
 
       setScanPhase({ phase: 'done', candidates });
       setSelected(new Set());
+      setDetails(new Map());
     } catch (err) {
       const message = err instanceof Error ? err.message : '不明なエラーが発生しました';
       setScanPhase({ phase: 'error', message });
     }
-  };
-
-  // ─── 選択トグル ───────────────────────────────────────────────
-  const toggleSelect = (key: string) => {
-    setSelected((prev) => {
-      const next = new Set(prev);
-      if (next.has(key)) {
-        next.delete(key);
-      } else {
-        next.add(key);
-      }
-      return next;
-    });
   };
 
   // ─── 既存登録済みチェック ─────────────────────────────────────
@@ -78,13 +74,55 @@ export default function GmailScanScreen() {
   const isAlreadyRegistered = (displayName: string) =>
     registeredNames.has(displayName.toLowerCase().trim());
 
+  // ─── 選択トグル ───────────────────────────────────────────────
+  const toggleSelect = (key: string, pattern: GmailSenderPattern) => {
+    const isCurrentlySelected = selected.has(key);
+
+    setSelected((prev) => {
+      const next = new Set(prev);
+      if (isCurrentlySelected) {
+        next.delete(key);
+      } else {
+        next.add(key);
+      }
+      return next;
+    });
+
+    setDetails((prev) => {
+      const next = new Map(prev);
+      if (isCurrentlySelected) {
+        next.delete(key);
+      } else {
+        next.set(key, {
+          amount: pattern.defaultAmount ? String(pattern.defaultAmount) : '',
+          billingCycle: pattern.defaultBillingCycle ?? 'monthly',
+        });
+      }
+      return next;
+    });
+  };
+
+  // ─── 詳細更新 ─────────────────────────────────────────────────
+  const updateDetail = (key: string, field: keyof CandidateDetail, value: string) => {
+    setDetails((prev) => {
+      const next = new Map(prev);
+      const current = next.get(key);
+      if (!current) return prev;
+      next.set(key, { ...current, [field]: value });
+      return next;
+    });
+  };
+
   // ─── 選択した候補を登録 ───────────────────────────────────────
   const handleRegister = async () => {
     if (scanPhase.phase !== 'done' || isRegistering) return;
-    const targets = scanPhase.candidates.filter((c) =>
-      selected.has(c.pattern.normalizedName) &&
-      !isAlreadyRegistered(c.pattern.displayName),
+
+    const targets = scanPhase.candidates.filter(
+      (c) =>
+        selected.has(c.pattern.normalizedName) &&
+        !isAlreadyRegistered(c.pattern.displayName),
     );
+
     if (targets.length === 0) {
       Alert.alert('確認', '新しく登録できるサービスがありません（すでに登録済みです）。');
       return;
@@ -94,11 +132,15 @@ export default function GmailScanScreen() {
     let successCount = 0;
 
     for (const candidate of targets) {
+      const key = candidate.pattern.normalizedName;
+      const detail = details.get(key);
+      const amount = parseInt(detail?.amount ?? '0', 10);
+
       const formData: SubscriptionFormData = {
         serviceName: candidate.pattern.displayName,
-        amount: 0,
+        amount: isNaN(amount) ? 0 : amount,
         currency: 'JPY',
-        billingCycle: 'monthly',
+        billingCycle: detail?.billingCycle ?? 'monthly',
         category: null,
         status: 'active',
         nextRenewalDate: null,
@@ -115,9 +157,16 @@ export default function GmailScanScreen() {
 
     setIsRegistering(false);
     setSelected(new Set());
+    setDetails(new Map());
+
+    const hasUnsetAmount = targets.some((c) => {
+      const amt = details.get(c.pattern.normalizedName)?.amount ?? '';
+      return amt === '' || amt === '0';
+    });
+
     Alert.alert(
       '登録完了',
-      `${successCount}件を登録しました。\n金額・更新日は詳細画面から編集してください。`,
+      `${successCount}件を登録しました。${hasUnsetAmount ? '\n金額が未設定の項目は詳細画面から編集できます。' : ''}`,
       [{ text: 'OK', onPress: () => router.back() }],
     );
   };
@@ -143,7 +192,7 @@ export default function GmailScanScreen() {
         <View style={styles.descCard}>
           <Ionicons name="shield-checkmark-outline" size={20} color={COLORS.primary} />
           <Text style={styles.descText}>
-            Gmailの<Text style={styles.bold}>件名と差出人だけ</Text>を読み取り、サブスク候補を探します。メール本文は読みません。見つかった候補はあなたが確認してから登録できます。
+            Gmailの<Text style={styles.bold}>件名と差出人だけ</Text>を読み取り、サブスク候補を探します。メール本文は読みません。
           </Text>
         </View>
 
@@ -171,7 +220,7 @@ export default function GmailScanScreen() {
         {scanPhase.phase === 'error' && (
           <View style={styles.errorCard}>
             <Ionicons name="alert-circle-outline" size={20} color={COLORS.destructive} />
-            <Text style={styles.errorText}>{scanPhase.phase === 'error' ? scanPhase.message : ''}</Text>
+            <Text style={styles.errorText}>{scanPhase.message}</Text>
           </View>
         )}
 
@@ -185,7 +234,7 @@ export default function GmailScanScreen() {
             </Text>
             {candidates.length > 0 && (
               <Text style={styles.resultSub}>
-                チェックを入れてまとめて登録できます
+                タップして選択し、金額・サイクルを確認してから登録できます
               </Text>
             )}
           </View>
@@ -196,48 +245,113 @@ export default function GmailScanScreen() {
           const key = candidate.pattern.normalizedName;
           const isSelected = selected.has(key);
           const alreadyRegistered = isAlreadyRegistered(candidate.pattern.displayName);
+          const detail = details.get(key);
+
           return (
-            <TouchableOpacity
+            <View
               key={key}
               style={[
                 styles.candidateCard,
                 isSelected && styles.candidateCardSelected,
                 alreadyRegistered && styles.candidateCardRegistered,
               ]}
-              onPress={() => !alreadyRegistered && toggleSelect(key)}
-              activeOpacity={alreadyRegistered ? 1 : 0.7}
             >
-              <View style={styles.candidateLeft}>
-                {alreadyRegistered ? (
-                  <Ionicons name="checkmark-circle" size={22} color={COLORS.primary} />
-                ) : (
-                  <View style={[styles.checkbox, isSelected && styles.checkboxChecked]}>
-                    {isSelected && (
-                      <Ionicons name="checkmark" size={14} color="#fff" />
-                    )}
-                  </View>
-                )}
-              </View>
-              <View style={styles.candidateBody}>
-                <View style={styles.candidateNameRow}>
-                  <Text style={styles.candidateName}>{candidate.pattern.displayName}</Text>
-                  {alreadyRegistered && (
-                    <View style={styles.registeredBadge}>
-                      <Text style={styles.registeredBadgeText}>登録済み</Text>
+              {/* カードヘッダー（タップで選択） */}
+              <TouchableOpacity
+                style={styles.candidateHeader}
+                onPress={() => !alreadyRegistered && toggleSelect(key, candidate.pattern)}
+                activeOpacity={alreadyRegistered ? 1 : 0.7}
+              >
+                <View style={styles.candidateLeft}>
+                  {alreadyRegistered ? (
+                    <Ionicons name="checkmark-circle" size={22} color={COLORS.primary} />
+                  ) : (
+                    <View style={[styles.checkbox, isSelected && styles.checkboxChecked]}>
+                      {isSelected && (
+                        <Ionicons name="checkmark" size={14} color="#fff" />
+                      )}
                     </View>
                   )}
                 </View>
-                <Text style={styles.candidateFrom} numberOfLines={1}>
-                  {candidate.from}
-                </Text>
-                <Text style={styles.candidateSubject} numberOfLines={1}>
-                  {candidate.subject}
-                </Text>
-              </View>
-              <View style={styles.candidateRight}>
-                <Text style={styles.candidateCount}>{candidate.matchCount}通</Text>
-              </View>
-            </TouchableOpacity>
+                <View style={styles.candidateBody}>
+                  <View style={styles.candidateNameRow}>
+                    <Text style={styles.candidateName}>{candidate.pattern.displayName}</Text>
+                    {alreadyRegistered && (
+                      <View style={styles.registeredBadge}>
+                        <Text style={styles.registeredBadgeText}>登録済み</Text>
+                      </View>
+                    )}
+                  </View>
+                  <Text style={styles.candidateFrom} numberOfLines={1}>
+                    {candidate.from}
+                  </Text>
+                </View>
+                <View style={styles.candidateRight}>
+                  <Text style={styles.candidateCount}>{candidate.matchCount}通</Text>
+                </View>
+              </TouchableOpacity>
+
+              {/* インライン入力（選択時のみ展開） */}
+              {isSelected && !alreadyRegistered && detail && (
+                <View style={styles.inlineInputs}>
+                  {/* 支払いサイクル */}
+                  <View style={styles.cycleRow}>
+                    <Text style={styles.inlineLabel}>サイクル</Text>
+                    <TouchableOpacity
+                      style={[
+                        styles.cycleBtn,
+                        detail.billingCycle === 'monthly' && styles.cycleBtnActive,
+                      ]}
+                      onPress={() => updateDetail(key, 'billingCycle', 'monthly')}
+                    >
+                      <Text
+                        style={[
+                          styles.cycleBtnText,
+                          detail.billingCycle === 'monthly' && styles.cycleBtnTextActive,
+                        ]}
+                      >
+                        月額
+                      </Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                      style={[
+                        styles.cycleBtn,
+                        detail.billingCycle === 'yearly' && styles.cycleBtnActive,
+                      ]}
+                      onPress={() => updateDetail(key, 'billingCycle', 'yearly')}
+                    >
+                      <Text
+                        style={[
+                          styles.cycleBtnText,
+                          detail.billingCycle === 'yearly' && styles.cycleBtnTextActive,
+                        ]}
+                      >
+                        年額
+                      </Text>
+                    </TouchableOpacity>
+                  </View>
+
+                  {/* 金額入力 */}
+                  <View style={styles.amountRow}>
+                    <Text style={styles.inlineLabel}>金額</Text>
+                    <Text style={styles.yenSymbol}>¥</Text>
+                    <TextInput
+                      style={styles.amountInput}
+                      value={detail.amount}
+                      onChangeText={(v) =>
+                        updateDetail(key, 'amount', v.replace(/[^0-9]/g, ''))
+                      }
+                      keyboardType="numeric"
+                      placeholder="未設定"
+                      placeholderTextColor={COLORS.textMuted}
+                    />
+                    {detail.amount === '' && (
+                      <Text style={styles.amountHint}>（後で編集できます）</Text>
+                    )}
+                  </View>
+                </View>
+              )}
+            </View>
           );
         })}
 
@@ -377,39 +491,25 @@ const styles = StyleSheet.create({
     fontSize: 13,
     color: COLORS.textSecondary,
   },
+  // ─── カード ───────────────────────────────────────────────────
   candidateCard: {
-    flexDirection: 'row',
-    alignItems: 'center',
     backgroundColor: COLORS.surface,
     borderRadius: 12,
-    padding: 14,
     marginBottom: 10,
     borderWidth: 1.5,
     borderColor: COLORS.border,
+    overflow: 'hidden',
   },
   candidateCardSelected: {
     borderColor: COLORS.primary,
-    backgroundColor: COLORS.primaryLight,
   },
   candidateCardRegistered: {
     opacity: 0.6,
   },
-  candidateNameRow: {
+  candidateHeader: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 6,
-    flexWrap: 'wrap',
-  },
-  registeredBadge: {
-    backgroundColor: COLORS.primary,
-    borderRadius: 4,
-    paddingHorizontal: 6,
-    paddingVertical: 2,
-  },
-  registeredBadgeText: {
-    fontSize: 10,
-    fontWeight: '600',
-    color: '#fff',
+    padding: 14,
   },
   candidateLeft: {
     marginRight: 12,
@@ -431,18 +531,31 @@ const styles = StyleSheet.create({
     flex: 1,
     gap: 2,
   },
+  candidateNameRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    flexWrap: 'wrap',
+  },
   candidateName: {
     fontSize: 15,
     fontWeight: '600',
     color: COLORS.text,
   },
+  registeredBadge: {
+    backgroundColor: COLORS.primary,
+    borderRadius: 4,
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+  },
+  registeredBadgeText: {
+    fontSize: 10,
+    fontWeight: '600',
+    color: '#fff',
+  },
   candidateFrom: {
     fontSize: 12,
     color: COLORS.textSecondary,
-  },
-  candidateSubject: {
-    fontSize: 12,
-    color: COLORS.textMuted,
   },
   candidateRight: {
     marginLeft: 8,
@@ -452,6 +565,71 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: COLORS.primary,
   },
+  // ─── インライン入力 ───────────────────────────────────────────
+  inlineInputs: {
+    borderTopWidth: 1,
+    borderTopColor: COLORS.border,
+    backgroundColor: COLORS.primaryLight,
+    paddingHorizontal: 14,
+    paddingVertical: 12,
+    gap: 10,
+  },
+  inlineLabel: {
+    fontSize: 12,
+    color: COLORS.textSecondary,
+    width: 48,
+    fontWeight: '500',
+  },
+  cycleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  cycleBtn: {
+    paddingHorizontal: 16,
+    paddingVertical: 6,
+    borderRadius: 20,
+    borderWidth: 1.5,
+    borderColor: COLORS.border,
+    backgroundColor: COLORS.surface,
+  },
+  cycleBtnActive: {
+    backgroundColor: COLORS.primary,
+    borderColor: COLORS.primary,
+  },
+  cycleBtnText: {
+    fontSize: 13,
+    fontWeight: '600',
+    color: COLORS.textSecondary,
+  },
+  cycleBtnTextActive: {
+    color: '#fff',
+  },
+  amountRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+  },
+  yenSymbol: {
+    fontSize: 15,
+    fontWeight: '600',
+    color: COLORS.text,
+  },
+  amountInput: {
+    fontSize: 15,
+    fontWeight: '600',
+    color: COLORS.text,
+    borderBottomWidth: 1.5,
+    borderBottomColor: COLORS.primary,
+    minWidth: 80,
+    paddingVertical: 2,
+    paddingHorizontal: 4,
+  },
+  amountHint: {
+    fontSize: 11,
+    color: COLORS.textMuted,
+  },
+  // ─── その他 ───────────────────────────────────────────────────
   rescanBtn: {
     alignItems: 'center',
     paddingVertical: 16,
