@@ -33,6 +33,7 @@ type ScanPhase =
 interface CandidateDetail {
   amount: string;
   billingCycle: 'monthly' | 'yearly';
+  currency: 'JPY' | 'USD';
 }
 
 export default function GmailScanScreen() {
@@ -96,6 +97,7 @@ export default function GmailScanScreen() {
         next.set(key, {
           amount: pattern.defaultAmount ? String(pattern.defaultAmount) : '',
           billingCycle: pattern.defaultBillingCycle ?? 'monthly',
+          currency: pattern.defaultCurrency ?? 'JPY',
         });
       }
       return next;
@@ -103,12 +105,12 @@ export default function GmailScanScreen() {
   };
 
   // ─── 詳細更新 ─────────────────────────────────────────────────
-  const updateDetail = (key: string, field: keyof CandidateDetail, value: string) => {
+  const updateDetail = (key: string, updates: Partial<CandidateDetail>) => {
     setDetails((prev) => {
       const next = new Map(prev);
       const current = next.get(key);
       if (!current) return prev;
-      next.set(key, { ...current, [field]: value });
+      next.set(key, { ...current, ...updates });
       return next;
     });
   };
@@ -139,9 +141,9 @@ export default function GmailScanScreen() {
       const formData: SubscriptionFormData = {
         serviceName: candidate.pattern.displayName,
         amount: isNaN(amount) ? 0 : amount,
-        currency: 'JPY',
+        currency: detail?.currency ?? 'JPY',
         billingCycle: detail?.billingCycle ?? 'monthly',
-        category: null,
+        category: candidate.pattern.defaultCategory ?? null,
         status: 'active',
         nextRenewalDate: null,
         trialEndDate: null,
@@ -302,7 +304,7 @@ export default function GmailScanScreen() {
                         styles.cycleBtn,
                         detail.billingCycle === 'monthly' && styles.cycleBtnActive,
                       ]}
-                      onPress={() => updateDetail(key, 'billingCycle', 'monthly')}
+                      onPress={() => updateDetail(key, { billingCycle: 'monthly' })}
                     >
                       <Text
                         style={[
@@ -318,7 +320,7 @@ export default function GmailScanScreen() {
                         styles.cycleBtn,
                         detail.billingCycle === 'yearly' && styles.cycleBtnActive,
                       ]}
-                      onPress={() => updateDetail(key, 'billingCycle', 'yearly')}
+                      onPress={() => updateDetail(key, { billingCycle: 'yearly' })}
                     >
                       <Text
                         style={[
@@ -331,15 +333,54 @@ export default function GmailScanScreen() {
                     </TouchableOpacity>
                   </View>
 
+                  {/* 通貨 */}
+                  <View style={styles.cycleRow}>
+                    <Text style={styles.inlineLabel}>通貨</Text>
+                    <TouchableOpacity
+                      style={[
+                        styles.cycleBtn,
+                        detail.currency === 'JPY' && styles.cycleBtnActive,
+                      ]}
+                      onPress={() => updateDetail(key, { currency: 'JPY' })}
+                    >
+                      <Text
+                        style={[
+                          styles.cycleBtnText,
+                          detail.currency === 'JPY' && styles.cycleBtnTextActive,
+                        ]}
+                      >
+                        ¥ JPY
+                      </Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                      style={[
+                        styles.cycleBtn,
+                        detail.currency === 'USD' && styles.cycleBtnActive,
+                      ]}
+                      onPress={() => updateDetail(key, { currency: 'USD' })}
+                    >
+                      <Text
+                        style={[
+                          styles.cycleBtnText,
+                          detail.currency === 'USD' && styles.cycleBtnTextActive,
+                        ]}
+                      >
+                        $ USD
+                      </Text>
+                    </TouchableOpacity>
+                  </View>
+
                   {/* 金額入力 */}
                   <View style={styles.amountRow}>
                     <Text style={styles.inlineLabel}>金額</Text>
-                    <Text style={styles.yenSymbol}>¥</Text>
+                    <Text style={styles.yenSymbol}>
+                      {detail.currency === 'USD' ? '$' : '¥'}
+                    </Text>
                     <TextInput
                       style={styles.amountInput}
                       value={detail.amount}
                       onChangeText={(v) =>
-                        updateDetail(key, 'amount', v.replace(/[^0-9]/g, ''))
+                        updateDetail(key, { amount: v.replace(/[^0-9]/g, '') })
                       }
                       keyboardType="numeric"
                       placeholder="未設定"
