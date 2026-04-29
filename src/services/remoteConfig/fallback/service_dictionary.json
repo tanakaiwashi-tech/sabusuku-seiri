@@ -4,14 +4,14 @@
     "updatePolicy": "辞書を更新する場合はこのファイルを編集し version を上げる。リモート配信機能を追加した際はこのコメントも合わせて更新すること。",
     "branding": "企業ロゴ・公式カラー・外部参照URLは含めない方針。"
   },
-  "version": "11",
+  "version": "20",
   "entries": [
     {
       "id": "amazon_prime",
       "name": "Amazon Prime",
       "normalizedName": "amazonprime",
       "reading": "あまぞんぷらいむ",
-      "category": "動画配信",
+      "category": "ショッピング",
       "defaultBillingCycle": "yearly",
       "defaultAmount": 5900,
       "popularityRank": 1,
@@ -125,7 +125,7 @@
     {
       "id": "icloud_plus",
       "name": "iCloud+",
-      "normalizedName": "icloud+",
+      "normalizedName": "icloudplus",
       "reading": "あいくらうどぷらす",
       "category": "クラウドストレージ",
       "defaultBillingCycle": "monthly",
@@ -151,7 +151,7 @@
     {
       "id": "disney_plus",
       "name": "Disney+",
-      "normalizedName": "disney+",
+      "normalizedName": "disneyplus",
       "reading": "でぃずにーぷらす",
       "category": "動画配信",
       "defaultBillingCycle": "monthly",
@@ -179,7 +179,7 @@
       "defaultBillingCycle": "yearly",
       "defaultAmount": 2400,
       "popularityRank": 8,
-      "officialCancelUrl": "https://accounts.nintendo.com/subscription/nintendo_switch_online",
+      "officialCancelUrl": "https://support.nintendo.com/jp/nso/cancellation/index.html",
       "plans": [
         {
           "label": "個人",
@@ -214,7 +214,7 @@
       "defaultBillingCycle": "monthly",
       "defaultAmount": 250,
       "popularityRank": 10,
-      "officialCancelUrl": "https://one.google.com/about/cancel",
+      "officialCancelUrl": "https://support.google.com/googleone/answer/9056360?hl=ja",
       "plans": [
         {
           "label": "100GB",
@@ -240,7 +240,7 @@
       "defaultBillingCycle": "monthly",
       "defaultAmount": 1026,
       "popularityRank": 11,
-      "officialCancelUrl": "https://help.hulu.com/s/article/how-to-cancel",
+      "officialCancelUrl": "https://id.hulu.jp/account",
       "domain": "hulu.com"
     },
     {
@@ -252,11 +252,19 @@
       "defaultBillingCycle": "yearly",
       "defaultAmount": 14900,
       "popularityRank": 12,
-      "officialCancelUrl": "https://account.microsoft.com/services",
+      "officialCancelUrl": "https://account.microsoft.com/services/microsoft365",
       "domain": "microsoft.com",
       "plans": [
-        { "label": "月払い", "amount": 1490,  "billingCycle": "monthly" },
-        { "label": "年払い", "amount": 14900, "billingCycle": "yearly"  }
+        {
+          "label": "月払い",
+          "amount": 1490,
+          "billingCycle": "monthly"
+        },
+        {
+          "label": "年払い",
+          "amount": 14900,
+          "billingCycle": "yearly"
+        }
       ]
     },
     {
@@ -268,7 +276,7 @@
       "defaultBillingCycle": "monthly",
       "defaultAmount": 2189,
       "popularityRank": 13,
-      "officialCancelUrl": "https://video.unext.jp/plan",
+      "officialCancelUrl": "https://help.unext.jp/guide/detail/how-to-cancel-the-contract",
       "domain": "unext.jp"
     },
     {
@@ -280,7 +288,7 @@
       "defaultBillingCycle": "monthly",
       "defaultAmount": 960,
       "popularityRank": 14,
-      "officialCancelUrl": "https://abema.tv/settings/membership",
+      "officialCancelUrl": "https://abema.tv/settings/plans",
       "domain": "abema.tv"
     },
     {
@@ -292,7 +300,7 @@
       "defaultBillingCycle": "monthly",
       "defaultAmount": 980,
       "popularityRank": 15,
-      "officialCancelUrl": "https://www.amazon.co.jp/kindle-dbs/ku/kuue",
+      "officialCancelUrl": "https://www.amazon.co.jp/gp/help/customer/display.html?nodeId=GLSQ4722655M4ZEJ",
       "domain": "amazon.co.jp"
     },
     {
@@ -304,7 +312,7 @@
       "defaultBillingCycle": "yearly",
       "defaultAmount": 8600,
       "popularityRank": 16,
-      "officialCancelUrl": "https://www.playstation.com/ja-jp/playstation-plus/cancel/",
+      "officialCancelUrl": "https://www.playstation.com/ja-jp/support/subscriptions/cancel-playstation-plus/",
       "domain": "playstation.com"
     },
     {
@@ -328,7 +336,7 @@
       "defaultBillingCycle": "yearly",
       "defaultAmount": 2149,
       "popularityRank": 18,
-      "officialCancelUrl": "https://premium.rakuten.co.jp/mypage/cancel/",
+      "officialCancelUrl": "https://premium.rakuten.co.jp/",
       "domain": "rakuten.co.jp"
     },
     {
@@ -341,7 +349,7 @@
       "defaultAmount": 16,
       "currency": "USD",
       "popularityRank": 19,
-      "officialCancelUrl": "https://www.notion.so/ja-jp/help/cancel-account",
+      "officialCancelUrl": "https://www.notion.com/help/upgrade-or-downgrade-your-plan",
       "domain": "notion.so"
     },
     {
@@ -353,7 +361,8 @@
       "defaultBillingCycle": "irregular",
       "defaultAmount": null,
       "popularityRank": 20,
-      "officialCancelUrl": "https://www.amazon.co.jp/gp/subscribe-and-save/manager/viewsubscriptions"
+      "officialCancelUrl": "https://www.amazon.co.jp/gp/subscribe-and-save/manager/viewsubscriptions",
+      "domain": "amazon.co.jp"
     },
     {
       "id": "nikkei",
@@ -379,8 +388,16 @@
       "officialCancelUrl": "https://www.dropbox.com/account/plan",
       "domain": "dropbox.com",
       "plans": [
-        { "label": "月払い", "amount": 1499,  "billingCycle": "monthly" },
-        { "label": "年払い", "amount": 15000, "billingCycle": "yearly"  }
+        {
+          "label": "月払い",
+          "amount": 1499,
+          "billingCycle": "monthly"
+        },
+        {
+          "label": "年払い",
+          "amount": 15000,
+          "billingCycle": "yearly"
+        }
       ]
     },
     {
@@ -393,7 +410,7 @@
       "defaultAmount": 4,
       "currency": "USD",
       "popularityRank": 23,
-      "officialCancelUrl": "https://github.com/settings/billing",
+      "officialCancelUrl": "https://github.com/settings/billing/plans",
       "domain": "github.com"
     },
     {
@@ -408,8 +425,16 @@
       "officialCancelUrl": "https://www.duolingo.com/settings/super",
       "domain": "duolingo.com",
       "plans": [
-        { "label": "月払い", "amount": 1067, "billingCycle": "monthly" },
-        { "label": "年払い", "amount": 9600,  "billingCycle": "yearly"  }
+        {
+          "label": "月払い",
+          "amount": 1067,
+          "billingCycle": "monthly"
+        },
+        {
+          "label": "年払い",
+          "amount": 9600,
+          "billingCycle": "yearly"
+        }
       ]
     },
     {
@@ -434,7 +459,8 @@
       "defaultBillingCycle": "monthly",
       "defaultAmount": null,
       "popularityRank": 26,
-      "officialCancelUrl": "https://share.timescar.jp/member/member/cancel"
+      "officialCancelUrl": "https://share.timescar.jp/view/member/mypage.jsp",
+      "domain": "timescar.jp"
     },
     {
       "id": "d_magazine",
@@ -445,7 +471,8 @@
       "defaultBillingCycle": "monthly",
       "defaultAmount": 580,
       "popularityRank": 27,
-      "officialCancelUrl": "https://magazine.dmkt-sp.jp/help/exit/"
+      "officialCancelUrl": "https://dmagazine.docomo.ne.jp/campaign/dmag-resign/",
+      "domain": "magazine.dmkt-sp.jp"
     },
     {
       "id": "newspicks",
@@ -456,7 +483,7 @@
       "defaultBillingCycle": "monthly",
       "defaultAmount": 1700,
       "popularityRank": 28,
-      "officialCancelUrl": "https://newspicks.com/settings/plan",
+      "officialCancelUrl": "https://newspicks.com/settings/subscriptions/",
       "domain": "newspicks.com"
     },
     {
@@ -474,7 +501,7 @@
     {
       "id": "apple_tv_plus",
       "name": "Apple TV+",
-      "normalizedName": "appletv+",
+      "normalizedName": "appletvplus",
       "reading": "あっぷるてぃーびーぷらす",
       "category": "動画配信",
       "defaultBillingCycle": "monthly",
@@ -492,7 +519,7 @@
       "defaultBillingCycle": "monthly",
       "defaultAmount": 1080,
       "popularityRank": 31,
-      "officialCancelUrl": "https://www.amazon.co.jp/Amazon-Music-Unlimited/b?node=3131315051",
+      "officialCancelUrl": "https://www.amazon.co.jp/gp/help/customer/display.html?nodeId=GCRZL3F2UZMNP3T3",
       "domain": "music.amazon.co.jp"
     },
     {
@@ -516,7 +543,7 @@
       "defaultBillingCycle": "monthly",
       "defaultAmount": 990,
       "popularityRank": 33,
-      "officialCancelUrl": "https://www.nhk-ondemand.jp/my/procedure/leave/",
+      "officialCancelUrl": "https://www.nhk-ondemand.jp/",
       "domain": "nhk-ondemand.jp"
     },
     {
@@ -528,7 +555,7 @@
       "defaultBillingCycle": "monthly",
       "defaultAmount": 500,
       "popularityRank": 34,
-      "officialCancelUrl": "https://moneyforward.com/users/settings/plan",
+      "officialCancelUrl": "https://support.me.moneyforward.com/hc/ja/articles/900003481486",
       "domain": "moneyforward.com"
     },
     {
@@ -553,7 +580,7 @@
       "defaultBillingCycle": "monthly",
       "defaultAmount": 550,
       "popularityRank": 36,
-      "officialCancelUrl": "https://secure.nicovideo.jp/secure/premium_cancel",
+      "officialCancelUrl": "https://qa.nicovideo.jp/faq/show/847?site_domain=default",
       "domain": "nicovideo.jp"
     },
     {
@@ -586,11 +613,23 @@
       "normalizedName": "canvapro",
       "reading": "きゃんばぷろ",
       "category": "ソフトウェア",
-      "defaultBillingCycle": "yearly",
-      "defaultAmount": null,
+      "defaultBillingCycle": "monthly",
+      "defaultAmount": 1700,
       "popularityRank": 39,
       "officialCancelUrl": "https://www.canva.com/settings/billing",
-      "domain": "canva.com"
+      "domain": "canva.com",
+      "plans": [
+        {
+          "label": "月払い",
+          "amount": 1700,
+          "billingCycle": "monthly"
+        },
+        {
+          "label": "年払い",
+          "amount": 13200,
+          "billingCycle": "yearly"
+        }
+      ]
     },
     {
       "id": "apple_arcade",
@@ -637,7 +676,7 @@
       "defaultBillingCycle": "monthly",
       "defaultAmount": 2530,
       "popularityRank": 43,
-      "officialCancelUrl": "https://member.wowow.co.jp/my/changeplan",
+      "officialCancelUrl": "https://support.wowow.co.jp/answer/61add1649e474a001c1ccf03/",
       "domain": "wowow.co.jp"
     },
     {
@@ -661,7 +700,7 @@
       "defaultBillingCycle": "monthly",
       "defaultAmount": 990,
       "popularityRank": 45,
-      "officialCancelUrl": "https://www.b-ch.com/ttl/my/account_config/withdrawal",
+      "officialCancelUrl": "https://faq.b-ch.com/post2157/",
       "domain": "b-ch.com"
     },
     {
@@ -673,7 +712,7 @@
       "defaultBillingCycle": "monthly",
       "defaultAmount": 990,
       "popularityRank": 46,
-      "officialCancelUrl": "https://lemino.docomo.ne.jp/lp/member_info",
+      "officialCancelUrl": "https://lemino.docomo.ne.jp/withdrawal/prevention",
       "domain": "lemino.docomo.ne.jp"
     },
     {
@@ -685,7 +724,7 @@
       "defaultBillingCycle": "monthly",
       "defaultAmount": 4300,
       "popularityRank": 47,
-      "officialCancelUrl": "https://www.skyperfectv.co.jp/service/procedure/",
+      "officialCancelUrl": "https://my.skyperfectv.co.jp/",
       "domain": "skyperfectv.co.jp"
     },
     {
@@ -697,7 +736,7 @@
       "defaultBillingCycle": "monthly",
       "defaultAmount": 960,
       "popularityRank": 48,
-      "officialCancelUrl": "https://awa.fm/settings/plan",
+      "officialCancelUrl": "https://mf.awa.fm/how-to-cancel_ja",
       "domain": "awa.fm"
     },
     {
@@ -721,7 +760,8 @@
       "defaultBillingCycle": "monthly",
       "defaultAmount": 418,
       "popularityRank": 50,
-      "officialCancelUrl": "https://magazine.rakuten.co.jp/guide/cancellation"
+      "officialCancelUrl": "https://magazine.faq.rakuten.net/s/detail/000003749",
+      "domain": "magazine.rakuten.co.jp"
     },
     {
       "id": "asahi_digital",
@@ -744,7 +784,8 @@
       "defaultBillingCycle": "monthly",
       "defaultAmount": 1100,
       "popularityRank": 52,
-      "officialCancelUrl": "https://premium.yomiuri.co.jp/"
+      "officialCancelUrl": "https://premium.yomiuri.co.jp/",
+      "domain": "yomiuri.co.jp"
     },
     {
       "id": "book_walker_premium",
@@ -755,7 +796,8 @@
       "defaultBillingCycle": "monthly",
       "defaultAmount": 660,
       "popularityRank": 53,
-      "officialCancelUrl": "https://bookwalker.jp/help/premium/withdrawal"
+      "officialCancelUrl": "https://bookwalker.jp/help/premium/withdrawal",
+      "domain": "bookwalker.jp"
     },
     {
       "id": "comic_seymour",
@@ -766,7 +808,8 @@
       "defaultBillingCycle": "monthly",
       "defaultAmount": 990,
       "popularityRank": 54,
-      "officialCancelUrl": "https://www.cmoa.jp/help/faq/"
+      "officialCancelUrl": "https://www.cmoa.jp/help/faq/",
+      "domain": "cmoa.jp"
     },
     {
       "id": "manga_okoku",
@@ -777,7 +820,8 @@
       "defaultBillingCycle": "monthly",
       "defaultAmount": 990,
       "popularityRank": 55,
-      "officialCancelUrl": "https://comic.k-manga.jp/guide/course-withdrawal"
+      "officialCancelUrl": "https://comic.k-manga.jp/guide/course-withdrawal",
+      "domain": "manga.k-manga.jp"
     },
     {
       "id": "line_manga",
@@ -788,7 +832,8 @@
       "defaultBillingCycle": "monthly",
       "defaultAmount": 960,
       "popularityRank": 56,
-      "officialCancelUrl": "https://manga.line.me/help/"
+      "officialCancelUrl": "https://manga.line.me/help/",
+      "domain": "manga.line.me"
     },
     {
       "id": "manga_bang",
@@ -799,7 +844,8 @@
       "defaultBillingCycle": "monthly",
       "defaultAmount": 600,
       "popularityRank": 57,
-      "officialCancelUrl": "https://mangabang.net/static/help"
+      "officialCancelUrl": "https://mangabang.net/static/help",
+      "domain": "mangabang.jp"
     },
     {
       "id": "president_online",
@@ -810,7 +856,8 @@
       "defaultBillingCycle": "monthly",
       "defaultAmount": 1050,
       "popularityRank": 58,
-      "officialCancelUrl": "https://president.jp/member"
+      "officialCancelUrl": "https://president.jp/member",
+      "domain": "president.jp"
     },
     {
       "id": "xbox_game_pass",
@@ -839,7 +886,7 @@
     {
       "id": "ubisoft_plus",
       "name": "Ubisoft+",
-      "normalizedName": "ubisoft+",
+      "normalizedName": "ubisoftplus",
       "reading": "ゆーびそふとぷらす",
       "category": "ゲーム",
       "defaultBillingCycle": "monthly",
@@ -858,7 +905,8 @@
       "defaultBillingCycle": "monthly",
       "defaultAmount": 2600,
       "popularityRank": 62,
-      "officialCancelUrl": "https://www.benesse.co.jp/zemi/qna/quit.html"
+      "officialCancelUrl": "https://www.benesse.co.jp/zemi/qna/quit.html",
+      "domain": "benesse.ne.jp"
     },
     {
       "id": "kodomo_challenge",
@@ -869,7 +917,8 @@
       "defaultBillingCycle": "monthly",
       "defaultAmount": 2074,
       "popularityRank": 63,
-      "officialCancelUrl": "https://sho.benesse.co.jp/qna/quit.html"
+      "officialCancelUrl": "https://sho.benesse.co.jp/qna/quit.html",
+      "domain": "shimajiro.co.jp"
     },
     {
       "id": "z_kai",
@@ -880,7 +929,8 @@
       "defaultBillingCycle": "monthly",
       "defaultAmount": 3000,
       "popularityRank": 64,
-      "officialCancelUrl": "https://www.zkai.co.jp/members/service-cancel/"
+      "officialCancelUrl": "https://www.zkai.co.jp/members/service-cancel/",
+      "domain": "zkai.co.jp"
     },
     {
       "id": "dmm_eikaiwa",
@@ -891,7 +941,8 @@
       "defaultBillingCycle": "monthly",
       "defaultAmount": 6480,
       "popularityRank": 65,
-      "officialCancelUrl": "https://eikaiwa.dmm.com/account/plan"
+      "officialCancelUrl": "https://eikaiwa.dmm.com/account/plan",
+      "domain": "eikaiwa.dmm.com"
     },
     {
       "id": "studysapuri_english",
@@ -986,7 +1037,8 @@
       "defaultBillingCycle": "monthly",
       "defaultAmount": 3200,
       "popularityRank": 73,
-      "officialCancelUrl": "https://account.microsoft.com/services"
+      "officialCancelUrl": "https://account.microsoft.com/services",
+      "domain": "microsoft.com"
     },
     {
       "id": "line_stamp_premium",
@@ -997,7 +1049,8 @@
       "defaultBillingCycle": "monthly",
       "defaultAmount": 240,
       "popularityRank": 74,
-      "officialCancelUrl": "https://line.me/ja/sticker/premium"
+      "officialCancelUrl": "https://line.me/ja/sticker/premium",
+      "domain": "store.line.me"
     },
     {
       "id": "lyp_premium",
@@ -1008,7 +1061,8 @@
       "defaultBillingCycle": "monthly",
       "defaultAmount": 508,
       "popularityRank": 75,
-      "officialCancelUrl": "https://premium.yahoo.co.jp/service/rules/lp/cancel"
+      "officialCancelUrl": "https://premium.yahoo.co.jp/service/rules/lp/cancel",
+      "domain": "yahoo.co.jp"
     },
     {
       "id": "zoom_pro",
@@ -1020,7 +1074,8 @@
       "defaultAmount": 16,
       "currency": "USD",
       "popularityRank": 76,
-      "officialCancelUrl": "https://zoom.us/billing"
+      "officialCancelUrl": "https://zoom.us/billing",
+      "domain": "zoom.us"
     },
     {
       "id": "onepassword",
@@ -1032,7 +1087,8 @@
       "defaultAmount": 3,
       "currency": "USD",
       "popularityRank": 77,
-      "officialCancelUrl": "https://my.1password.com/profile"
+      "officialCancelUrl": "https://my.1password.com/profile",
+      "domain": "1password.com"
     },
     {
       "id": "github_copilot",
@@ -1044,7 +1100,8 @@
       "defaultAmount": 10,
       "currency": "USD",
       "popularityRank": 78,
-      "officialCancelUrl": "https://github.com/settings/copilot"
+      "officialCancelUrl": "https://github.com/settings/copilot",
+      "domain": "github.com"
     },
     {
       "id": "figma_pro",
@@ -1056,7 +1113,8 @@
       "defaultAmount": 12,
       "currency": "USD",
       "popularityRank": 79,
-      "officialCancelUrl": "https://www.figma.com/settings"
+      "officialCancelUrl": "https://www.figma.com/settings",
+      "domain": "figma.com"
     },
     {
       "id": "slack_pro",
@@ -1068,7 +1126,8 @@
       "defaultAmount": 9,
       "currency": "USD",
       "popularityRank": 80,
-      "officialCancelUrl": "https://slack.com/intl/ja-jp/help/articles/204100658"
+      "officialCancelUrl": "https://slack.com/intl/ja-jp/help/articles/48764458651795",
+      "domain": "slack.com"
     },
     {
       "id": "nordvpn",
@@ -1080,7 +1139,8 @@
       "defaultAmount": 13,
       "currency": "USD",
       "popularityRank": 81,
-      "officialCancelUrl": "https://nordvpn.com/ja/account/"
+      "officialCancelUrl": "https://my.nordaccount.com/",
+      "domain": "nordvpn.com"
     },
     {
       "id": "grammarly_premium",
@@ -1092,7 +1152,8 @@
       "defaultAmount": 12,
       "currency": "USD",
       "popularityRank": 82,
-      "officialCancelUrl": "https://account.grammarly.com/account"
+      "officialCancelUrl": "https://account.grammarly.com/account",
+      "domain": "grammarly.com"
     },
     {
       "id": "shopify_basic",
@@ -1104,7 +1165,8 @@
       "defaultAmount": 29,
       "currency": "USD",
       "popularityRank": 83,
-      "officialCancelUrl": "https://help.shopify.com/ja/manual/your-account/close-your-account"
+      "officialCancelUrl": "https://help.shopify.com/ja/manual/your-account/close-your-account",
+      "domain": "shopify.com"
     },
     {
       "id": "loom_starter",
@@ -1116,7 +1178,8 @@
       "defaultAmount": 15,
       "currency": "USD",
       "popularityRank": 84,
-      "officialCancelUrl": "https://www.loom.com/settings"
+      "officialCancelUrl": "https://www.loom.com/settings",
+      "domain": "loom.com"
     },
     {
       "id": "backblaze",
@@ -1128,7 +1191,8 @@
       "defaultAmount": 9,
       "currency": "USD",
       "popularityRank": 85,
-      "officialCancelUrl": "https://www.backblaze.com/account.html"
+      "officialCancelUrl": "https://www.backblaze.com/account.html",
+      "domain": "backblaze.com"
     },
     {
       "id": "freee_personal",
@@ -1139,7 +1203,8 @@
       "defaultBillingCycle": "monthly",
       "defaultAmount": 1078,
       "popularityRank": 86,
-      "officialCancelUrl": "https://support.freee.co.jp/hc/ja/articles/203753174"
+      "officialCancelUrl": "https://support.freee.co.jp/hc/ja/articles/203753174",
+      "domain": "freee.co.jp"
     },
     {
       "id": "freee_standard",
@@ -1150,7 +1215,8 @@
       "defaultBillingCycle": "monthly",
       "defaultAmount": 3278,
       "popularityRank": 87,
-      "officialCancelUrl": "https://support.freee.co.jp/hc/ja/articles/203753174"
+      "officialCancelUrl": "https://support.freee.co.jp/hc/ja/articles/203753174",
+      "domain": "freee.co.jp"
     },
     {
       "id": "au_smart_pass",
@@ -1161,7 +1227,8 @@
       "defaultBillingCycle": "monthly",
       "defaultAmount": 548,
       "popularityRank": 88,
-      "officialCancelUrl": "https://pass.auone.jp/smart_pass_premium/withdrawal/"
+      "officialCancelUrl": "https://pass.auone.jp/smart_pass_premium/withdrawal/",
+      "domain": "au.com"
     },
     {
       "id": "lean_body",
@@ -1172,7 +1239,8 @@
       "defaultBillingCycle": "monthly",
       "defaultAmount": 980,
       "popularityRank": 89,
-      "officialCancelUrl": "https://leanbody.jp/lp/quit"
+      "officialCancelUrl": "https://leanbody.jp/lp/quit",
+      "domain": "lean-body.jp"
     },
     {
       "id": "headspace",
@@ -1184,7 +1252,8 @@
       "defaultAmount": 13,
       "currency": "USD",
       "popularityRank": 90,
-      "officialCancelUrl": "https://www.headspace.com/settings"
+      "officialCancelUrl": "https://www.headspace.com/settings",
+      "domain": "headspace.com"
     },
     {
       "id": "fith_online",
@@ -1195,7 +1264,8 @@
       "defaultBillingCycle": "monthly",
       "defaultAmount": 2178,
       "popularityRank": 91,
-      "officialCancelUrl": "https://fit.f-gym.jp/"
+      "officialCancelUrl": "https://fit.f-gym.jp/",
+      "domain": "fith.jp"
     },
     {
       "id": "uber_one",
@@ -1206,18 +1276,20 @@
       "defaultBillingCycle": "monthly",
       "defaultAmount": 998,
       "popularityRank": 92,
-      "officialCancelUrl": "https://www.ubereats.com/jp/merchant/uber-one"
+      "officialCancelUrl": "https://www.ubereats.com/jp/merchant/uber-one",
+      "domain": "uber.com"
     },
     {
       "id": "wolt_plus",
       "name": "Wolt+",
-      "normalizedName": "wolt+",
+      "normalizedName": "woltplus",
       "reading": "うぉるとぷらす",
       "category": "フード",
       "defaultBillingCycle": "monthly",
       "defaultAmount": 968,
       "popularityRank": 93,
-      "officialCancelUrl": "https://wolt.com/ja/jpn"
+      "officialCancelUrl": "https://wolt.com/ja/jpn",
+      "domain": "wolt.com"
     },
     {
       "id": "cookpad_premium",
@@ -1228,7 +1300,8 @@
       "defaultBillingCycle": "monthly",
       "defaultAmount": 308,
       "popularityRank": 94,
-      "officialCancelUrl": "https://cookpad.com/premium/cancel"
+      "officialCancelUrl": "https://cookpad.com/premium/cancel",
+      "domain": "cookpad.com"
     },
     {
       "id": "tabelog_premium",
@@ -1239,7 +1312,8 @@
       "defaultBillingCycle": "monthly",
       "defaultAmount": 400,
       "popularityRank": 95,
-      "officialCancelUrl": "https://tabelog.com/settings/pr_status"
+      "officialCancelUrl": "https://tabelog.com/settings/pr_status",
+      "domain": "tabelog.com"
     },
     {
       "id": "careco",
@@ -1250,7 +1324,8 @@
       "defaultBillingCycle": "monthly",
       "defaultAmount": null,
       "popularityRank": 96,
-      "officialCancelUrl": "https://www.careco.jp/member/withdrawal/"
+      "officialCancelUrl": "https://www.careco.jp/member/withdrawal/",
+      "domain": "careco.jp"
     },
     {
       "id": "anyca",
@@ -1261,7 +1336,8 @@
       "defaultBillingCycle": "monthly",
       "defaultAmount": null,
       "popularityRank": 97,
-      "officialCancelUrl": "https://anyca.net/lp/withdraw"
+      "domain": "anyca.net",
+      "defunct": true
     },
     {
       "id": "calm",
@@ -1272,7 +1348,8 @@
       "defaultBillingCycle": "yearly",
       "defaultAmount": null,
       "popularityRank": 98,
-      "officialCancelUrl": "https://www.calm.com/settings"
+      "officialCancelUrl": "https://www.calm.com/settings",
+      "domain": "calm.com"
     },
     {
       "id": "fitness_generic",
@@ -1288,13 +1365,14 @@
     {
       "id": "icloud_200gb",
       "name": "iCloud+ 200GB",
-      "normalizedName": "icloud+200gb",
+      "normalizedName": "icloudplus200gb",
       "reading": "あいくらうどぷらすにひゃくぎがばいと",
       "category": "クラウドストレージ",
       "defaultBillingCycle": "monthly",
       "defaultAmount": 400,
       "popularityRank": 100,
-      "officialCancelUrl": "https://support.apple.com/ja-jp/118428"
+      "officialCancelUrl": "https://support.apple.com/ja-jp/118428",
+      "domain": "icloud.com"
     },
     {
       "id": "telasa",
@@ -1305,18 +1383,20 @@
       "defaultBillingCycle": "monthly",
       "defaultAmount": 618,
       "popularityRank": 101,
-      "officialCancelUrl": "https://www.telasa.jp/manage_subscription"
+      "officialCancelUrl": "https://www.telasa.jp/manage_subscription",
+      "domain": "telasa.jp"
     },
     {
       "id": "paramount_plus",
       "name": "Paramount+",
-      "normalizedName": "paramount+",
+      "normalizedName": "paramountplus",
       "reading": "ぱらまうんとぷらす",
       "category": "動画配信",
       "defaultBillingCycle": "monthly",
       "defaultAmount": 780,
       "popularityRank": 102,
-      "officialCancelUrl": "https://www.paramountplus.com/account/cancel/"
+      "officialCancelUrl": "https://www.paramountplus.com/account/cancel/",
+      "domain": "paramountplus.com"
     },
     {
       "id": "ntv_mydo",
@@ -1327,7 +1407,8 @@
       "defaultBillingCycle": "monthly",
       "defaultAmount": 440,
       "popularityRank": 103,
-      "officialCancelUrl": "https://www.ntv.co.jp/mydo/guide/"
+      "officialCancelUrl": "https://www.ntv.co.jp/mydo/guide/",
+      "domain": "ntv.co.jp"
     },
     {
       "id": "dmm_tv_premium",
@@ -1338,7 +1419,8 @@
       "defaultBillingCycle": "monthly",
       "defaultAmount": 550,
       "popularityRank": 104,
-      "officialCancelUrl": "https://tv.dmm.com/vod/help/premium_withdrawal/"
+      "officialCancelUrl": "https://tv.dmm.com/vod/help/premium_withdrawal/",
+      "domain": "tv.dmm.com"
     },
     {
       "id": "pacificleague_tv",
@@ -1349,7 +1431,8 @@
       "defaultBillingCycle": "monthly",
       "defaultAmount": 550,
       "popularityRank": 105,
-      "officialCancelUrl": "https://tv.pacificleague.jp/"
+      "officialCancelUrl": "https://tv.pacificleague.jp/",
+      "domain": "p-liga.jp"
     },
     {
       "id": "jsports_ondemand",
@@ -1360,7 +1443,8 @@
       "defaultBillingCycle": "monthly",
       "defaultAmount": 1980,
       "popularityRank": 106,
-      "officialCancelUrl": "https://jsports-ondemand.com/help/cancel"
+      "officialCancelUrl": "https://jsports-ondemand.com/help/cancel",
+      "domain": "jsports.co.jp"
     },
     {
       "id": "gaora_sports",
@@ -1371,7 +1455,8 @@
       "defaultBillingCycle": "monthly",
       "defaultAmount": 1848,
       "popularityRank": 107,
-      "officialCancelUrl": "https://www.gaora.co.jp/help/"
+      "officialCancelUrl": "https://www.gaora.co.jp/help/",
+      "domain": "gaora.co.jp"
     },
     {
       "id": "tsuburaya_imagination",
@@ -1382,7 +1467,8 @@
       "defaultBillingCycle": "monthly",
       "defaultAmount": 270,
       "popularityRank": 108,
-      "officialCancelUrl": "https://m-78.jp/imagination/"
+      "officialCancelUrl": "https://m-78.jp/imagination/",
+      "domain": "imagination.m-78.jp"
     },
     {
       "id": "d_hits",
@@ -1393,7 +1479,8 @@
       "defaultBillingCycle": "monthly",
       "defaultAmount": 550,
       "popularityRank": 109,
-      "officialCancelUrl": "https://dhits.docomo.ne.jp/withdraw/"
+      "officialCancelUrl": "https://dhits.docomo.ne.jp/withdraw/",
+      "domain": "dhits.docomo.ne.jp"
     },
     {
       "id": "rakuten_music",
@@ -1404,7 +1491,8 @@
       "defaultBillingCycle": "monthly",
       "defaultAmount": 980,
       "popularityRank": 110,
-      "officialCancelUrl": "https://music.rakuten.co.jp/guide/withdrawal/"
+      "officialCancelUrl": "https://music.rakuten.co.jp/guide/withdrawal/",
+      "domain": "music.rakuten.co.jp"
     },
     {
       "id": "mora_qualitas",
@@ -1415,7 +1503,8 @@
       "defaultBillingCycle": "monthly",
       "defaultAmount": 1980,
       "popularityRank": 111,
-      "officialCancelUrl": "https://mquality.jp/mypage/"
+      "domain": "mora.jp",
+      "defunct": true
     },
     {
       "id": "rec_music",
@@ -1426,7 +1515,8 @@
       "defaultBillingCycle": "monthly",
       "defaultAmount": 990,
       "popularityRank": 112,
-      "officialCancelUrl": "https://music.recochoku.jp/pc/help/"
+      "officialCancelUrl": "https://music.recochoku.jp/pc/help/",
+      "domain": "recochoku.jp"
     },
     {
       "id": "comic_days",
@@ -1437,7 +1527,8 @@
       "defaultBillingCycle": "monthly",
       "defaultAmount": 550,
       "popularityRank": 113,
-      "officialCancelUrl": "https://comic-days.com/help"
+      "officialCancelUrl": "https://comic-days.com/help",
+      "domain": "comic-days.com"
     },
     {
       "id": "yanjump_plus",
@@ -1448,7 +1539,8 @@
       "defaultBillingCycle": "monthly",
       "defaultAmount": 780,
       "popularityRank": 114,
-      "officialCancelUrl": "https://youngjump.jp/help/"
+      "officialCancelUrl": "https://youngjump.jp/help/",
+      "domain": "yanmaga.jp"
     },
     {
       "id": "manga_mee",
@@ -1459,7 +1551,8 @@
       "defaultBillingCycle": "monthly",
       "defaultAmount": 960,
       "popularityRank": 115,
-      "officialCancelUrl": "https://mangamee.com/help/"
+      "domain": "manga-mee.jp",
+      "defunct": true
     },
     {
       "id": "ameba_manga",
@@ -1470,7 +1563,8 @@
       "defaultBillingCycle": "monthly",
       "defaultAmount": 970,
       "popularityRank": 116,
-      "officialCancelUrl": "https://amebamanga.jp/help/"
+      "domain": "ameba.jp",
+      "defunct": true
     },
     {
       "id": "au_book_pass",
@@ -1481,7 +1575,8 @@
       "defaultBillingCycle": "monthly",
       "defaultAmount": 618,
       "popularityRank": 117,
-      "officialCancelUrl": "https://bookpass.auone.jp/help/"
+      "officialCancelUrl": "https://bookpass.auone.jp/help/",
+      "domain": "bookpass.auone.jp"
     },
     {
       "id": "renta_unlimited",
@@ -1492,7 +1587,8 @@
       "defaultBillingCycle": "monthly",
       "defaultAmount": 780,
       "popularityRank": 118,
-      "officialCancelUrl": "https://renta.papy.co.jp/renta/sc/frm/help/"
+      "officialCancelUrl": "https://renta.papy.co.jp/renta/sc/frm/help/",
+      "domain": "renta.papy.co.jp"
     },
     {
       "id": "pixiv_premium",
@@ -1503,7 +1599,8 @@
       "defaultBillingCycle": "monthly",
       "defaultAmount": 550,
       "popularityRank": 119,
-      "officialCancelUrl": "https://www.pixiv.net/settings/premium"
+      "officialCancelUrl": "https://www.pixiv.net/settings/premium",
+      "domain": "pixiv.net"
     },
     {
       "id": "obsidian_sync",
@@ -1515,7 +1612,8 @@
       "defaultAmount": 10,
       "currency": "USD",
       "popularityRank": 120,
-      "officialCancelUrl": "https://obsidian.md/account"
+      "officialCancelUrl": "https://obsidian.md/account",
+      "domain": "obsidian.md"
     },
     {
       "id": "bear_notes",
@@ -1527,7 +1625,8 @@
       "defaultAmount": 3,
       "currency": "USD",
       "popularityRank": 121,
-      "officialCancelUrl": "https://bear.app/faq/"
+      "officialCancelUrl": "https://bear.app/faq/",
+      "domain": "bear.app"
     },
     {
       "id": "fantastical",
@@ -1539,7 +1638,8 @@
       "defaultAmount": 5,
       "currency": "USD",
       "popularityRank": 122,
-      "officialCancelUrl": "https://flexibits.com/account"
+      "officialCancelUrl": "https://flexibits.com/account",
+      "domain": "flexibits.com"
     },
     {
       "id": "lastpass",
@@ -1551,7 +1651,8 @@
       "defaultAmount": 3,
       "currency": "USD",
       "popularityRank": 123,
-      "officialCancelUrl": "https://www.lastpass.com/support"
+      "officialCancelUrl": "https://www.lastpass.com/",
+      "domain": "lastpass.com"
     },
     {
       "id": "dashlane",
@@ -1563,7 +1664,8 @@
       "defaultAmount": 5,
       "currency": "USD",
       "popularityRank": 124,
-      "officialCancelUrl": "https://app.dashlane.com/settings"
+      "officialCancelUrl": "https://app.dashlane.com/settings",
+      "domain": "dashlane.com"
     },
     {
       "id": "nordpass",
@@ -1575,7 +1677,8 @@
       "defaultAmount": 3,
       "currency": "USD",
       "popularityRank": 125,
-      "officialCancelUrl": "https://my.nordpass.com/account"
+      "officialCancelUrl": "https://my.nordaccount.com/",
+      "domain": "nordpass.com"
     },
     {
       "id": "bitwarden",
@@ -1587,7 +1690,8 @@
       "defaultAmount": 10,
       "currency": "USD",
       "popularityRank": 126,
-      "officialCancelUrl": "https://vault.bitwarden.com/#/settings/billing"
+      "officialCancelUrl": "https://vault.bitwarden.com/#/settings/billing",
+      "domain": "bitwarden.com"
     },
     {
       "id": "expressvpn",
@@ -1599,7 +1703,8 @@
       "defaultAmount": 13,
       "currency": "USD",
       "popularityRank": 127,
-      "officialCancelUrl": "https://www.expressvpn.com/jp/support/"
+      "officialCancelUrl": "https://www.expressvpn.com/jp/support/",
+      "domain": "expressvpn.com"
     },
     {
       "id": "protonvpn",
@@ -1611,7 +1716,8 @@
       "defaultAmount": 10,
       "currency": "USD",
       "popularityRank": 128,
-      "officialCancelUrl": "https://account.protonvpn.com/account"
+      "officialCancelUrl": "https://account.protonvpn.com/account",
+      "domain": "proton.me"
     },
     {
       "id": "surfshark",
@@ -1623,7 +1729,8 @@
       "defaultAmount": 13,
       "currency": "USD",
       "popularityRank": 129,
-      "officialCancelUrl": "https://my.surfshark.com/"
+      "officialCancelUrl": "https://my.surfshark.com/",
+      "domain": "surfshark.com"
     },
     {
       "id": "miro",
@@ -1635,7 +1742,8 @@
       "defaultAmount": 8,
       "currency": "USD",
       "popularityRank": 130,
-      "officialCancelUrl": "https://miro.com/dashboard/"
+      "officialCancelUrl": "https://miro.com/dashboard/",
+      "domain": "miro.com"
     },
     {
       "id": "zapier",
@@ -1647,7 +1755,8 @@
       "defaultAmount": 20,
       "currency": "USD",
       "popularityRank": 131,
-      "officialCancelUrl": "https://zapier.com/account/billing"
+      "officialCancelUrl": "https://zapier.com/account/billing",
+      "domain": "zapier.com"
     },
     {
       "id": "make_core",
@@ -1659,7 +1768,8 @@
       "defaultAmount": 9,
       "currency": "USD",
       "popularityRank": 132,
-      "officialCancelUrl": "https://www.make.com/en/help/account"
+      "officialCancelUrl": "https://www.make.com/en/help/account",
+      "domain": "make.com"
     },
     {
       "id": "asana_starter",
@@ -1671,7 +1781,8 @@
       "defaultAmount": 11,
       "currency": "USD",
       "popularityRank": 133,
-      "officialCancelUrl": "https://app.asana.com/account/billing"
+      "officialCancelUrl": "https://app.asana.com/account/billing",
+      "domain": "asana.com"
     },
     {
       "id": "trello_premium",
@@ -1683,7 +1794,8 @@
       "defaultAmount": 5,
       "currency": "USD",
       "popularityRank": 134,
-      "officialCancelUrl": "https://trello.com/billing"
+      "officialCancelUrl": "https://trello.com/billing",
+      "domain": "trello.com"
     },
     {
       "id": "linear",
@@ -1695,7 +1807,8 @@
       "defaultAmount": 8,
       "currency": "USD",
       "popularityRank": 135,
-      "officialCancelUrl": "https://linear.app/settings/billing"
+      "officialCancelUrl": "https://linear.app/settings/billing",
+      "domain": "linear.app"
     },
     {
       "id": "cursor_pro",
@@ -1707,7 +1820,8 @@
       "defaultAmount": 20,
       "currency": "USD",
       "popularityRank": 136,
-      "officialCancelUrl": "https://cursor.com/settings"
+      "officialCancelUrl": "https://www.cursor.com/settings",
+      "domain": "cursor.com"
     },
     {
       "id": "midjourney",
@@ -1719,7 +1833,8 @@
       "defaultAmount": 10,
       "currency": "USD",
       "popularityRank": 137,
-      "officialCancelUrl": "https://www.midjourney.com/account/"
+      "officialCancelUrl": "https://www.midjourney.com/account/",
+      "domain": "midjourney.com"
     },
     {
       "id": "adobe_acrobat_pro",
@@ -1730,7 +1845,8 @@
       "defaultBillingCycle": "monthly",
       "defaultAmount": 1518,
       "popularityRank": 138,
-      "officialCancelUrl": "https://account.adobe.com/plans"
+      "officialCancelUrl": "https://account.adobe.com/plans",
+      "domain": "adobe.com"
     },
     {
       "id": "adobe_illustrator",
@@ -1741,7 +1857,8 @@
       "defaultBillingCycle": "monthly",
       "defaultAmount": 3280,
       "popularityRank": 139,
-      "officialCancelUrl": "https://account.adobe.com/plans"
+      "officialCancelUrl": "https://account.adobe.com/plans",
+      "domain": "adobe.com"
     },
     {
       "id": "adobe_premiere_pro",
@@ -1752,7 +1869,8 @@
       "defaultBillingCycle": "monthly",
       "defaultAmount": 3280,
       "popularityRank": 140,
-      "officialCancelUrl": "https://account.adobe.com/plans"
+      "officialCancelUrl": "https://account.adobe.com/plans",
+      "domain": "adobe.com"
     },
     {
       "id": "jetbrains_all",
@@ -1764,7 +1882,8 @@
       "defaultAmount": 29,
       "currency": "USD",
       "popularityRank": 141,
-      "officialCancelUrl": "https://account.jetbrains.com/subscriptions"
+      "officialCancelUrl": "https://account.jetbrains.com/subscriptions",
+      "domain": "jetbrains.com"
     },
     {
       "id": "squarespace",
@@ -1776,7 +1895,8 @@
       "defaultAmount": 16,
       "currency": "USD",
       "popularityRank": 142,
-      "officialCancelUrl": "https://account.squarespace.com/billing"
+      "officialCancelUrl": "https://account.squarespace.com/billing",
+      "domain": "squarespace.com"
     },
     {
       "id": "webflow",
@@ -1788,7 +1908,8 @@
       "defaultAmount": 14,
       "currency": "USD",
       "popularityRank": 143,
-      "officialCancelUrl": "https://webflow.com/dashboard/settings/billing"
+      "officialCancelUrl": "https://webflow.com/dashboard/settings/billing",
+      "domain": "webflow.com"
     },
     {
       "id": "canva_teams",
@@ -1800,7 +1921,8 @@
       "defaultAmount": 17,
       "currency": "USD",
       "popularityRank": 144,
-      "officialCancelUrl": "https://www.canva.com/settings/billing"
+      "officialCancelUrl": "https://www.canva.com/settings/billing",
+      "domain": "canva.com"
     },
     {
       "id": "norton_360",
@@ -1811,7 +1933,8 @@
       "defaultBillingCycle": "yearly",
       "defaultAmount": 3480,
       "popularityRank": 145,
-      "officialCancelUrl": "https://my.norton.com/extspa/index.html#subscriptions"
+      "officialCancelUrl": "https://my.norton.com/extspa/index.html#subscriptions",
+      "domain": "norton.com"
     },
     {
       "id": "virus_buster",
@@ -1822,7 +1945,8 @@
       "defaultBillingCycle": "yearly",
       "defaultAmount": 4434,
       "popularityRank": 146,
-      "officialCancelUrl": "https://ap.trendmicro.com/en-us/account.html"
+      "officialCancelUrl": "https://ap.trendmicro.com/en-us/account.html",
+      "domain": "trendmicro.co.jp"
     },
     {
       "id": "kaspersky",
@@ -1833,7 +1957,8 @@
       "defaultBillingCycle": "yearly",
       "defaultAmount": 6490,
       "popularityRank": 147,
-      "officialCancelUrl": "https://my.kaspersky.com/"
+      "officialCancelUrl": "https://my.kaspersky.com/",
+      "domain": "kaspersky.co.jp"
     },
     {
       "id": "softbank_safe",
@@ -1844,7 +1969,8 @@
       "defaultBillingCycle": "monthly",
       "defaultAmount": 220,
       "popularityRank": 148,
-      "officialCancelUrl": "https://www.softbank.jp/mobile/service/safe/"
+      "officialCancelUrl": "https://www.softbank.jp/mobile/service/safe/",
+      "domain": "softbank.jp"
     },
     {
       "id": "gopro_quik",
@@ -1855,7 +1981,8 @@
       "defaultBillingCycle": "yearly",
       "defaultAmount": 2700,
       "popularityRank": 149,
-      "officialCancelUrl": "https://community.gopro.com/"
+      "officialCancelUrl": "https://community.gopro.com/",
+      "domain": "gopro.com"
     },
     {
       "id": "eight_professional",
@@ -1866,7 +1993,8 @@
       "defaultBillingCycle": "monthly",
       "defaultAmount": 600,
       "popularityRank": 150,
-      "officialCancelUrl": "https://8card.net/"
+      "officialCancelUrl": "https://8card.net/",
+      "domain": "eight.company"
     },
     {
       "id": "schoo",
@@ -1877,7 +2005,8 @@
       "defaultBillingCycle": "monthly",
       "defaultAmount": 980,
       "popularityRank": 151,
-      "officialCancelUrl": "https://schoo.jp/account/plan"
+      "officialCancelUrl": "https://schoo.jp/account/plan",
+      "domain": "schoo.jp"
     },
     {
       "id": "globis_unlimited",
@@ -1888,7 +2017,8 @@
       "defaultBillingCycle": "monthly",
       "defaultAmount": 1650,
       "popularityRank": 152,
-      "officialCancelUrl": "https://unlimited.globis.co.jp/help/"
+      "officialCancelUrl": "https://unlimited.globis.co.jp/help/",
+      "domain": "globis.jp"
     },
     {
       "id": "linkedin_learning",
@@ -1900,7 +2030,8 @@
       "defaultAmount": 20,
       "currency": "USD",
       "popularityRank": 153,
-      "officialCancelUrl": "https://www.linkedin.com/learning/subscription/cancel"
+      "officialCancelUrl": "https://www.linkedin.com/learning/subscription/cancel",
+      "domain": "linkedin.com"
     },
     {
       "id": "cambly",
@@ -1912,7 +2043,8 @@
       "defaultAmount": 14,
       "currency": "USD",
       "popularityRank": 154,
-      "officialCancelUrl": "https://www.cambly.com/en/student-settings"
+      "officialCancelUrl": "https://www.cambly.com/en/student-settings",
+      "domain": "cambly.com"
     },
     {
       "id": "babbel",
@@ -1924,7 +2056,8 @@
       "defaultAmount": 7,
       "currency": "USD",
       "popularityRank": 155,
-      "officialCancelUrl": "https://my.babbel.com/settings"
+      "officialCancelUrl": "https://my.babbel.com/settings",
+      "domain": "babbel.com"
     },
     {
       "id": "native_camp",
@@ -1935,7 +2068,8 @@
       "defaultBillingCycle": "monthly",
       "defaultAmount": 1980,
       "popularityRank": 156,
-      "officialCancelUrl": "https://nativecamp.net/mypage/"
+      "officialCancelUrl": "https://nativecamp.net/mypage/",
+      "domain": "nativecamp.net"
     },
     {
       "id": "coursera_plus",
@@ -1947,7 +2081,8 @@
       "defaultAmount": 399,
       "currency": "USD",
       "popularityRank": 157,
-      "officialCancelUrl": "https://www.coursera.org/account-settings"
+      "officialCancelUrl": "https://www.coursera.org/account-settings",
+      "domain": "coursera.org"
     },
     {
       "id": "skillshare",
@@ -1959,7 +2094,8 @@
       "defaultAmount": 14,
       "currency": "USD",
       "popularityRank": 158,
-      "officialCancelUrl": "https://www.skillshare.com/settings/billing"
+      "officialCancelUrl": "https://www.skillshare.com/settings/billing",
+      "domain": "skillshare.com"
     },
     {
       "id": "masterclass",
@@ -1971,7 +2107,8 @@
       "defaultAmount": 120,
       "currency": "USD",
       "popularityRank": 159,
-      "officialCancelUrl": "https://www.masterclass.com/settings/membership"
+      "officialCancelUrl": "https://www.masterclass.com/settings/membership",
+      "domain": "masterclass.com"
     },
     {
       "id": "brilliant",
@@ -1983,7 +2120,8 @@
       "defaultAmount": 16,
       "currency": "USD",
       "popularityRank": 160,
-      "officialCancelUrl": "https://brilliant.org/account/"
+      "officialCancelUrl": "https://brilliant.org/account/",
+      "domain": "brilliant.org"
     },
     {
       "id": "pimsleur",
@@ -1995,7 +2133,8 @@
       "defaultAmount": 15,
       "currency": "USD",
       "popularityRank": 161,
-      "officialCancelUrl": "https://www.pimsleur.com/account"
+      "officialCancelUrl": "https://www.pimsleur.com/account",
+      "domain": "pimsleur.com"
     },
     {
       "id": "quizlet_plus",
@@ -2007,7 +2146,8 @@
       "defaultAmount": 8,
       "currency": "USD",
       "popularityRank": 162,
-      "officialCancelUrl": "https://quizlet.com/settings/billing"
+      "officialCancelUrl": "https://quizlet.com/settings/billing",
+      "domain": "quizlet.com"
     },
     {
       "id": "codecademy_pro",
@@ -2019,7 +2159,8 @@
       "defaultAmount": 20,
       "currency": "USD",
       "popularityRank": 163,
-      "officialCancelUrl": "https://www.codecademy.com/account/delete"
+      "officialCancelUrl": "https://www.codecademy.com/account/delete",
+      "domain": "codecademy.com"
     },
     {
       "id": "pluralsight",
@@ -2031,7 +2172,8 @@
       "defaultAmount": 29,
       "currency": "USD",
       "popularityRank": 164,
-      "officialCancelUrl": "https://app.pluralsight.com/settings/billing"
+      "officialCancelUrl": "https://app.pluralsight.com/settings/billing",
+      "domain": "pluralsight.com"
     },
     {
       "id": "strava",
@@ -2043,7 +2185,8 @@
       "defaultAmount": 8,
       "currency": "USD",
       "popularityRank": 165,
-      "officialCancelUrl": "https://www.strava.com/settings/subscription"
+      "officialCancelUrl": "https://www.strava.com/account",
+      "domain": "strava.com"
     },
     {
       "id": "finc_premium",
@@ -2054,7 +2197,8 @@
       "defaultBillingCycle": "monthly",
       "defaultAmount": 480,
       "popularityRank": 166,
-      "officialCancelUrl": "https://finc.com/lp/withdraw"
+      "officialCancelUrl": "https://finc.com/lp/withdraw",
+      "domain": "finc.com"
     },
     {
       "id": "soelu",
@@ -2065,18 +2209,20 @@
       "defaultBillingCycle": "monthly",
       "defaultAmount": 3278,
       "popularityRank": 167,
-      "officialCancelUrl": "https://www.soelu.com/service/withdrawal"
+      "officialCancelUrl": "https://www.soelu.com/service/withdrawal",
+      "domain": "soelu.com"
     },
     {
       "id": "apple_fitness_plus",
       "name": "Apple Fitness+",
-      "normalizedName": "applefitness+",
+      "normalizedName": "applefitnessplus",
       "reading": "あっぷるふぃっとねすぷらす",
       "category": "フィットネス",
       "defaultBillingCycle": "monthly",
       "defaultAmount": 900,
       "popularityRank": 168,
-      "officialCancelUrl": "https://support.apple.com/ja-jp/118428"
+      "officialCancelUrl": "https://support.apple.com/ja-jp/118428",
+      "domain": "apple.com"
     },
     {
       "id": "google_play_pass",
@@ -2087,7 +2233,8 @@
       "defaultBillingCycle": "monthly",
       "defaultAmount": 600,
       "popularityRank": 169,
-      "officialCancelUrl": "https://play.google.com/store/pass"
+      "officialCancelUrl": "https://play.google.com/store/pass",
+      "domain": "play.google.com"
     },
     {
       "id": "geforce_now",
@@ -2098,7 +2245,8 @@
       "defaultBillingCycle": "monthly",
       "defaultAmount": 980,
       "popularityRank": 170,
-      "officialCancelUrl": "https://play.geforcenow.com/member"
+      "officialCancelUrl": "https://play.geforcenow.com/member",
+      "domain": "nvidia.com"
     },
     {
       "id": "ffxiv",
@@ -2109,7 +2257,8 @@
       "defaultBillingCycle": "monthly",
       "defaultAmount": 1474,
       "popularityRank": 171,
-      "officialCancelUrl": "https://secure.square-enix.com/account/"
+      "officialCancelUrl": "https://secure.square-enix.com/account/",
+      "domain": "finalfantasyxiv.com"
     },
     {
       "id": "nintendo_online_family",
@@ -2120,7 +2269,8 @@
       "defaultBillingCycle": "yearly",
       "defaultAmount": 4500,
       "popularityRank": 172,
-      "officialCancelUrl": "https://accounts.nintendo.com/subscription/nintendo_switch_online"
+      "officialCancelUrl": "https://support.nintendo.com/jp/nso/cancellation/index.html",
+      "domain": "nintendo.com"
     },
     {
       "id": "garmin_premium",
@@ -2131,7 +2281,8 @@
       "defaultBillingCycle": "monthly",
       "defaultAmount": 700,
       "popularityRank": 173,
-      "officialCancelUrl": "https://www.garmin.com/ja-JP/account/"
+      "officialCancelUrl": "https://www.garmin.com/ja-JP/account/",
+      "domain": "garmin.com"
     },
     {
       "id": "myfitnesspal",
@@ -2143,7 +2294,8 @@
       "defaultAmount": 10,
       "currency": "USD",
       "popularityRank": 174,
-      "officialCancelUrl": "https://www.myfitnesspal.com/account/settings"
+      "officialCancelUrl": "https://www.myfitnesspal.com/account/settings",
+      "domain": "myfitnesspal.com"
     },
     {
       "id": "mainichi_digital",
@@ -2154,7 +2306,8 @@
       "defaultBillingCycle": "monthly",
       "defaultAmount": 2100,
       "popularityRank": 175,
-      "officialCancelUrl": "https://mainichi.jp/digital/"
+      "officialCancelUrl": "https://mainichi.jp/digital/",
+      "domain": "mainichi.jp"
     },
     {
       "id": "sankei_digital",
@@ -2165,7 +2318,8 @@
       "defaultBillingCycle": "monthly",
       "defaultAmount": 1100,
       "popularityRank": 176,
-      "officialCancelUrl": "https://www.sankei.com/digital/"
+      "officialCancelUrl": "https://www.sankei.com/digital/",
+      "domain": "sankei.com"
     },
     {
       "id": "toyokeizai_premium",
@@ -2176,7 +2330,8 @@
       "defaultBillingCycle": "monthly",
       "defaultAmount": 1200,
       "popularityRank": 177,
-      "officialCancelUrl": "https://toyokeizai.net/account/"
+      "officialCancelUrl": "https://toyokeizai.net/account/",
+      "domain": "toyokeizai.net"
     },
     {
       "id": "diamond_premium",
@@ -2187,7 +2342,8 @@
       "defaultBillingCycle": "monthly",
       "defaultAmount": 1100,
       "popularityRank": 178,
-      "officialCancelUrl": "https://diamond.jp/account/"
+      "officialCancelUrl": "https://diamond.jp/account/",
+      "domain": "diamond.jp"
     },
     {
       "id": "nikkei_business",
@@ -2198,7 +2354,8 @@
       "defaultBillingCycle": "monthly",
       "defaultAmount": 2200,
       "popularityRank": 179,
-      "officialCancelUrl": "https://business.nikkei.com/account/"
+      "officialCancelUrl": "https://business.nikkei.com/account/",
+      "domain": "business.nikkei.com"
     },
     {
       "id": "bunshun_online",
@@ -2209,7 +2366,7 @@
       "defaultBillingCycle": "monthly",
       "defaultAmount": 980,
       "popularityRank": 180,
-      "officialCancelUrl": "https://online.bunshun.jp/account/"
+      "domain": "bunshun.jp"
     },
     {
       "id": "zaim_premium",
@@ -2220,7 +2377,8 @@
       "defaultBillingCycle": "monthly",
       "defaultAmount": 480,
       "popularityRank": 181,
-      "officialCancelUrl": "https://zaim.net/users/plan"
+      "officialCancelUrl": "https://zaim.net/users/plan",
+      "domain": "zaim.net"
     },
     {
       "id": "yayoi_accounting",
@@ -2231,7 +2389,8 @@
       "defaultBillingCycle": "yearly",
       "defaultAmount": 8800,
       "popularityRank": 182,
-      "officialCancelUrl": "https://support.yayoi-kk.co.jp/"
+      "officialCancelUrl": "https://support.yayoi-kk.co.jp/",
+      "domain": "yayoi-kk.co.jp"
     },
     {
       "id": "mf_cloud_tax",
@@ -2242,7 +2401,8 @@
       "defaultBillingCycle": "monthly",
       "defaultAmount": 1100,
       "popularityRank": 183,
-      "officialCancelUrl": "https://biz.moneyforward.com/support/"
+      "officialCancelUrl": "https://biz.moneyforward.com/support/",
+      "domain": "moneyforward.com"
     },
     {
       "id": "yayoi_payroll",
@@ -2253,7 +2413,8 @@
       "defaultBillingCycle": "yearly",
       "defaultAmount": 15400,
       "popularityRank": 184,
-      "officialCancelUrl": "https://support.yayoi-kk.co.jp/"
+      "officialCancelUrl": "https://support.yayoi-kk.co.jp/",
+      "domain": "yayoi-kk.co.jp"
     },
     {
       "id": "menu_pass",
@@ -2264,7 +2425,8 @@
       "defaultBillingCycle": "monthly",
       "defaultAmount": 480,
       "popularityRank": 185,
-      "officialCancelUrl": "https://app.menu.inc/help/"
+      "domain": "menu.inc",
+      "defunct": true
     },
     {
       "id": "demaecan_dashpass",
@@ -2275,7 +2437,8 @@
       "defaultBillingCycle": "monthly",
       "defaultAmount": 490,
       "popularityRank": 186,
-      "officialCancelUrl": "https://service.demae-can.com/"
+      "domain": "demae-can.com",
+      "defunct": true
     },
     {
       "id": "oisix",
@@ -2286,7 +2449,8 @@
       "defaultBillingCycle": "irregular",
       "defaultAmount": null,
       "popularityRank": 187,
-      "officialCancelUrl": "https://www.oisix.com/member/member_cancellation.html"
+      "officialCancelUrl": "https://www.oisix.com/member/member_cancellation.html",
+      "domain": "oisix.com"
     },
     {
       "id": "pal_system",
@@ -2297,7 +2461,8 @@
       "defaultBillingCycle": "irregular",
       "defaultAmount": null,
       "popularityRank": 188,
-      "officialCancelUrl": "https://www.pal-system.co.jp/support/"
+      "officialCancelUrl": "https://www.pal-system.co.jp/support/",
+      "domain": "pal-system.co.jp"
     },
     {
       "id": "softbank_anshinn",
@@ -2308,7 +2473,8 @@
       "defaultBillingCycle": "monthly",
       "defaultAmount": 550,
       "popularityRank": 189,
-      "officialCancelUrl": "https://www.softbank.jp/mobile/service/anshinsupport/"
+      "officialCancelUrl": "https://www.softbank.jp/mobile/service/anshinsupport/",
+      "domain": "softbank.jp"
     },
     {
       "id": "au_anshinn",
@@ -2319,7 +2485,8 @@
       "defaultBillingCycle": "monthly",
       "defaultAmount": 660,
       "popularityRank": 190,
-      "officialCancelUrl": "https://www.au.com/support/customer/"
+      "officialCancelUrl": "https://www.au.com/support/customer/",
+      "domain": "au.com"
     },
     {
       "id": "docomo_anshinn",
@@ -2330,7 +2497,8 @@
       "defaultBillingCycle": "monthly",
       "defaultAmount": 220,
       "popularityRank": 191,
-      "officialCancelUrl": "https://www.docomo.ne.jp/support/"
+      "officialCancelUrl": "https://www.docomo.ne.jp/support/",
+      "domain": "docomo.ne.jp"
     },
     {
       "id": "runway_ml",
@@ -2342,7 +2510,8 @@
       "defaultAmount": 15,
       "currency": "USD",
       "popularityRank": 192,
-      "officialCancelUrl": "https://runwayml.com/account"
+      "officialCancelUrl": "https://runwayml.com/account",
+      "domain": "runway.ml"
     },
     {
       "id": "elevenlabs",
@@ -2354,7 +2523,8 @@
       "defaultAmount": 5,
       "currency": "USD",
       "popularityRank": 193,
-      "officialCancelUrl": "https://elevenlabs.io/account"
+      "officialCancelUrl": "https://elevenlabs.io/account",
+      "domain": "elevenlabs.io"
     },
     {
       "id": "duolingo_max",
@@ -2366,7 +2536,8 @@
       "defaultAmount": 30,
       "currency": "USD",
       "popularityRank": 194,
-      "officialCancelUrl": "https://www.duolingo.com/settings/super"
+      "officialCancelUrl": "https://www.duolingo.com/settings/super",
+      "domain": "duolingo.com"
     },
     {
       "id": "linkedin_premium",
@@ -2378,7 +2549,8 @@
       "defaultAmount": 30,
       "currency": "USD",
       "popularityRank": 195,
-      "officialCancelUrl": "https://www.linkedin.com/premium/cancel"
+      "officialCancelUrl": "https://www.linkedin.com/premium/cancel",
+      "domain": "linkedin.com"
     },
     {
       "id": "peloton_app",
@@ -2390,7 +2562,8 @@
       "defaultAmount": 13,
       "currency": "USD",
       "popularityRank": 196,
-      "officialCancelUrl": "https://members.onepeloton.com/profile/subscriptions"
+      "officialCancelUrl": "https://members.onepeloton.com/profile/subscriptions",
+      "domain": "onepeloton.com"
     },
     {
       "id": "nintendo_online_plus",
@@ -2401,18 +2574,20 @@
       "defaultBillingCycle": "yearly",
       "defaultAmount": 4900,
       "popularityRank": 197,
-      "officialCancelUrl": "https://accounts.nintendo.com/subscription/nintendo_switch_online"
+      "officialCancelUrl": "https://support.nintendo.com/jp/nso/cancellation/index.html",
+      "domain": "nintendo.com"
     },
     {
       "id": "apple_storage_2tb",
       "name": "iCloud+ 2TB",
-      "normalizedName": "icloud+2tb",
+      "normalizedName": "icloudplus2tb",
       "reading": "あいくらうどぷらすにてらばいと",
       "category": "クラウドストレージ",
       "defaultBillingCycle": "monthly",
       "defaultAmount": 1300,
       "popularityRank": 198,
-      "officialCancelUrl": "https://support.apple.com/ja-jp/118428"
+      "officialCancelUrl": "https://support.apple.com/ja-jp/118428",
+      "domain": "icloud.com"
     },
     {
       "id": "google_one_2tb",
@@ -2423,7 +2598,1490 @@
       "defaultBillingCycle": "monthly",
       "defaultAmount": 1300,
       "popularityRank": 199,
-      "officialCancelUrl": "https://one.google.com/about/cancel"
+      "officialCancelUrl": "https://support.google.com/googleone/answer/9056360?hl=ja",
+      "domain": "one.google.com"
+    },
+    {
+      "id": "x_premium",
+      "name": "X Premium",
+      "normalizedName": "xpremium",
+      "reading": "えっくすぷれみあむ",
+      "category": "ソフトウェア",
+      "defaultBillingCycle": "monthly",
+      "defaultAmount": 980,
+      "popularityRank": 201,
+      "officialCancelUrl": "https://x.com/i/premium_sign_up",
+      "plans": [
+        {
+          "label": "ベーシック",
+          "amount": 430
+        },
+        {
+          "label": "プレミアム",
+          "amount": 1380
+        },
+        {
+          "label": "プレミアム+",
+          "amount": 3800
+        }
+      ],
+      "domain": "x.com"
+    },
+    {
+      "id": "discord_nitro",
+      "name": "Discord Nitro",
+      "normalizedName": "discordnitro",
+      "reading": "でぃすこーどにとろ",
+      "category": "ソフトウェア",
+      "defaultBillingCycle": "monthly",
+      "defaultAmount": 10,
+      "currency": "USD",
+      "popularityRank": 202,
+      "officialCancelUrl": "https://discord.com/settings/subscriptions",
+      "plans": [
+        {
+          "label": "Nitro Basic",
+          "amount": 4
+        },
+        {
+          "label": "Nitro",
+          "amount": 10
+        }
+      ],
+      "domain": "discord.com"
+    },
+    {
+      "id": "patreon",
+      "name": "Patreon",
+      "normalizedName": "patreon",
+      "reading": "ぺいとりおん",
+      "category": "その他",
+      "defaultBillingCycle": "monthly",
+      "defaultAmount": null,
+      "currency": "USD",
+      "popularityRank": 203,
+      "officialCancelUrl": "https://www.patreon.com/settings/memberships",
+      "domain": "patreon.com"
+    },
+    {
+      "id": "note_creator",
+      "name": "note",
+      "normalizedName": "のーと",
+      "reading": "のーと",
+      "category": "ソフトウェア",
+      "defaultBillingCycle": "monthly",
+      "defaultAmount": 500,
+      "popularityRank": 204,
+      "officialCancelUrl": "https://note.com/settings/subscription",
+      "domain": "note.com"
+    },
+    {
+      "id": "substack",
+      "name": "Substack",
+      "normalizedName": "substack",
+      "reading": "さぶすたっく",
+      "category": "その他",
+      "defaultBillingCycle": "monthly",
+      "defaultAmount": null,
+      "currency": "USD",
+      "popularityRank": 205,
+      "officialCancelUrl": "https://substack.com/account/subscriptions",
+      "domain": "substack.com"
+    },
+    {
+      "id": "crunchyroll",
+      "name": "Crunchyroll",
+      "normalizedName": "くらんちろーる",
+      "reading": "くらんちろーる",
+      "category": "動画配信",
+      "defaultBillingCycle": "monthly",
+      "defaultAmount": 1300,
+      "popularityRank": 206,
+      "officialCancelUrl": "https://www.crunchyroll.com/account/subscription",
+      "plans": [
+        {
+          "label": "Fan",
+          "amount": 1300
+        },
+        {
+          "label": "Mega Fan",
+          "amount": 1700
+        },
+        {
+          "label": "Ultimate Fan",
+          "amount": 2400
+        }
+      ],
+      "domain": "crunchyroll.com"
+    },
+    {
+      "id": "hikaritv",
+      "name": "ひかりTV",
+      "normalizedName": "ひかりてぃびー",
+      "reading": "ひかりてぃびー",
+      "category": "動画配信",
+      "defaultBillingCycle": "monthly",
+      "defaultAmount": 880,
+      "popularityRank": 207,
+      "officialCancelUrl": "https://www.hikaritv.net/mypage/",
+      "plans": [
+        {
+          "label": "ライト",
+          "amount": 880
+        },
+        {
+          "label": "ベーシック",
+          "amount": 1320
+        },
+        {
+          "label": "まるごとパック",
+          "amount": 2090
+        }
+      ],
+      "domain": "hikaritv.net"
+    },
+    {
+      "id": "rakuten_tv",
+      "name": "楽天TV",
+      "normalizedName": "らくてんてぃびー",
+      "reading": "らくてんてぃびー",
+      "category": "動画配信",
+      "defaultBillingCycle": "monthly",
+      "defaultAmount": 1100,
+      "popularityRank": 208,
+      "officialCancelUrl": "https://tv.rakuten.co.jp/help/",
+      "domain": "tv.rakuten.co.jp"
+    },
+    {
+      "id": "basketball_live",
+      "name": "バスケットLIVE",
+      "normalizedName": "ばすけっとらいぶ",
+      "reading": "ばすけっとらいぶ",
+      "category": "動画配信",
+      "defaultBillingCycle": "monthly",
+      "defaultAmount": 1980,
+      "popularityRank": 209,
+      "domain": "basketball.mb.softbank.jp",
+      "defunct": true
+    },
+    {
+      "id": "viki_pass",
+      "name": "Viki Pass",
+      "normalizedName": "vikipass",
+      "reading": "びきぱす",
+      "category": "動画配信",
+      "defaultBillingCycle": "monthly",
+      "defaultAmount": 5,
+      "currency": "USD",
+      "popularityRank": 211,
+      "plans": [
+        {
+          "label": "Standard",
+          "amount": 5
+        },
+        {
+          "label": "Plus",
+          "amount": 10
+        }
+      ],
+      "domain": "viki.com",
+      "officialCancelUrl": "https://www.viki.com/settings/subscription"
+    },
+    {
+      "id": "kkbox",
+      "name": "KKBOX",
+      "normalizedName": "kkbox",
+      "reading": "けいけいぼっくす",
+      "category": "音楽",
+      "defaultBillingCycle": "monthly",
+      "defaultAmount": 980,
+      "popularityRank": 212,
+      "officialCancelUrl": "https://www.kkbox.com/jp/ja/account/",
+      "plans": [
+        {
+          "label": "個人",
+          "amount": 980
+        },
+        {
+          "label": "ファミリー",
+          "amount": 1480
+        }
+      ],
+      "domain": "kkbox.com"
+    },
+    {
+      "id": "deezer",
+      "name": "Deezer Premium",
+      "normalizedName": "deezerpremium",
+      "reading": "でぃーざーぷれみあむ",
+      "category": "音楽",
+      "defaultBillingCycle": "monthly",
+      "defaultAmount": 980,
+      "popularityRank": 213,
+      "officialCancelUrl": "https://www.deezer.com/account/",
+      "plans": [
+        {
+          "label": "個人",
+          "amount": 980
+        },
+        {
+          "label": "ファミリー",
+          "amount": 1580
+        }
+      ],
+      "domain": "deezer.com"
+    },
+    {
+      "id": "soundcloud_go_plus",
+      "name": "SoundCloud Go+",
+      "normalizedName": "soundcloudgoplus",
+      "reading": "さうんどくらうどごぷらす",
+      "category": "音楽",
+      "defaultBillingCycle": "monthly",
+      "defaultAmount": 11,
+      "currency": "USD",
+      "popularityRank": 214,
+      "domain": "soundcloud.com",
+      "officialCancelUrl": "https://soundcloud.com/settings/subscription"
+    },
+    {
+      "id": "tidal",
+      "name": "TIDAL",
+      "normalizedName": "tidal",
+      "reading": "たいだる",
+      "category": "音楽",
+      "defaultBillingCycle": "monthly",
+      "defaultAmount": 11,
+      "currency": "USD",
+      "popularityRank": 215,
+      "plans": [
+        {
+          "label": "Individual",
+          "amount": 11
+        },
+        {
+          "label": "HiFi Plus",
+          "amount": 20
+        }
+      ],
+      "domain": "tidal.com",
+      "officialCancelUrl": "https://account.tidal.com/"
+    },
+    {
+      "id": "jump_plus",
+      "name": "少年ジャンプ+",
+      "normalizedName": "しょうねんじゃんぷぷらす",
+      "reading": "しょうねんじゃんぷぷらす",
+      "category": "電子書籍",
+      "defaultBillingCycle": "monthly",
+      "defaultAmount": 976,
+      "popularityRank": 216,
+      "officialCancelUrl": "https://jumpplus.net/faq/",
+      "domain": "jumpplus.net"
+    },
+    {
+      "id": "mecharoom",
+      "name": "めちゃコミック 読み放題",
+      "normalizedName": "めちゃこみっくよみほうだい",
+      "reading": "めちゃこみっくよみほうだい",
+      "category": "電子書籍",
+      "defaultBillingCycle": "monthly",
+      "defaultAmount": 960,
+      "popularityRank": 217,
+      "plans": [
+        {
+          "label": "ライト",
+          "amount": 480
+        },
+        {
+          "label": "フル",
+          "amount": 960
+        }
+      ],
+      "domain": "mechacomic.jp",
+      "officialCancelUrl": "https://mechacomic.jp/user/mypage"
+    },
+    {
+      "id": "comicwalker_unlimited",
+      "name": "コミックウォーカー 読み放題",
+      "normalizedName": "こみっくうぉーかーよみほうだい",
+      "reading": "こみっくうぉーかーよみほうだい",
+      "category": "電子書籍",
+      "defaultBillingCycle": "monthly",
+      "defaultAmount": 550,
+      "popularityRank": 218,
+      "domain": "comic-walker.com",
+      "officialCancelUrl": "https://comic-walker.com/setting/"
+    },
+    {
+      "id": "bookpass_au",
+      "name": "ブックパス",
+      "normalizedName": "ぶっくぱす",
+      "reading": "ぶっくぱす",
+      "category": "電子書籍",
+      "defaultBillingCycle": "monthly",
+      "defaultAmount": 618,
+      "popularityRank": 220,
+      "officialCancelUrl": "https://bookpass.auone.jp/",
+      "plans": [
+        {
+          "label": "マンガ・コミック",
+          "amount": 330
+        },
+        {
+          "label": "総合",
+          "amount": 618
+        }
+      ],
+      "domain": "bookpass.auone.jp"
+    },
+    {
+      "id": "flier",
+      "name": "flier（フライヤー）",
+      "normalizedName": "ふらいやー",
+      "reading": "ふらいやー",
+      "category": "電子書籍",
+      "defaultBillingCycle": "monthly",
+      "defaultAmount": 2200,
+      "popularityRank": 221,
+      "officialCancelUrl": "https://www.flierinc.com/",
+      "plans": [
+        {
+          "label": "シルバー",
+          "amount": 550
+        },
+        {
+          "label": "ゴールド",
+          "amount": 2200
+        }
+      ],
+      "domain": "flierinc.com"
+    },
+    {
+      "id": "amazon_kids_plus",
+      "name": "Amazon Kids+",
+      "normalizedName": "あまぞんきっずぷらす",
+      "reading": "あまぞんきっずぷらす",
+      "category": "学習",
+      "defaultBillingCycle": "monthly",
+      "defaultAmount": 600,
+      "popularityRank": 222,
+      "officialCancelUrl": "https://www.amazon.co.jp/kids/parents/cancellation",
+      "domain": "amazon.co.jp"
+    },
+    {
+      "id": "piccoma_unlimited",
+      "name": "ピッコマ（購読プラン）",
+      "normalizedName": "ぴっこまこうどくぷらん",
+      "reading": "ぴっこまこうどくぷらん",
+      "category": "電子書籍",
+      "defaultBillingCycle": "monthly",
+      "defaultAmount": 400,
+      "popularityRank": 223,
+      "domain": "piccoma.com",
+      "officialCancelUrl": "https://piccoma.com/web/subscription"
+    },
+    {
+      "id": "comic_fuz",
+      "name": "コミックFUZ",
+      "normalizedName": "こみっくふぁず",
+      "reading": "こみっくふぁず",
+      "category": "電子書籍",
+      "defaultBillingCycle": "monthly",
+      "defaultAmount": 980,
+      "popularityRank": 224,
+      "domain": "comic-fuz.com",
+      "officialCancelUrl": "https://comic-fuz.com/plan"
+    },
+    {
+      "id": "rosetta_stone",
+      "name": "Rosetta Stone",
+      "normalizedName": "rosettastone",
+      "reading": "ろぜったすとーん",
+      "category": "学習",
+      "defaultBillingCycle": "monthly",
+      "defaultAmount": 12,
+      "currency": "USD",
+      "popularityRank": 225,
+      "officialCancelUrl": "https://www.rosettastone.com/profile/subscription/",
+      "domain": "rosettastone.com"
+    },
+    {
+      "id": "busuu_premium",
+      "name": "Busuu プレミアム",
+      "normalizedName": "busuupremium",
+      "reading": "ぶすーぷれみあむ",
+      "category": "学習",
+      "defaultBillingCycle": "monthly",
+      "defaultAmount": 14,
+      "currency": "USD",
+      "popularityRank": 226,
+      "officialCancelUrl": "https://www.busuu.com/subscription",
+      "domain": "busuu.com"
+    },
+    {
+      "id": "studyplus_pro",
+      "name": "Studyplus Pro",
+      "normalizedName": "studypluspro",
+      "reading": "すたでぃぷらすぷろ",
+      "category": "学習",
+      "defaultBillingCycle": "monthly",
+      "defaultAmount": 480,
+      "popularityRank": 227,
+      "domain": "studyplus.jp",
+      "officialCancelUrl": "https://www.studyplus.jp/pro"
+    },
+    {
+      "id": "italki",
+      "name": "iTalki",
+      "normalizedName": "italki",
+      "reading": "あいたぁるき",
+      "category": "学習",
+      "defaultBillingCycle": "monthly",
+      "defaultAmount": null,
+      "currency": "USD",
+      "popularityRank": 228,
+      "domain": "italki.com",
+      "officialCancelUrl": "https://www.italki.com/en/purchase-history"
+    },
+    {
+      "id": "ef_english_live",
+      "name": "EF English Live",
+      "normalizedName": "efenglishlive",
+      "reading": "いーえふいんぐりっしゅらいぶ",
+      "category": "学習",
+      "defaultBillingCycle": "monthly",
+      "defaultAmount": null,
+      "currency": "USD",
+      "popularityRank": 229,
+      "domain": "englishlive.ef.com",
+      "officialCancelUrl": "https://englishlive.ef.com/en/account/subscription"
+    },
+    {
+      "id": "udemy_business",
+      "name": "Udemy Business",
+      "normalizedName": "udemybusiness",
+      "reading": "ゆーでみーびじねす",
+      "category": "学習",
+      "defaultBillingCycle": "monthly",
+      "defaultAmount": null,
+      "currency": "USD",
+      "popularityRank": 230,
+      "officialCancelUrl": "https://business.udemy.com/",
+      "domain": "business.udemy.com"
+    },
+    {
+      "id": "bloomberg_jp",
+      "name": "Bloomberg Japan",
+      "normalizedName": "bloombergjapan",
+      "reading": "ぶるーむばーぐじゃぱん",
+      "category": "ニュース・雑誌",
+      "defaultBillingCycle": "monthly",
+      "defaultAmount": 35,
+      "currency": "USD",
+      "popularityRank": 231,
+      "officialCancelUrl": "https://www.bloomberg.co.jp/account/subscriptions",
+      "domain": "bloomberg.co.jp"
+    },
+    {
+      "id": "hrb_japan",
+      "name": "Harvard Business Review Japan",
+      "normalizedName": "harvardbusinessreviewjapan",
+      "reading": "はーばーどびじねすれびゅーじゃぱん",
+      "category": "ニュース・雑誌",
+      "defaultBillingCycle": "monthly",
+      "defaultAmount": 1078,
+      "popularityRank": 232,
+      "domain": "dhbr.net",
+      "officialCancelUrl": "https://www.dhbr.net/subscription"
+    },
+    {
+      "id": "newsweek_japan",
+      "name": "Newsweek 日本版",
+      "normalizedName": "にゅーずうぃーくにほんばん",
+      "reading": "にゅーずうぃーくにほんばん",
+      "category": "ニュース・雑誌",
+      "defaultBillingCycle": "monthly",
+      "defaultAmount": 440,
+      "popularityRank": 233,
+      "domain": "newsweekjapan.jp",
+      "officialCancelUrl": "https://www.newsweekjapan.jp/subscription/"
+    },
+    {
+      "id": "zwift",
+      "name": "Zwift",
+      "normalizedName": "zwift",
+      "reading": "ずうぃふと",
+      "category": "フィットネス",
+      "defaultBillingCycle": "monthly",
+      "defaultAmount": 20,
+      "currency": "USD",
+      "popularityRank": 234,
+      "officialCancelUrl": "https://my.zwift.com/",
+      "domain": "zwift.com"
+    },
+    {
+      "id": "whoop",
+      "name": "WHOOP",
+      "normalizedName": "whoop",
+      "reading": "ふーぷ",
+      "category": "フィットネス",
+      "defaultBillingCycle": "monthly",
+      "defaultAmount": 30,
+      "currency": "USD",
+      "popularityRank": 235,
+      "officialCancelUrl": "https://app.whoop.com/membership",
+      "domain": "whoop.com"
+    },
+    {
+      "id": "oura",
+      "name": "Oura Ring",
+      "normalizedName": "ouraring",
+      "reading": "おーうらりんぐ",
+      "category": "フィットネス",
+      "defaultBillingCycle": "monthly",
+      "defaultAmount": 6,
+      "currency": "USD",
+      "popularityRank": 236,
+      "officialCancelUrl": "https://ouraring.com/profile/subscription",
+      "domain": "ouraring.com"
+    },
+    {
+      "id": "yoga_studio_app",
+      "name": "Yoga Studio",
+      "normalizedName": "yogastudio",
+      "reading": "よがすたじお",
+      "category": "フィットネス",
+      "defaultBillingCycle": "monthly",
+      "defaultAmount": 13,
+      "currency": "USD",
+      "popularityRank": 237,
+      "domain": "yogastudioapp.com",
+      "defunct": true
+    },
+    {
+      "id": "noom",
+      "name": "Noom",
+      "normalizedName": "noom",
+      "reading": "のーむ",
+      "category": "フィットネス",
+      "defaultBillingCycle": "monthly",
+      "defaultAmount": null,
+      "currency": "USD",
+      "popularityRank": 238,
+      "officialCancelUrl": "https://web.noom.com/settings/",
+      "domain": "noom.com"
+    },
+    {
+      "id": "moneytree",
+      "name": "Moneytree LINK Premium",
+      "normalizedName": "moneytreelinkpremium",
+      "reading": "まにーつりーりんくぷれみあむ",
+      "category": "金融",
+      "defaultBillingCycle": "monthly",
+      "defaultAmount": 500,
+      "popularityRank": 239,
+      "officialCancelUrl": "https://getmoneytree.com/jp",
+      "plans": [
+        {
+          "label": "月払い",
+          "amount": 500
+        },
+        {
+          "label": "年払い（月換算）",
+          "amount": 300
+        }
+      ],
+      "domain": "getmoneytree.com"
+    },
+    {
+      "id": "revolut_premium",
+      "name": "Revolut Premium",
+      "normalizedName": "revolutpremium",
+      "reading": "れぼるとぷれみあむ",
+      "category": "金融",
+      "defaultBillingCycle": "monthly",
+      "defaultAmount": 980,
+      "popularityRank": 240,
+      "officialCancelUrl": "https://app.revolut.com/profile/plans",
+      "plans": [
+        {
+          "label": "Premium",
+          "amount": 980
+        },
+        {
+          "label": "Metal",
+          "amount": 1980
+        }
+      ],
+      "domain": "revolut.com"
+    },
+    {
+      "id": "eset",
+      "name": "ESET ホームセキュリティ",
+      "normalizedName": "esetほーむせきゅりてぃ",
+      "reading": "いーせっとほーむせきゅりてぃ",
+      "category": "ソフトウェア",
+      "defaultBillingCycle": "yearly",
+      "defaultAmount": 5280,
+      "popularityRank": 241,
+      "plans": [
+        {
+          "label": "エッセンシャル 1台",
+          "amount": 4400
+        },
+        {
+          "label": "アドバンスト 1台",
+          "amount": 5280
+        },
+        {
+          "label": "アドバンスト 3台",
+          "amount": 7700
+        }
+      ],
+      "domain": "eset.com",
+      "officialCancelUrl": "https://my.eset.com/"
+    },
+    {
+      "id": "mcafee_plus",
+      "name": "マカフィー+",
+      "normalizedName": "まかふぃーぷらす",
+      "reading": "まかふぃーぷらす",
+      "category": "ソフトウェア",
+      "defaultBillingCycle": "yearly",
+      "defaultAmount": 4480,
+      "popularityRank": 242,
+      "plans": [
+        {
+          "label": "個人",
+          "amount": 4480
+        },
+        {
+          "label": "ファミリー",
+          "amount": 6980
+        }
+      ],
+      "domain": "mcafee.com",
+      "officialCancelUrl": "https://home.mcafee.com/"
+    },
+    {
+      "id": "keeper_password",
+      "name": "Keeper パスワードマネージャー",
+      "normalizedName": "keeperぱすわーどまねーじゃー",
+      "reading": "きーぱーぱすわーどまねーじゃー",
+      "category": "ソフトウェア",
+      "defaultBillingCycle": "yearly",
+      "defaultAmount": 4400,
+      "popularityRank": 243,
+      "plans": [
+        {
+          "label": "個人",
+          "amount": 4400
+        },
+        {
+          "label": "ファミリー（5人）",
+          "amount": 9350
+        }
+      ],
+      "domain": "keepersecurity.com",
+      "officialCancelUrl": "https://keepersecurity.com/vault/#account-settings"
+    },
+    {
+      "id": "malwarebytes",
+      "name": "Malwarebytes Premium",
+      "normalizedName": "malwarebytespremium",
+      "reading": "まるうぇあばいとすぷれみあむ",
+      "category": "ソフトウェア",
+      "defaultBillingCycle": "monthly",
+      "defaultAmount": 4,
+      "currency": "USD",
+      "popularityRank": 244,
+      "domain": "malwarebytes.com",
+      "officialCancelUrl": "https://my.malwarebytes.com/"
+    },
+    {
+      "id": "deepl_pro",
+      "name": "DeepL Pro",
+      "normalizedName": "deeplpro",
+      "reading": "でぃーぷえるぷろ",
+      "category": "ソフトウェア",
+      "defaultBillingCycle": "monthly",
+      "defaultAmount": 3000,
+      "popularityRank": 245,
+      "officialCancelUrl": "https://www.deepl.com/account/subscription",
+      "plans": [
+        {
+          "label": "Starter（月払い）",
+          "amount": 3000
+        },
+        {
+          "label": "Advanced（月払い）",
+          "amount": 7500
+        },
+        {
+          "label": "Ultimate（月払い）",
+          "amount": 25000
+        }
+      ],
+      "domain": "deepl.com"
+    },
+    {
+      "id": "setapp",
+      "name": "Setapp",
+      "normalizedName": "setapp",
+      "reading": "せたっぷ",
+      "category": "ソフトウェア",
+      "defaultBillingCycle": "monthly",
+      "defaultAmount": 15,
+      "currency": "USD",
+      "popularityRank": 246,
+      "officialCancelUrl": "https://setapp.com/account/subscription",
+      "domain": "setapp.com"
+    },
+    {
+      "id": "craft_notes",
+      "name": "Craft",
+      "normalizedName": "craft",
+      "reading": "くらふと",
+      "category": "ソフトウェア",
+      "defaultBillingCycle": "monthly",
+      "defaultAmount": 5,
+      "currency": "USD",
+      "popularityRank": 247,
+      "officialCancelUrl": "https://www.craft.do/settings/subscription",
+      "domain": "craft.do"
+    },
+    {
+      "id": "day_one",
+      "name": "Day One Premium",
+      "normalizedName": "dayonepremium",
+      "reading": "でいわんぷれみあむ",
+      "category": "ソフトウェア",
+      "defaultBillingCycle": "monthly",
+      "defaultAmount": 3,
+      "currency": "USD",
+      "popularityRank": 248,
+      "domain": "dayoneapp.com",
+      "officialCancelUrl": "https://dayoneapp.com/premium/"
+    },
+    {
+      "id": "readwise_reader",
+      "name": "Readwise Reader",
+      "normalizedName": "readwisereader",
+      "reading": "れっどわいずりーだー",
+      "category": "ソフトウェア",
+      "defaultBillingCycle": "monthly",
+      "defaultAmount": 8,
+      "currency": "USD",
+      "popularityRank": 249,
+      "officialCancelUrl": "https://readwise.io/settings",
+      "domain": "readwise.io"
+    },
+    {
+      "id": "feedly_pro",
+      "name": "Feedly Pro",
+      "normalizedName": "feedlypro",
+      "reading": "ふぃーどりーぷろ",
+      "category": "ソフトウェア",
+      "defaultBillingCycle": "monthly",
+      "defaultAmount": 8,
+      "currency": "USD",
+      "popularityRank": 250,
+      "officialCancelUrl": "https://feedly.com/i/subscription/billing",
+      "domain": "feedly.com"
+    },
+    {
+      "id": "google_workspace_individual",
+      "name": "Google Workspace Individual",
+      "normalizedName": "googleworkspaceindividual",
+      "reading": "ぐーぐるわーくすぺーすいんでぃびじゅある",
+      "category": "ソフトウェア",
+      "defaultBillingCycle": "monthly",
+      "defaultAmount": 680,
+      "popularityRank": 251,
+      "officialCancelUrl": "https://workspace.google.com/intl/ja/pricing.html",
+      "domain": "workspace.google.com"
+    },
+    {
+      "id": "atlassian_jira",
+      "name": "Jira (Atlassian)",
+      "normalizedName": "jiraatlassian",
+      "reading": "じらあとらしあん",
+      "category": "ソフトウェア",
+      "defaultBillingCycle": "monthly",
+      "defaultAmount": 10,
+      "currency": "USD",
+      "popularityRank": 252,
+      "officialCancelUrl": "https://admin.atlassian.com/",
+      "domain": "atlassian.com"
+    },
+    {
+      "id": "clickup_unlimited",
+      "name": "ClickUp Unlimited",
+      "normalizedName": "clickupunlimited",
+      "reading": "くりっくあっぷあんりみてっど",
+      "category": "ソフトウェア",
+      "defaultBillingCycle": "monthly",
+      "defaultAmount": 7,
+      "currency": "USD",
+      "popularityRank": 253,
+      "officialCancelUrl": "https://app.clickup.com/settings/billing",
+      "domain": "clickup.com"
+    },
+    {
+      "id": "monday_basic",
+      "name": "Monday.com",
+      "normalizedName": "monday.com",
+      "reading": "まんでーどっとこむ",
+      "category": "ソフトウェア",
+      "defaultBillingCycle": "monthly",
+      "defaultAmount": 9,
+      "currency": "USD",
+      "popularityRank": 254,
+      "officialCancelUrl": "https://auth.monday.com/users/sign_in",
+      "domain": "monday.com"
+    },
+    {
+      "id": "airtable_plus",
+      "name": "Airtable Plus",
+      "normalizedName": "airtableplus",
+      "reading": "えあてーぶるぷらす",
+      "category": "ソフトウェア",
+      "defaultBillingCycle": "monthly",
+      "defaultAmount": 10,
+      "currency": "USD",
+      "popularityRank": 255,
+      "officialCancelUrl": "https://airtable.com/account",
+      "domain": "airtable.com"
+    },
+    {
+      "id": "cloudflare_pro",
+      "name": "Cloudflare Pro",
+      "normalizedName": "cloudflarepro",
+      "reading": "くらうどふれあぷろ",
+      "category": "ソフトウェア",
+      "defaultBillingCycle": "monthly",
+      "defaultAmount": 20,
+      "currency": "USD",
+      "popularityRank": 256,
+      "domain": "cloudflare.com",
+      "officialCancelUrl": "https://dash.cloudflare.com/billing"
+    },
+    {
+      "id": "vercel_pro",
+      "name": "Vercel Pro",
+      "normalizedName": "vercelpro",
+      "reading": "ばーせるぷろ",
+      "category": "ソフトウェア",
+      "defaultBillingCycle": "monthly",
+      "defaultAmount": 20,
+      "currency": "USD",
+      "popularityRank": 257,
+      "officialCancelUrl": "https://vercel.com/account/billing",
+      "domain": "vercel.com"
+    },
+    {
+      "id": "gitlab_premium",
+      "name": "GitLab Premium",
+      "normalizedName": "gitlabpremium",
+      "reading": "ぎっとらぶぷれみあむ",
+      "category": "ソフトウェア",
+      "defaultBillingCycle": "monthly",
+      "defaultAmount": 29,
+      "currency": "USD",
+      "popularityRank": 258,
+      "officialCancelUrl": "https://gitlab.com/-/profile/billing",
+      "domain": "gitlab.com"
+    },
+    {
+      "id": "gemini_advanced",
+      "name": "Gemini Advanced",
+      "normalizedName": "geminiadvanced",
+      "reading": "じぇみにあどばんすど",
+      "category": "ソフトウェア",
+      "defaultBillingCycle": "monthly",
+      "defaultAmount": 2900,
+      "popularityRank": 259,
+      "officialCancelUrl": "https://support.google.com/googleone/answer/9056360?hl=ja",
+      "domain": "gemini.google.com"
+    },
+    {
+      "id": "jasper_ai",
+      "name": "Jasper AI",
+      "normalizedName": "jasperai",
+      "reading": "じゃすぱーえーあい",
+      "category": "ソフトウェア",
+      "defaultBillingCycle": "monthly",
+      "defaultAmount": 49,
+      "currency": "USD",
+      "popularityRank": 260,
+      "domain": "jasper.ai",
+      "officialCancelUrl": "https://app.jasper.ai/settings/billing"
+    },
+    {
+      "id": "kagi_search",
+      "name": "Kagi Search",
+      "normalizedName": "kagisearch",
+      "reading": "かぎさーち",
+      "category": "ソフトウェア",
+      "defaultBillingCycle": "monthly",
+      "defaultAmount": 10,
+      "currency": "USD",
+      "popularityRank": 261,
+      "plans": [
+        {
+          "label": "Starter",
+          "amount": 5
+        },
+        {
+          "label": "Professional",
+          "amount": 10
+        },
+        {
+          "label": "Ultimate",
+          "amount": 25
+        }
+      ],
+      "domain": "kagi.com",
+      "officialCancelUrl": "https://kagi.com/settings?p=billing"
+    },
+    {
+      "id": "inoreader_pro",
+      "name": "Inoreader Pro",
+      "normalizedName": "inoreaderpro",
+      "reading": "いのりーだーぷろ",
+      "category": "ソフトウェア",
+      "defaultBillingCycle": "monthly",
+      "defaultAmount": 8,
+      "currency": "USD",
+      "popularityRank": 262,
+      "domain": "inoreader.com",
+      "officialCancelUrl": "https://www.inoreader.com/account"
+    },
+    {
+      "id": "cleanmymac_plus",
+      "name": "CleanMyMac+",
+      "normalizedName": "cleanmymacplus",
+      "reading": "くりーんまいまっくぷらす",
+      "category": "ソフトウェア",
+      "defaultBillingCycle": "monthly",
+      "defaultAmount": 10,
+      "currency": "USD",
+      "popularityRank": 263,
+      "officialCancelUrl": "https://cleanmymac.com/account",
+      "domain": "cleanmymac.com"
+    },
+    {
+      "id": "omnifocus_subscr",
+      "name": "OmniFocus",
+      "normalizedName": "omnifocus",
+      "reading": "おむにふぉーかす",
+      "category": "ソフトウェア",
+      "defaultBillingCycle": "monthly",
+      "defaultAmount": 10,
+      "currency": "USD",
+      "popularityRank": 264,
+      "plans": [
+        {
+          "label": "Personal（月払い）",
+          "amount": 10
+        },
+        {
+          "label": "Pro（月払い）",
+          "amount": 20
+        }
+      ],
+      "domain": "omnigroup.com",
+      "officialCancelUrl": "https://www.omnigroup.com/omnifocus/"
+    },
+    {
+      "id": "microsoft_365_basic",
+      "name": "Microsoft 365 Basic",
+      "normalizedName": "microsoft365basic",
+      "reading": "まいくろそふとさんびゃくろくじゅうごべーしっく",
+      "category": "ソフトウェア",
+      "defaultBillingCycle": "monthly",
+      "defaultAmount": 219,
+      "popularityRank": 265,
+      "officialCancelUrl": "https://account.microsoft.com/services/microsoft365",
+      "domain": "microsoft.com"
+    },
+    {
+      "id": "microsoft_teams_essentials",
+      "name": "Microsoft Teams Essentials",
+      "normalizedName": "microsoftteamsessentials",
+      "reading": "まいくろそふとちーむずえっせんしゃるず",
+      "category": "ソフトウェア",
+      "defaultBillingCycle": "monthly",
+      "defaultAmount": 4,
+      "currency": "USD",
+      "popularityRank": 266,
+      "domain": "microsoft.com",
+      "officialCancelUrl": "https://account.microsoft.com/services"
+    },
+    {
+      "id": "hubspot_marketing",
+      "name": "HubSpot Marketing Hub",
+      "normalizedName": "hubspotmarketinghub",
+      "reading": "はぶすぽっとまーけてぃんぐはぶ",
+      "category": "ソフトウェア",
+      "defaultBillingCycle": "monthly",
+      "defaultAmount": 45,
+      "currency": "USD",
+      "popularityRank": 267,
+      "domain": "hubspot.com",
+      "officialCancelUrl": "https://app.hubspot.com/billing"
+    },
+    {
+      "id": "hootsuite_pro",
+      "name": "Hootsuite Pro",
+      "normalizedName": "hootsuitepro",
+      "reading": "ふーついーとぷろ",
+      "category": "ソフトウェア",
+      "defaultBillingCycle": "monthly",
+      "defaultAmount": 99,
+      "currency": "USD",
+      "popularityRank": 268,
+      "domain": "hootsuite.com",
+      "officialCancelUrl": "https://hootsuite.com/account/billing"
+    },
+    {
+      "id": "mailchimp_essentials",
+      "name": "Mailchimp Essentials",
+      "normalizedName": "mailchimpessentials",
+      "reading": "めいるちんぷえっせんしゃるず",
+      "category": "ソフトウェア",
+      "defaultBillingCycle": "monthly",
+      "defaultAmount": 13,
+      "currency": "USD",
+      "popularityRank": 269,
+      "officialCancelUrl": "https://mailchimp.com/account/billing/",
+      "domain": "mailchimp.com"
+    },
+    {
+      "id": "adobe_stock",
+      "name": "Adobe Stock",
+      "normalizedName": "adobestock",
+      "reading": "あどびすとっく",
+      "category": "ソフトウェア",
+      "defaultBillingCycle": "monthly",
+      "defaultAmount": 30,
+      "currency": "USD",
+      "popularityRank": 270,
+      "officialCancelUrl": "https://account.adobe.com/plans",
+      "plans": [
+        {
+          "label": "10点/月",
+          "amount": 30
+        },
+        {
+          "label": "750点/月",
+          "amount": 200
+        }
+      ],
+      "domain": "stock.adobe.com"
+    },
+    {
+      "id": "pixta_unlimited",
+      "name": "PIXTA 定額制",
+      "normalizedName": "ぴくすたていがくせい",
+      "reading": "ぴくすたていがくせい",
+      "category": "ソフトウェア",
+      "defaultBillingCycle": "monthly",
+      "defaultAmount": 8600,
+      "popularityRank": 271,
+      "plans": [
+        {
+          "label": "75点/月",
+          "amount": 8600
+        },
+        {
+          "label": "175点/月",
+          "amount": 15400
+        }
+      ],
+      "domain": "pixta.jp",
+      "officialCancelUrl": "https://pixta.jp/u/edit/plan"
+    },
+    {
+      "id": "shutterstock",
+      "name": "Shutterstock",
+      "normalizedName": "shutterstock",
+      "reading": "しゃったーすとっく",
+      "category": "ソフトウェア",
+      "defaultBillingCycle": "monthly",
+      "defaultAmount": 29,
+      "currency": "USD",
+      "popularityRank": 272,
+      "officialCancelUrl": "https://www.shutterstock.com/account/subscriptions",
+      "domain": "shutterstock.com"
+    },
+    {
+      "id": "epidemic_sound",
+      "name": "Epidemic Sound",
+      "normalizedName": "epidemicsound",
+      "reading": "えぴでみっくさうんど",
+      "category": "ソフトウェア",
+      "defaultBillingCycle": "monthly",
+      "defaultAmount": 15,
+      "currency": "USD",
+      "popularityRank": 273,
+      "officialCancelUrl": "https://www.epidemicsound.com/subscriptions/",
+      "domain": "epidemicsound.com"
+    },
+    {
+      "id": "envato_elements",
+      "name": "Envato Elements",
+      "normalizedName": "envatoelements",
+      "reading": "えんばとえれめんつ",
+      "category": "ソフトウェア",
+      "defaultBillingCycle": "monthly",
+      "defaultAmount": 17,
+      "currency": "USD",
+      "popularityRank": 274,
+      "officialCancelUrl": "https://elements.envato.com/account/subscriptions",
+      "domain": "elements.envato.com"
+    },
+    {
+      "id": "freepik_premium",
+      "name": "Freepik Premium",
+      "normalizedName": "freepikpremium",
+      "reading": "ふりーぴっくぷれみあむ",
+      "category": "ソフトウェア",
+      "defaultBillingCycle": "monthly",
+      "defaultAmount": 1470,
+      "popularityRank": 275,
+      "officialCancelUrl": "https://www.freepik.com/profile/settings",
+      "domain": "freepik.com"
+    },
+    {
+      "id": "vimeo_pro",
+      "name": "Vimeo Pro",
+      "normalizedName": "vimeopro",
+      "reading": "びめおぷろ",
+      "category": "ソフトウェア",
+      "defaultBillingCycle": "monthly",
+      "defaultAmount": 20,
+      "currency": "USD",
+      "popularityRank": 276,
+      "officialCancelUrl": "https://vimeo.com/account/billing",
+      "domain": "vimeo.com"
+    },
+    {
+      "id": "descript_creator",
+      "name": "Descript Creator",
+      "normalizedName": "descriptcreator",
+      "reading": "でぃすくりぷとくりえいたー",
+      "category": "ソフトウェア",
+      "defaultBillingCycle": "monthly",
+      "defaultAmount": 24,
+      "currency": "USD",
+      "popularityRank": 277,
+      "domain": "descript.com",
+      "officialCancelUrl": "https://web.descript.com/settings/billing"
+    },
+    {
+      "id": "capcut_pro",
+      "name": "CapCut Pro",
+      "normalizedName": "capcutpro",
+      "reading": "きゃっぷかっとぷろ",
+      "category": "ソフトウェア",
+      "defaultBillingCycle": "monthly",
+      "defaultAmount": 500,
+      "popularityRank": 278,
+      "officialCancelUrl": "https://www.capcut.com/member",
+      "plans": [
+        {
+          "label": "月払い",
+          "amount": 500
+        },
+        {
+          "label": "年払い（月換算）",
+          "amount": 325
+        }
+      ],
+      "domain": "capcut.com"
+    },
+    {
+      "id": "artlist",
+      "name": "Artlist",
+      "normalizedName": "artlist",
+      "reading": "あーとりすと",
+      "category": "ソフトウェア",
+      "defaultBillingCycle": "yearly",
+      "defaultAmount": 299,
+      "currency": "USD",
+      "popularityRank": 279,
+      "officialCancelUrl": "https://artlist.io/account/billing",
+      "domain": "artlist.io"
+    },
+    {
+      "id": "humble_choice",
+      "name": "Humble Choice",
+      "normalizedName": "humblechoice",
+      "reading": "はんぶるちょいす",
+      "category": "ゲーム",
+      "defaultBillingCycle": "monthly",
+      "defaultAmount": 12,
+      "currency": "USD",
+      "popularityRank": 280,
+      "officialCancelUrl": "https://www.humblebundle.com/membership",
+      "domain": "humblebundle.com"
+    },
+    {
+      "id": "dragonquest_x",
+      "name": "ドラゴンクエストXオンライン",
+      "normalizedName": "どらごんくえすとえっくすおんらいん",
+      "reading": "どらごんくえすとえっくすおんらいん",
+      "category": "ゲーム",
+      "defaultBillingCycle": "monthly",
+      "defaultAmount": 1628,
+      "popularityRank": 281,
+      "officialCancelUrl": "https://hiroba.dqx.jp/sc/",
+      "domain": "dqx.jp"
+    },
+    {
+      "id": "wow_subscription",
+      "name": "World of Warcraft",
+      "normalizedName": "worldofwarcraft",
+      "reading": "わーるどおぶうぉーくらふと",
+      "category": "ゲーム",
+      "defaultBillingCycle": "monthly",
+      "defaultAmount": 15,
+      "currency": "USD",
+      "popularityRank": 282,
+      "officialCancelUrl": "https://account.blizzard.com/",
+      "domain": "blizzard.com"
+    },
+    {
+      "id": "apple_one_family",
+      "name": "Apple One ファミリー",
+      "normalizedName": "appleoneふぁみりー",
+      "reading": "あっぷるわんふぁみりー",
+      "category": "ソフトウェア",
+      "defaultBillingCycle": "monthly",
+      "defaultAmount": 2250,
+      "popularityRank": 283,
+      "officialCancelUrl": "https://support.apple.com/ja-jp/118428",
+      "domain": "apple.com"
+    },
+    {
+      "id": "costco_membership",
+      "name": "コストコ 会員証",
+      "normalizedName": "こすとこかいいんしょう",
+      "reading": "こすとこかいいんしょう",
+      "category": "ショッピング",
+      "defaultBillingCycle": "yearly",
+      "defaultAmount": 4840,
+      "popularityRank": 284,
+      "officialCancelUrl": "https://www.costco.co.jp/c/services",
+      "plans": [
+        {
+          "label": "ゴールドスター（個人）",
+          "amount": 4840
+        },
+        {
+          "label": "エグゼクティブ",
+          "amount": 9900
+        }
+      ],
+      "domain": "costco.co.jp"
+    },
+    {
+      "id": "wordpress_personal",
+      "name": "WordPress.com Personal",
+      "normalizedName": "wordpress.compersonal",
+      "reading": "わーどぷれすどっとこむぱーそなる",
+      "category": "ソフトウェア",
+      "defaultBillingCycle": "yearly",
+      "defaultAmount": 4800,
+      "popularityRank": 285,
+      "officialCancelUrl": "https://wordpress.com/me/purchases",
+      "domain": "wordpress.com"
+    },
+    {
+      "id": "wix_light",
+      "name": "Wix Light",
+      "normalizedName": "wixlight",
+      "reading": "うぃっくすらいと",
+      "category": "ソフトウェア",
+      "defaultBillingCycle": "monthly",
+      "defaultAmount": 17,
+      "currency": "USD",
+      "popularityRank": 286,
+      "officialCancelUrl": "https://manage.wix.com/premium-purchase-plan/dynamo",
+      "domain": "wix.com"
+    },
+    {
+      "id": "typeform_basic",
+      "name": "Typeform Basic",
+      "normalizedName": "typeformbasic",
+      "reading": "たいぷふぉーむべーしっく",
+      "category": "ソフトウェア",
+      "defaultBillingCycle": "monthly",
+      "defaultAmount": 25,
+      "currency": "USD",
+      "popularityRank": 287,
+      "domain": "typeform.com",
+      "officialCancelUrl": "https://admin.typeform.com/account/billing"
+    },
+    {
+      "id": "miro_starter",
+      "name": "Miro Starter",
+      "normalizedName": "mirostarter",
+      "reading": "みろすたーたー",
+      "category": "ソフトウェア",
+      "defaultBillingCycle": "monthly",
+      "defaultAmount": 10,
+      "currency": "USD",
+      "popularityRank": 288,
+      "officialCancelUrl": "https://miro.com/app/settings/billing/",
+      "domain": "miro.com"
+    },
+    {
+      "id": "notion_ai_addon",
+      "name": "Notion AI",
+      "normalizedName": "notionai",
+      "reading": "のーしょんえーあい",
+      "category": "ソフトウェア",
+      "defaultBillingCycle": "monthly",
+      "defaultAmount": 10,
+      "currency": "USD",
+      "popularityRank": 289,
+      "officialCancelUrl": "https://www.notion.com/help/upgrade-or-downgrade-your-plan",
+      "domain": "notion.so"
+    },
+    {
+      "id": "storyblocks",
+      "name": "Storyblocks",
+      "normalizedName": "storyblocks",
+      "reading": "すとーりーぶろっくす",
+      "category": "ソフトウェア",
+      "defaultBillingCycle": "monthly",
+      "defaultAmount": 15,
+      "currency": "USD",
+      "popularityRank": 290,
+      "domain": "storyblocks.com",
+      "officialCancelUrl": "https://www.storyblocks.com/account/subscriptions"
+    },
+    {
+      "id": "jetbrains_toolbox",
+      "name": "JetBrains All Products Pack",
+      "normalizedName": "jetbrainsallproductspack",
+      "reading": "じぇっとぶれいんずおーるぷろだくつぱっく",
+      "category": "ソフトウェア",
+      "defaultBillingCycle": "monthly",
+      "defaultAmount": 77,
+      "currency": "USD",
+      "popularityRank": 291,
+      "officialCancelUrl": "https://account.jetbrains.com/",
+      "domain": "jetbrains.com"
+    },
+    {
+      "id": "sketch_app",
+      "name": "Sketch",
+      "normalizedName": "sketch",
+      "reading": "すけっち",
+      "category": "ソフトウェア",
+      "defaultBillingCycle": "yearly",
+      "defaultAmount": 100,
+      "currency": "USD",
+      "popularityRank": 292,
+      "officialCancelUrl": "https://www.sketch.com/account/",
+      "domain": "sketch.com"
+    },
+    {
+      "id": "dragonquest_x_online",
+      "name": "ドラゴンクエストX オフライン+",
+      "normalizedName": "どらごんくえすとえっくすおふらいん",
+      "reading": "どらごんくえすとえっくすおふらいん",
+      "category": "ゲーム",
+      "defaultBillingCycle": "monthly",
+      "defaultAmount": 990,
+      "popularityRank": 296,
+      "domain": "square-enix.com",
+      "officialCancelUrl": "https://secure.square-enix.com/mogstation/"
+    },
+    {
+      "id": "ffxiv_starter",
+      "name": "FINAL FANTASY XIV スターターパック",
+      "normalizedName": "finalfantasyxivすたーたーぱっく",
+      "reading": "ふぁいなるふぁんたじーふぉーてぃーんすたーたーぱっく",
+      "category": "ゲーム",
+      "defaultBillingCycle": "monthly",
+      "defaultAmount": 1234,
+      "popularityRank": 297,
+      "plans": [
+        {
+          "label": "Entry (30日)",
+          "amount": 1234
+        },
+        {
+          "label": "Standard (30日)",
+          "amount": 1628
+        }
+      ],
+      "domain": "finalfantasyxiv.com",
+      "officialCancelUrl": "https://secure.square-enix.com/mogstation/"
+    },
+    {
+      "id": "adobe_firefly",
+      "name": "Adobe Firefly Premium",
+      "normalizedName": "adobefireflyプレミアム",
+      "reading": "あどびふぁいあふらいぷれみあむ",
+      "category": "ソフトウェア",
+      "defaultBillingCycle": "monthly",
+      "defaultAmount": 5,
+      "currency": "USD",
+      "popularityRank": 298,
+      "plans": [
+        {
+          "label": "Premium",
+          "amount": 5
+        },
+        {
+          "label": "Pro",
+          "amount": 10
+        }
+      ],
+      "domain": "firefly.adobe.com",
+      "officialCancelUrl": "https://account.adobe.com/plans"
+    },
+    {
+      "id": "audiobook_jp",
+      "name": "audiobook.jp",
+      "normalizedName": "audiobook.jp",
+      "reading": "おーでぃおぶっくじぇいぴー",
+      "category": "電子書籍",
+      "defaultBillingCycle": "monthly",
+      "defaultAmount": 550,
+      "popularityRank": 303,
+      "officialCancelUrl": "https://audiobook.jp/member/top",
+      "domain": "audiobook.jp"
+    },
+    {
+      "id": "smartnews_plus",
+      "name": "SmartNews+",
+      "normalizedName": "smartnewsplus",
+      "reading": "すまーとにゅーすぷらす",
+      "category": "ニュース・雑誌",
+      "defaultBillingCycle": "monthly",
+      "defaultAmount": 600,
+      "popularityRank": 301,
+      "officialCancelUrl": "https://www.smartnews.com/settings",
+      "domain": "smartnews.com"
+    },
+    {
+      "id": "radiko_premium",
+      "name": "Radiko プレミアム",
+      "normalizedName": "radikoぷれみあむ",
+      "reading": "らじこぷれみあむ",
+      "category": "音楽",
+      "defaultBillingCycle": "monthly",
+      "defaultAmount": 385,
+      "popularityRank": 302,
+      "officialCancelUrl": "https://radiko.jp/account/",
+      "domain": "radiko.jp"
     },
     {
       "id": "other",
@@ -2433,8 +4091,59 @@
       "category": "その他",
       "defaultBillingCycle": "monthly",
       "defaultAmount": null,
-      "popularityRank": 200,
+      "popularityRank": 300,
       "officialCancelUrl": null
+    },
+    {
+      "id": "rakuten_magazine_kanji",
+      "name": "楽天マガジン",
+      "normalizedName": "楽天マガジン",
+      "reading": "らくてんまがじん",
+      "category": "ニュース・雑誌",
+      "defaultBillingCycle": "monthly",
+      "defaultAmount": 418,
+      "popularityRank": 322,
+      "domain": "magazine.rakuten.co.jp"
+    },
+    {
+      "id": "trello",
+      "name": "Trello",
+      "normalizedName": "trello",
+      "reading": "とれろ",
+      "category": "ソフトウェア",
+      "defaultBillingCycle": "monthly",
+      "popularityRank": 342,
+      "domain": "trello.com"
+    },
+    {
+      "id": "render",
+      "name": "Render",
+      "normalizedName": "render",
+      "reading": "れんだー",
+      "category": "ソフトウェア",
+      "defaultBillingCycle": "monthly",
+      "defaultAmount": 7,
+      "currency": "USD",
+      "popularityRank": 343,
+      "officialCancelUrl": "https://dashboard.render.com/billing",
+      "domain": "render.com",
+      "plans": [
+        {
+          "label": "Hobby",
+          "amount": 7,
+          "currency": "USD"
+        },
+        {
+          "label": "Standard",
+          "amount": 25,
+          "currency": "USD"
+        },
+        {
+          "label": "Pro",
+          "amount": 85,
+          "currency": "USD"
+        }
+      ]
     }
   ]
 }
