@@ -81,16 +81,12 @@ export function SubscriptionListItem({ subscription, onPress }: SubscriptionList
             source={{ uri: currentLogoUrl! }}
             style={styles.logoImage}
             onLoad={(e) => {
-              // DuckDuckGo はファビコン未収録ドメインに 1×1 の透明ピクセルを返す（HTTP 200）。
-              // onError は発火しないため、ロード後にサイズを確認してフォールバックを起動する。
-              // Web(Expo PWA)環境では nativeEvent.source.width が undefined になる場合があるため、
-              // DOM の naturalWidth/naturalHeight もフォールバックとして参照する。
+              // プライマリ(Google S2)が 1×1 の空ピクセルを返した場合に DuckDuckGo へフォールバック。
+              // source?.width は React Native Web では naturalWidth にマップされる。
               const source = e.nativeEvent.source;
-              const width = source?.width
-                ?? (e.nativeEvent as unknown as { target?: { naturalWidth?: number } }).target?.naturalWidth;
-              const height = source?.height
-                ?? (e.nativeEvent as unknown as { target?: { naturalHeight?: number } }).target?.naturalHeight;
-              if (typeof width !== 'number' || typeof height !== 'number' || width <= 2 || height <= 2) {
+              const width = source?.width;
+              const height = source?.height;
+              if (typeof width === 'number' && typeof height === 'number' && (width <= 2 || height <= 2)) {
                 if (!useFallback && logoFallbackUrl) {
                   setUseFallback(true);
                 } else {

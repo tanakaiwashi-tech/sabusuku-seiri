@@ -223,6 +223,7 @@ const SERVICE_LOGO_DOMAINS: Record<string, string> = {
   malwarebytes:            'malwarebytes.com',
 
   // ソフトウェア / AI（追加）
+  render:                  'render.com',
   deeplpro:                'deepl.com',
   setapp:                  'setapp.com',
   craftnotes:              'craft.do',
@@ -629,17 +630,17 @@ const ENTRY_NAME_MAP: Record<string, string> = Object.fromEntries(
 
 /**
  * ファビコン URL を生成する。
- * DuckDuckGo Favicon API を優先し、取得できない場合は Google S2 にフォールバックする。
- * どちらのサービスも無料・認証不要で利用できる。
+ * Google S2 を優先する（PNG 64×64 を返すため信頼性が高く、日本ドメインにも対応）。
+ * 取得できない場合は DuckDuckGo Favicon API にフォールバックする。
  */
 export function buildFaviconUrl(domain: string): string {
-  // DuckDuckGo Favicon API（プライマリ）
-  return `https://icons.duckduckgo.com/ip3/${domain}.ico`;
+  // Google S2 Favicon API（プライマリ）- PNG 64×64 を返す
+  return `https://www.google.com/s2/favicons?domain=${domain}&sz=64`;
 }
 
-/** Google S2 をフォールバックとして返す（画像エラー時に img.onerror で使用） */
+/** DuckDuckGo をフォールバックとして返す（Google S2 で取得できなかった場合に使用） */
 export function buildFaviconFallbackUrl(domain: string): string {
-  return `https://www.google.com/s2/favicons?domain=${domain}&sz=64`;
+  return `https://icons.duckduckgo.com/ip3/${domain}.ico`;
 }
 
 /**
