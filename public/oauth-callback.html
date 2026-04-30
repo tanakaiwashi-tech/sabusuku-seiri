@@ -1,13 +1,20 @@
 <!DOCTYPE html>
 <html>
-<head><title>OAuth Callback</title></head>
+<head>
+  <title>OAuth Callback</title>
+  <meta http-equiv="Content-Security-Policy"
+        content="default-src 'none'; script-src 'unsafe-inline'">
+</head>
 <body>
 <script>
   try {
-    var hash = window.location.hash;
-    if (hash && window.opener) {
+    // PKCE フロー: Google は ?code=...&state=... をクエリパラメータで返す
+    var params = new URLSearchParams(window.location.search);
+    var code = params.get('code');
+    var state = params.get('state');
+    if (code && window.opener) {
       window.opener.postMessage(
-        { type: 'oauth_callback', hash: hash },
+        { type: 'oauth_callback', code: code, state: state },
         window.location.origin
       );
     }

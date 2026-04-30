@@ -1,0 +1,76 @@
+name: Weekly Cancel URL Check
+
+on:
+  schedule:
+    # 毎週月曜 09:00 UTC（日本時間 18:00）に実行
+    - cron: '0 9 * * 1'
+  workflow_dispatch:
+    # 手動実行も可能
+
+jobs:
+  check-urls:
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+      contents: read
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: officialCancelUrl チェック
+        id: check
+        run: node scripts/check-cancel-urls.js --fail-only
+        continue-on-error: true
+
+      - name: 問題 URL の一覧を取得
+        id: collect
+        if: steps.check.outcome == 'failure'
+        run: |
+          OUTPUT=$(node scripts/check-cancel-urls.js --fail-only 2>&1 || true)
+          echo "output<<EOF" >> "$GITHUB_OUTPUT"
+          echo "$OUTPUT" >> "$GITHUB_OUTPUT"
+          echo "EOF" >> "$GITHUB_OUTPUT"
+
+      - name: GitHub Issue を作成
+        if: steps.check.outcome == 'failure'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const output = `${{ steps.collect.outputs.output }}`;
+            const today = new Date().toISOString().slice(0, 10);
+
+            // 同日のオープン済みIssueがあれば重複作成しない
+            const existing = await github.rest.issues.listForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'open',
+              labels: 'maintenance',
+            });
+            const dup = existing.data.find(i => i.title.includes(today));
+            if (dup) {
+              console.log(`既存Issue #${dup.number} が存在するためスキップ`);
+              return;
+            }
+
+            await github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: `[自動] officialCancelUrl 問題検出 ${today}`,
+              body: [
+                '## 週次 URL チェック結果',
+                '',
+                '以下の `officialCancelUrl` に問題が見つかりました。',
+                '`service_dictionary.json` の更新を検討してください。',
+                '',
+                '```',
+                output,
+                '```',
+                '',
+                '> このIssueは GitHub Actions により自動生成されました。',
+              ].join('\n'),
+              labels: ['maintenance'],
+            });

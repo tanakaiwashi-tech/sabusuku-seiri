@@ -37,9 +37,9 @@ export default function PrivacyScreen() {
         </Section>
 
         <Section title="ロゴ・アイコン表示について">
-          登録一覧画面では、サービス名に対応したロゴアイコンをGoogleのFaviconサービス（google.com/s2/favicons）から取得して表示する場合があります。
-          この際、対象サービスのドメイン名（例: spotify.com）がGoogleのサーバーに送信されます。
-          個人情報は含まれませんが、気になる場合はGoogleのプライバシーポリシーをご確認ください。
+          登録一覧画面では、サービス名に対応したロゴアイコンをDuckDuckGoのFaviconサービス（icons.duckduckgo.com）から取得して表示する場合があります。
+          取得できない場合はGoogleのFaviconサービス（google.com/s2/favicons）を使用します。
+          いずれの場合も対象サービスのドメイン名（例: spotify.com）が外部サーバーに送信されます。個人情報は含まれません。
           ロゴが取得できない場合はサービス名の頭文字が表示されます。
         </Section>
 

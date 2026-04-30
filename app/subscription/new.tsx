@@ -14,7 +14,6 @@ import { router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import {
   BILLING_CYCLE_LABELS,
-  FREE_LIMIT_COUNT,
   BILLING_CYCLE_OPTIONS,
 } from '@/src/constants/app';
 import {
@@ -53,8 +52,10 @@ export default function NewSubscriptionScreen() {
   const [startDate, setStartDate] = useState('');
   const [memo, setMemo] = useState('');
   const [customCancelUrl, setCustomCancelUrl] = useState('');
+  const [isStopped, setIsStopped] = useState(false);
 
   const [errors, setErrors] = useState<SubscriptionFormErrors>({});
+  const [showDetails, setShowDetails] = useState(false);
 
   const handleSelectSuggestion = (entry: ServiceDictionaryEntry) => {
     setCategory(entry.category);
@@ -109,7 +110,7 @@ export default function NewSubscriptionScreen() {
       currency: billingCycle === 'free' ? undefined : currency,
       billingCycle,
       category,
-      status: 'active',
+      status: isStopped ? 'stopped' : 'active',
       nextRenewalDate: nextRenewalDate || null,
       trialEndDate: trialEndDate || null,
       startDate: startDate || null,
@@ -124,12 +125,6 @@ export default function NewSubscriptionScreen() {
 
     if (result.ok) {
       router.back();
-    } else if (result.error === 'limit_reached') {
-      Alert.alert(
-        '登録上限に達しました',
-        `最大${FREE_LIMIT_COUNT}件まで登録できます。\n一覧から外すと空きができます。`,
-        [{ text: 'OK' }],
-      );
     } else {
       Alert.alert('エラー', '保存できませんでした。もう一度試してください。');
     }
@@ -225,59 +220,88 @@ export default function NewSubscriptionScreen() {
               onToggleCurrency={() => setCurrency((c) => (c === 'JPY' ? 'USD' : 'JPY'))}
               error={errors.amount}
             />
-          </View>
-
-          <Text style={styles.sectionTitle}>詳細（任意）</Text>
-          <View style={styles.section}>
-            <SelectField
-              label="カテゴリ"
-              value={category}
-              options={CATEGORY_OPTIONS}
-              displayLabel={(v) => v}
-              onChange={setCategory}
-              clearable
-            />
             <DatePickerField
               label="次回更新日"
               value={nextRenewalDate}
               onChange={setNextRenewalDate}
               error={errors.nextRenewalDate}
             />
-            <DatePickerField
-              label="トライアル終了日"
-              value={trialEndDate}
-              onChange={setTrialEndDate}
-              error={errors.trialEndDate}
-            />
-            <DatePickerField
-              label="利用開始日"
-              value={startDate}
-              onChange={setStartDate}
-              error={errors.startDate}
-            />
           </View>
 
-          <Text style={styles.sectionTitle}>メモ・解約URL</Text>
-          <View style={styles.section}>
-            <TextInput
-              label="解約URL"
-              value={customCancelUrl}
-              onChangeText={setCustomCancelUrl}
-              placeholder="https://..."
-              autoCapitalize="none"
-              keyboardType="url"
-              error={errors.customCancelUrl}
+          <TouchableOpacity
+            style={styles.detailsToggleRow}
+            onPress={() => setShowDetails((v) => !v)}
+            activeOpacity={0.7}
+          >
+            <Text style={[styles.sectionTitle, styles.detailsToggleTitle]}>詳細・メモ（任意）</Text>
+            <Ionicons
+              name={showDetails ? 'chevron-up' : 'chevron-down'}
+              size={16}
+              color={COLORS.textMuted}
             />
-            <TextInput
-              label="メモ（任意）"
-              value={memo}
-              onChangeText={setMemo}
-              placeholder="自由にメモ..."
-              multiline
-              numberOfLines={3}
-              style={styles.textarea}
-            />
-          </View>
+          </TouchableOpacity>
+          {showDetails && (
+            <View style={styles.section}>
+              <SelectField
+                label="カテゴリ"
+                value={category}
+                options={CATEGORY_OPTIONS}
+                displayLabel={(v) => v}
+                onChange={setCategory}
+                clearable
+              />
+              <DatePickerField
+                label="試用終了日"
+                value={trialEndDate}
+                onChange={setTrialEndDate}
+                error={errors.trialEndDate}
+              />
+              <DatePickerField
+                label="利用開始日"
+                value={startDate}
+                onChange={setStartDate}
+                error={errors.startDate}
+              />
+              <TextInput
+                label="参考URL"
+                value={customCancelUrl}
+                onChangeText={setCustomCancelUrl}
+                placeholder="マイページや解約ページのURL..."
+                autoCapitalize="none"
+                keyboardType="url"
+                error={errors.customCancelUrl}
+              />
+              <TextInput
+                label="メモ（任意）"
+                value={memo}
+                onChangeText={setMemo}
+                placeholder="自由にメモ..."
+                multiline
+                numberOfLines={3}
+                style={styles.textarea}
+              />
+              {/* 解約済みとして記録するトグル */}
+              <TouchableOpacity
+                style={styles.stoppedToggle}
+                onPress={() => setIsStopped((v) => !v)}
+                activeOpacity={0.7}
+              >
+                <Ionicons
+                  name={isStopped ? 'checkmark-circle' : 'ellipse-outline'}
+                  size={22}
+                  color={isStopped ? COLORS.primary : COLORS.textMuted}
+                />
+                <View>
+                  <Text style={[styles.stoppedToggleLabel, isStopped && styles.stoppedToggleLabelActive]}>
+                    解約済みとして記録
+                  </Text>
+                  <Text style={styles.stoppedToggleDesc}>
+                    すでに解約したサービスを履歴に残せます
+                  </Text>
+                </View>
+              </TouchableOpacity>
+            </View>
+          )}
         </ScrollView>
 
         <View style={styles.footer}>
@@ -310,6 +334,18 @@ const styles = StyleSheet.create({
     marginTop: 8,
     marginBottom: 4,
   },
+  detailsToggleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginTop: 8,
+    marginBottom: 4,
+    paddingRight: 2,
+  },
+  detailsToggleTitle: {
+    marginTop: 0,
+    marginBottom: 0,
+  },
   section: {
     gap: 14,
     backgroundColor: COLORS.surface,
@@ -320,6 +356,25 @@ const styles = StyleSheet.create({
     overflow: 'visible',
   },
   textarea: { minHeight: 80, textAlignVertical: 'top' },
+  stoppedToggle: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+    paddingTop: 4,
+  },
+  stoppedToggleLabel: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: COLORS.textSecondary,
+  },
+  stoppedToggleLabelActive: {
+    color: COLORS.primary,
+  },
+  stoppedToggleDesc: {
+    fontSize: 11,
+    color: COLORS.textMuted,
+    marginTop: 2,
+  },
   footer: { padding: 16, borderTopWidth: 1, borderTopColor: COLORS.border },
   planSection: {
     gap: 6,

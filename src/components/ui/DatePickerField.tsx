@@ -15,8 +15,6 @@ interface DatePickerFieldProps {
   onChange: (v: string) => void;
   error?: string;
   containerStyle?: ViewStyle;
-  /** 日付なしを許可（クリアボタン表示）。デフォルト true */
-  clearable?: boolean;
 }
 
 /**
@@ -30,7 +28,6 @@ export function DatePickerField({
   onChange,
   error,
   containerStyle,
-  clearable = true,
 }: DatePickerFieldProps) {
   if (Platform.OS === 'web') {
     return (

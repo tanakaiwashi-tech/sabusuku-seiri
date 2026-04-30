@@ -23,6 +23,7 @@ import {
 } from '@/src/utils/gmailUtils';
 import type { SubscriptionFormData } from '@/src/types';
 import type { GmailSenderPattern } from '@/src/constants/gmailSenders';
+import { normalizeServiceName } from '@/src/utils/amountUtils';
 
 type ScanPhase =
   | { phase: 'idle' }
@@ -74,11 +75,12 @@ export default function GmailScanScreen() {
   };
 
   // ─── 既存登録済みチェック ─────────────────────────────────────
-  const registeredNames = new Set(
-    subscriptions.map((s) => s.serviceName.toLowerCase().trim()),
+  // normalizedName ベースで照合し、"Amazon" → "Amazon Prime" のような名称変更後も正しく検知する
+  const registeredNormalizedNames = new Set(
+    subscriptions.map((s) => s.normalizedName),
   );
-  const isAlreadyRegistered = (displayName: string) =>
-    registeredNames.has(displayName.toLowerCase().trim());
+  const isAlreadyRegistered = (pattern: GmailSenderPattern) =>
+    registeredNormalizedNames.has(normalizeServiceName(pattern.normalizedName));
 
   // ─── 選択トグル ───────────────────────────────────────────────
   const toggleSelect = (key: string, pattern: GmailSenderPattern) => {
@@ -151,7 +153,7 @@ export default function GmailScanScreen() {
     const targets = scanPhase.candidates.filter(
       (c) =>
         selected.has(c.pattern.normalizedName) &&
-        !isAlreadyRegistered(c.pattern.displayName),
+        !isAlreadyRegistered(c.pattern),
     );
 
     if (targets.length === 0) {
@@ -167,8 +169,16 @@ export default function GmailScanScreen() {
       const detail = details.get(key);
       const amount = parseInt(detail?.amount ?? '0', 10);
 
+      // プランが選択されている場合はプランの serviceName を優先（例: "Amazon Prime"）
+      const selectedPlan =
+        detail?.selectedPlanIndex !== null && detail?.selectedPlanIndex !== undefined
+          ? candidate.pattern.plans?.[detail.selectedPlanIndex]
+          : undefined;
+      const resolvedServiceName =
+        selectedPlan?.serviceName ?? candidate.pattern.displayName;
+
       const formData: SubscriptionFormData = {
-        serviceName: candidate.pattern.displayName,
+        serviceName: resolvedServiceName,
         amount: isNaN(amount) ? 0 : amount,
         currency: detail?.currency ?? 'JPY',
         billingCycle: detail?.billingCycle ?? 'monthly',
@@ -179,7 +189,7 @@ export default function GmailScanScreen() {
         startDate: null,
         memo: null,
         cancelMemo: null,
-        customCancelUrl: null,
+        customCancelUrl: candidate.pattern.referenceUrl ?? null,
         isArchived: false,
       };
       const result = add(formData);
@@ -252,7 +262,7 @@ export default function GmailScanScreen() {
             <Text style={styles.loadingText}>
               {scanPhase.phase === 'signing_in'
                 ? 'Googleにログイン中...'
-                : 'メールを検索中（直近3ヶ月）...'}
+                : 'メールを検索中（受信トレイ＋プロモーション）...'}
             </Text>
           </View>
         )}
@@ -285,8 +295,16 @@ export default function GmailScanScreen() {
         {candidates.map((candidate) => {
           const key = candidate.pattern.normalizedName;
           const isSelected = selected.has(key);
-          const alreadyRegistered = isAlreadyRegistered(candidate.pattern.displayName);
+          const alreadyRegistered = isAlreadyRegistered(candidate.pattern);
           const detail = details.get(key);
+          // 選択中のプランに serviceName があればカード表示名を上書き
+          const displayedServiceName =
+            isSelected &&
+            detail?.selectedPlanIndex !== null &&
+            detail?.selectedPlanIndex !== undefined &&
+            candidate.pattern.plans?.[detail.selectedPlanIndex]?.serviceName
+              ? candidate.pattern.plans[detail.selectedPlanIndex].serviceName!
+              : candidate.pattern.displayName;
 
           return (
             <View
@@ -316,7 +334,7 @@ export default function GmailScanScreen() {
                 </View>
                 <View style={styles.candidateBody}>
                   <View style={styles.candidateNameRow}>
-                    <Text style={styles.candidateName}>{candidate.pattern.displayName}</Text>
+                    <Text style={styles.candidateName}>{displayedServiceName}</Text>
                     {alreadyRegistered && (
                       <View style={styles.registeredBadge}>
                         <Text style={styles.registeredBadgeText}>登録済み</Text>
@@ -365,6 +383,16 @@ export default function GmailScanScreen() {
                           );
                         })}
                       </ScrollView>
+                    </View>
+                  )}
+
+                  {/* プラン自動設定の注記 */}
+                  {detail.selectedPlanIndex !== null && (
+                    <View style={styles.planAutoNote}>
+                      <Ionicons name="checkmark-circle-outline" size={13} color={COLORS.primary} />
+                      <Text style={styles.planAutoNoteText}>
+                        サイクルと通貨はプランに合わせて自動設定されました
+                      </Text>
                     </View>
                   )}
 
@@ -803,6 +831,17 @@ const styles = StyleSheet.create({
   amountHint: {
     fontSize: 11,
     color: COLORS.textMuted,
+  },
+  planAutoNote: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 5,
+    marginBottom: 2,
+  },
+  planAutoNoteText: {
+    fontSize: 11,
+    color: COLORS.primary,
+    flex: 1,
   },
   // ─── その他 ───────────────────────────────────────────────────
   rescanBtn: {

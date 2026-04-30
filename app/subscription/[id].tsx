@@ -14,9 +14,7 @@ import { useLocalSearchParams, router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import {
   BILLING_CYCLE_LABELS,
-  STATUS_LABELS,
   BILLING_CYCLE_OPTIONS,
-  STATUS_OPTIONS,
 } from '@/src/constants/app';
 import {
   CATEGORY_OPTIONS,
@@ -37,9 +35,19 @@ import { ServiceNameAutocomplete } from '@/src/components/subscription/ServiceNa
 import type { ServiceDictionaryEntry } from '@/src/types';
 import { COLORS } from '@/src/constants/colors';
 import { formatDisplayDate, suggestNextRenewalDate, isOverdueRenewal } from '@/src/utils/dateUtils';
-import { formatAmount } from '@/src/utils/amountUtils';
+import { formatAmount, toMonthlyAmount, toJPY } from '@/src/utils/amountUtils';
+import { useUiPrefsStore } from '@/src/stores/uiPrefsStore';
+import { USD_TO_JPY_RATE } from '@/src/constants/app';
 import { isSafeUrl, validateSubscriptionForm, type SubscriptionFormErrors } from '@/src/utils/validationUtils';
 import { subscriptionToFormData } from '@/src/utils/subscriptionUtils';
+
+// ステータスフローの順序定義
+const STATUS_FLOW: { status: string; label: string }[] = [
+  { status: 'active', label: '継続中' },
+  { status: 'reviewing', label: '見直す' },
+  { status: 'cancel_planned', label: '解約する' },
+  { status: 'stopped', label: '解約済み' },
+];
 
 function DetailRow({
   label,
@@ -76,6 +84,7 @@ export default function SubscriptionDetailScreen() {
   const [isEditing, setIsEditing] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [saveError, setSaveError] = useState(false);
+  const usdRate = useUiPrefsStore((s) => s.usdToJpyRate ?? USD_TO_JPY_RATE);
   // インライン確認UI用 state
   const [confirmAction, setConfirmAction] = useState<'hide' | 'delete' | null>(null);
   // 更新日繰り越し提案（インラインバナー用）
@@ -92,9 +101,9 @@ export default function SubscriptionDetailScreen() {
   const [trialEndDate, setTrialEndDate] = useState('');
   const [startDate, setStartDate] = useState('');
   const [memo, setMemo] = useState('');
-  const [cancelMemo, setCancelMemo] = useState('');
   const [customCancelUrl, setCustomCancelUrl] = useState('');
   const [errors, setErrors] = useState<SubscriptionFormErrors>({});
+  const [showDetails, setShowDetails] = useState(false);
 
   const startEditing = () => {
     if (!current) return;
@@ -107,13 +116,16 @@ export default function SubscriptionDetailScreen() {
     setTrialEndDate(current.trialEndDate ?? '');
     setStartDate(current.startDate ?? '');
     setMemo(current.memo ?? '');
-    setCancelMemo(current.cancelMemo ?? '');
     setCustomCancelUrl(current.customCancelUrl ?? '');
 
     // 更新日が過去 → インラインバナーで次回周期への繰り越しを提案
     const suggested = suggestNextRenewalDate(current.nextRenewalDate, current.billingCycle);
     setNextRenewalDate(current.nextRenewalDate ?? '');
     setSuggestedRenewalDate(suggested);
+
+    // 詳細フィールドにひとつでも値があれば自動展開
+    setShowDetails(!!(current.category || current.trialEndDate || current.startDate || current.memo || current.customCancelUrl));
+
     setIsEditing(true);
   };
 
@@ -145,7 +157,7 @@ export default function SubscriptionDetailScreen() {
       trialEndDate: trialEndDate || null,
       startDate: startDate || null,
       memo: memo || null,
-      cancelMemo: current.cancelMemo ?? null, // フォームで編集しないが既存値を保持
+      cancelMemo: null,
       customCancelUrl: customCancelUrl.trim() || null,
       isArchived: current.isArchived,
     };
@@ -245,32 +257,13 @@ export default function SubscriptionDetailScreen() {
                 onToggleCurrency={() => setCurrency((c) => (c === 'JPY' ? 'USD' : 'JPY'))}
                 error={errors.amount}
               />
-            </View>
-
-            <Text style={styles.sectionTitle}>詳細（任意）</Text>
-            <View style={styles.section}>
-              <SelectField
-                label="カテゴリ"
-                value={category}
-                options={CATEGORY_OPTIONS}
-                displayLabel={(v) => v}
-                onChange={setCategory}
-                clearable
-              />
-              <SelectField
-                label="ステータス"
-                value={status}
-                options={STATUS_OPTIONS}
-                displayLabel={(v) => STATUS_LABELS[v]}
-                onChange={(v) => v && setStatus(v)}
-              />
               {/* 更新日過期バナー */}
               {suggestedRenewalDate && (
                 <View style={styles.renewalBanner}>
                   <Ionicons name="time-outline" size={16} color={COLORS.warning.text} />
                   <View style={styles.renewalBannerBody}>
                     <Text style={styles.renewalBannerText}>
-                      {`更新日が過ぎています。\n次の更新日 ${suggestedRenewalDate} に更新しますか？`}
+                      {`更新日が過ぎています。\n次の更新日 ${formatDisplayDate(suggestedRenewalDate)} に更新しますか？`}
                     </Text>
                     <View style={styles.renewalBannerActions}>
                       <TouchableOpacity
@@ -295,31 +288,52 @@ export default function SubscriptionDetailScreen() {
                 </View>
               )}
               <DatePickerField label="次回更新日" value={nextRenewalDate} onChange={setNextRenewalDate} error={errors.nextRenewalDate} />
-              <DatePickerField label="トライアル終了日" value={trialEndDate} onChange={setTrialEndDate} error={errors.trialEndDate} />
-              <DatePickerField label="利用開始日" value={startDate} onChange={setStartDate} error={errors.startDate} />
             </View>
 
-            <Text style={styles.sectionTitle}>メモ・解約URL</Text>
-            <View style={styles.section}>
-              <TextInput
-                label="解約URL"
-                value={customCancelUrl}
-                onChangeText={setCustomCancelUrl}
-                placeholder="https://..."
-                autoCapitalize="none"
-                keyboardType="url"
-                error={errors.customCancelUrl}
+            <TouchableOpacity
+              style={styles.detailsToggleRow}
+              onPress={() => setShowDetails((v) => !v)}
+              activeOpacity={0.7}
+            >
+              <Text style={[styles.sectionTitle, styles.detailsToggleTitle]}>詳細・メモ（任意）</Text>
+              <Ionicons
+                name={showDetails ? 'chevron-up' : 'chevron-down'}
+                size={16}
+                color={COLORS.textMuted}
               />
-              <TextInput
-                label="メモ（任意）"
-                value={memo}
-                onChangeText={setMemo}
-                placeholder="自由にメモ..."
-                multiline
-                numberOfLines={3}
-                style={styles.textarea}
-              />
-            </View>
+            </TouchableOpacity>
+            {showDetails && (
+              <View style={styles.section}>
+                <SelectField
+                  label="カテゴリ"
+                  value={category}
+                  options={CATEGORY_OPTIONS}
+                  displayLabel={(v) => v}
+                  onChange={setCategory}
+                  clearable
+                />
+                <DatePickerField label="試用終了日" value={trialEndDate} onChange={setTrialEndDate} error={errors.trialEndDate} />
+                <DatePickerField label="利用開始日" value={startDate} onChange={setStartDate} error={errors.startDate} />
+                <TextInput
+                  label="参考URL"
+                  value={customCancelUrl}
+                  onChangeText={setCustomCancelUrl}
+                  placeholder="マイページや解約ページのURL..."
+                  autoCapitalize="none"
+                  keyboardType="url"
+                  error={errors.customCancelUrl}
+                />
+                <TextInput
+                  label="メモ（任意）"
+                  value={memo}
+                  onChangeText={setMemo}
+                  placeholder="自由にメモ..."
+                  multiline
+                  numberOfLines={3}
+                  style={styles.textarea}
+                />
+              </View>
+            )}
           </ScrollView>
 
           <View style={styles.footer}>
@@ -352,25 +366,53 @@ export default function SubscriptionDetailScreen() {
         {/* サマリーカード */}
         <View style={styles.summaryCard}>
           <View style={styles.summaryRow}>
-            <Text style={styles.summaryAmount}>
-              {current.billingCycle === 'free'
-                ? '無料'
-                : `${formatAmount(current.amount, current.currency ?? 'JPY')} / ${BILLING_CYCLE_LABELS[current.billingCycle]}`}
-            </Text>
-            {current.status !== 'active' && <StatusBadge status={current.status} />}
+            <View style={styles.summaryAmountCol}>
+              <Text style={styles.summaryAmount}>
+                {current.billingCycle === 'free'
+                  ? '無料'
+                  : `${formatAmount(current.amount, current.currency ?? 'JPY')} / ${BILLING_CYCLE_LABELS[current.billingCycle]}`}
+              </Text>
+              {/* 月額JPY換算サブ行: 一覧表示との一貫性のため、月払いJPY以外に表示 */}
+              {(() => {
+                const cur = current.currency ?? 'JPY';
+                const isMonthlyJPY = current.billingCycle === 'monthly' && cur === 'JPY';
+                if (
+                  current.billingCycle === 'free' ||
+                  current.amount === 0 ||
+                  current.billingCycle === 'irregular' ||
+                  isMonthlyJPY
+                ) return null;
+                const monthlyRaw = toMonthlyAmount(current.amount, current.billingCycle) ?? 0;
+                const monthlyJPY = toJPY(monthlyRaw, cur, usdRate);
+                return (
+                  <Text style={styles.summaryAmountHint}>{`月換算 ${formatAmount(monthlyJPY, 'JPY')}`}</Text>
+                );
+              })()}
+            </View>
+            <StatusBadge status={current.status} />
           </View>
           {current.category && <Text style={styles.category}>{current.category}</Text>}
 
           {/* クイックアクション: ステータス切り替え */}
+          <Text style={styles.nextActionLabel}>{current.status === 'stopped' ? 'ステータスを変更' : '次のアクション'}</Text>
           <View style={styles.quickActions}>
             {current.status === 'active' && (
-              <TouchableOpacity
-                style={[styles.quickBtn, styles.quickBtnReviewing]}
-                onPress={() => handleQuickStatusChange('reviewing')}
-                activeOpacity={0.75}
-              >
-                <Text style={[styles.quickBtnText, styles.quickBtnTextReviewing]}>見直す</Text>
-              </TouchableOpacity>
+              <>
+                <TouchableOpacity
+                  style={[styles.quickBtn, styles.quickBtnReviewing]}
+                  onPress={() => handleQuickStatusChange('reviewing')}
+                  activeOpacity={0.75}
+                >
+                  <Text style={[styles.quickBtnText, styles.quickBtnTextReviewing]}>見直す</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={[styles.quickBtn, styles.quickBtnCancel]}
+                  onPress={() => handleQuickStatusChange('cancel_planned')}
+                  activeOpacity={0.75}
+                >
+                  <Text style={[styles.quickBtnText, styles.quickBtnTextCancel]}>解約する</Text>
+                </TouchableOpacity>
+              </>
             )}
             {current.status === 'reviewing' && (
               <>
@@ -379,14 +421,14 @@ export default function SubscriptionDetailScreen() {
                   onPress={() => handleQuickStatusChange('active')}
                   activeOpacity={0.75}
                 >
-                  <Text style={[styles.quickBtnText, styles.quickBtnTextGhost]}>利用中に戻す</Text>
+                  <Text style={[styles.quickBtnText, styles.quickBtnTextGhost]}>継続中に戻す</Text>
                 </TouchableOpacity>
                 <TouchableOpacity
                   style={[styles.quickBtn, styles.quickBtnCancel]}
                   onPress={() => handleQuickStatusChange('cancel_planned')}
                   activeOpacity={0.75}
                 >
-                  <Text style={[styles.quickBtnText, styles.quickBtnTextCancel]}>解約する →</Text>
+                  <Text style={[styles.quickBtnText, styles.quickBtnTextCancel]}>解約する</Text>
                 </TouchableOpacity>
               </>
             )}
@@ -397,14 +439,14 @@ export default function SubscriptionDetailScreen() {
                   onPress={() => handleQuickStatusChange('active')}
                   activeOpacity={0.75}
                 >
-                  <Text style={[styles.quickBtnText, styles.quickBtnTextGhost]}>利用中に戻す</Text>
+                  <Text style={[styles.quickBtnText, styles.quickBtnTextGhost]}>継続中に戻す</Text>
                 </TouchableOpacity>
                 <TouchableOpacity
                   style={[styles.quickBtn, styles.quickBtnStopped]}
                   onPress={() => handleQuickStatusChange('stopped')}
                   activeOpacity={0.75}
                 >
-                  <Text style={[styles.quickBtnText, styles.quickBtnTextStopped]}>解約済みにする ✓</Text>
+                  <Text style={[styles.quickBtnText, styles.quickBtnTextStopped]}>解約済みにする</Text>
                 </TouchableOpacity>
               </>
             )}
@@ -414,11 +456,23 @@ export default function SubscriptionDetailScreen() {
                 onPress={() => handleQuickStatusChange('active')}
                 activeOpacity={0.75}
               >
-                <Text style={[styles.quickBtnText, styles.quickBtnTextGhost]}>利用中に戻す</Text>
+                <Text style={[styles.quickBtnText, styles.quickBtnTextGhost]}>継続中に戻す</Text>
               </TouchableOpacity>
             )}
           </View>
         </View>
+
+        {/* 更新日未設定のnudge */}
+        {!current.nextRenewalDate &&
+          current.status === 'active' &&
+          current.billingCycle !== 'free' &&
+          current.billingCycle !== 'irregular' && (
+          <TouchableOpacity style={styles.nudgeBanner} onPress={startEditing} activeOpacity={0.7}>
+            <Ionicons name="calendar-outline" size={15} color={COLORS.primary} />
+            <Text style={styles.nudgeText}>{'次回更新日を設定すると\n更新アラートが使えます'}</Text>
+            <Text style={styles.nudgeLink}>設定する →</Text>
+          </TouchableOpacity>
+        )}
 
         {/* 詳細行: 表示する行がある場合のみ描画 */}
         {(current.nextRenewalDate || current.trialEndDate || current.startDate || current.cancelledAt) && (
@@ -439,12 +493,12 @@ export default function SubscriptionDetailScreen() {
               />
             )}
             {current.trialEndDate && (
-              <DetailRow label="トライアル終了日" value={formatDisplayDate(current.trialEndDate)} />
+              <DetailRow label="試用終了日" value={formatDisplayDate(current.trialEndDate)} />
             )}
             {current.startDate && (
               <DetailRow label="利用開始日" value={formatDisplayDate(current.startDate)} />
             )}
-            {current.cancelledAt && (
+            {current.cancelledAt && current.status === 'stopped' && (
               <DetailRow label="解約日" value={formatDisplayDate(current.cancelledAt)} />
             )}
           </View>
@@ -459,17 +513,13 @@ export default function SubscriptionDetailScreen() {
             )}
             {current.customCancelUrl && isSafeUrl(current.customCancelUrl) && (
               <TouchableOpacity
-                onPress={() => {
-                  if (current.customCancelUrl && isSafeUrl(current.customCancelUrl)) {
-                    Linking.openURL(current.customCancelUrl);
-                  }
-                }}
+                onPress={() => Linking.openURL(current.customCancelUrl!)}
                 activeOpacity={0.7}
                 style={styles.cancelUrlRow}
               >
                 <Ionicons name="link-outline" size={14} color={COLORS.primary} />
                 <Text style={styles.cancelUrl} numberOfLines={1}>
-                  解約ページを開く
+                  参考URLを見る
                 </Text>
               </TouchableOpacity>
             )}
@@ -485,7 +535,7 @@ export default function SubscriptionDetailScreen() {
               </Text>
               {!current.isArchived && (
                 <Text style={styles.confirmDesc}>
-                  後から「非表示にした項目」で確認できます
+                  {'データは保持されますが、月額合計の集計からは除外されます。\n解約済みにするには「解約済みにする」をお使いください。'}
                 </Text>
               )}
               <View style={styles.confirmButtons}>
@@ -538,17 +588,25 @@ export default function SubscriptionDetailScreen() {
                 variant="ghost"
                 size="sm"
               />
+              {!current.isArchived && (
+                <Text style={styles.hideHint}>データを残したまま一覧から隠します</Text>
+              )}
               <TouchableOpacity
                 onPress={() => setConfirmAction('delete')}
                 style={styles.deleteLink}
                 activeOpacity={0.7}
               >
-                <Text style={styles.deleteLinkText}>削除する</Text>
+                <Text style={styles.deleteLinkText}>削除する（記録ごと消えます）</Text>
               </TouchableOpacity>
             </>
           )}
         </View>
       </ScrollView>
+
+      {/* 固定フッター: 編集ボタン */}
+      <View style={styles.viewFooter}>
+        <Button label="編集する" onPress={startEditing} fullWidth />
+      </View>
     </SafeAreaView>
   );
 }
@@ -573,7 +631,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginHorizontal: 8,
   },
-  scroll: { padding: 16, gap: 12, paddingBottom: 40 },
+  scroll: { padding: 16, gap: 12, paddingBottom: 100 },
   summaryCard: {
     backgroundColor: COLORS.surface,
     borderRadius: 12,
@@ -587,7 +645,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
   },
-  summaryAmount: { fontSize: 20, fontWeight: '700', color: COLORS.text, flex: 1 },
+  summaryAmountCol: { flex: 1, gap: 2 },
+  summaryAmount: { fontSize: 20, fontWeight: '700', color: COLORS.text },
+  summaryAmountHint: { fontSize: 12, color: COLORS.textMuted, fontWeight: '400' },
   category: { fontSize: 13, color: COLORS.textMuted },
   detailSection: {
     backgroundColor: COLORS.surface,
@@ -646,8 +706,20 @@ const styles = StyleSheet.create({
   },
   actionSection: {
     paddingTop: 8,
+    paddingBottom: 16,
     gap: 8,
     alignItems: 'center',
+  },
+  hideHint: {
+    fontSize: 12,
+    color: COLORS.textMuted,
+    marginTop: -4,
+  },
+  nextActionLabel: {
+    fontSize: 12,
+    color: COLORS.textMuted,
+    fontWeight: '500',
+    marginTop: 4,
   },
   deleteLink: {
     paddingVertical: 8,
@@ -764,6 +836,18 @@ const styles = StyleSheet.create({
     marginTop: 8,
     marginBottom: 4,
   },
+  detailsToggleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginTop: 8,
+    marginBottom: 4,
+    paddingRight: 2,
+  },
+  detailsToggleTitle: {
+    marginTop: 0,
+    marginBottom: 0,
+  },
   section: {
     gap: 14,
     backgroundColor: COLORS.surface,
@@ -815,7 +899,7 @@ const styles = StyleSheet.create({
   quickBtnTextStopped: {
     color: '#616161',
   },
-  // 利用中に戻す（ghost）
+  // 継続中に戻す（ghost）
   quickBtnGhost: {
     backgroundColor: 'transparent',
     borderColor: COLORS.border,
@@ -823,7 +907,31 @@ const styles = StyleSheet.create({
   quickBtnTextGhost: {
     color: COLORS.textSecondary,
   },
+  nudgeBanner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    backgroundColor: COLORS.primaryLight,
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+    paddingVertical: 10,
+    paddingHorizontal: 14,
+  },
+  nudgeText: {
+    flex: 1,
+    fontSize: 13,
+    color: COLORS.text,
+    lineHeight: 18,
+  },
+  nudgeLink: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: COLORS.primary,
+    flexShrink: 0,
+  },
   footer: { padding: 16, borderTopWidth: 1, borderTopColor: COLORS.border, gap: 8 },
+  viewFooter: { padding: 16, borderTopWidth: 1, borderTopColor: COLORS.border },
   saveErrorText: {
     fontSize: 13,
     color: COLORS.destructive,

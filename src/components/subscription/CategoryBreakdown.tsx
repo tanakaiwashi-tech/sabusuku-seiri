@@ -4,6 +4,8 @@ import { Ionicons } from '@expo/vector-icons';
 import type { Subscription } from '@/src/types';
 import { COLORS } from '@/src/constants/colors';
 import { toMonthlyAmount, toJPY, formatAmount } from '@/src/utils/amountUtils';
+import { useUiPrefsStore } from '@/src/stores/uiPrefsStore';
+import { USD_TO_JPY_RATE } from '@/src/constants/app';
 
 interface CategoryBreakdownProps {
   subscriptions: Subscription[];
@@ -12,9 +14,12 @@ interface CategoryBreakdownProps {
 /** カテゴリ別月額内訳バー */
 export function CategoryBreakdown({ subscriptions }: CategoryBreakdownProps) {
   const [expanded, setExpanded] = useState(false);
+  const usdRate = useUiPrefsStore((s) => s.usdToJpyRate ?? USD_TO_JPY_RATE);
 
-  // activeのみ集計
-  const active = subscriptions.filter((s) => s.status === 'active');
+  // 課金中（active + reviewing + cancel_planned）を集計 — SummaryBar の月額と同じ範囲
+  const active = subscriptions.filter(
+    (s) => s.status === 'active' || s.status === 'reviewing' || s.status === 'cancel_planned',
+  );
 
   // カテゴリ別に集計
   const byCategory = new Map<string, number>();
@@ -22,7 +27,7 @@ export function CategoryBreakdown({ subscriptions }: CategoryBreakdownProps) {
   for (const s of active) {
     // SummaryBar と同じ換算ロジック: 月額換算 → JPY 換算
     const monthlyRaw = toMonthlyAmount(s.amount, s.billingCycle) ?? 0;
-    const monthly = toJPY(monthlyRaw, s.currency ?? 'JPY');
+    const monthly = toJPY(monthlyRaw, s.currency ?? 'JPY', usdRate);
     const cat = s.category ?? 'その他';
     byCategory.set(cat, (byCategory.get(cat) ?? 0) + monthly);
     total += monthly;
@@ -30,8 +35,8 @@ export function CategoryBreakdown({ subscriptions }: CategoryBreakdownProps) {
 
   if (total === 0 || byCategory.size === 0) return null;
 
-  // 金額降順でソート
-  const entries = [...byCategory.entries()].sort((a, b) => b[1] - a[1]);
+  // irregular / free の ¥0 エントリを除外してから金額降順でソート
+  const entries = [...byCategory.entries()].filter(([, amt]) => amt > 0).sort((a, b) => b[1] - a[1]);
   const shown = expanded ? entries : entries.slice(0, 3);
 
   // カテゴリごとに色を割り当て
@@ -43,7 +48,7 @@ export function CategoryBreakdown({ subscriptions }: CategoryBreakdownProps) {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>カテゴリ別内訳</Text>
+      <Text style={styles.title}>カテゴリ別内訳（契約中）</Text>
       <View style={styles.stackBar}>
         {entries.map(([cat, amt], i) => (
           <View
@@ -103,14 +108,14 @@ const styles = StyleSheet.create({
     letterSpacing: 0.4,
   },
   stackBar: {
-    height: 8,
-    borderRadius: 4,
+    height: 10,
+    borderRadius: 5,
     flexDirection: 'row',
     overflow: 'hidden',
-    gap: 1,
+    gap: 2,
   },
   stackSegment: {
-    borderRadius: 2,
+    borderRadius: 3,
   },
   list: {
     gap: 6,

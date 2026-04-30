@@ -8,7 +8,7 @@ import { normalizeServiceName } from '@/src/utils/amountUtils';
 
 export type SaveResult =
   | { ok: true; subscription: Subscription }
-  | { ok: false; error: 'limit_reached' | 'unknown' };
+  | { ok: false; error: 'unknown' };
 
 export interface SubscriptionState {
   subscriptions: Subscription[];
@@ -31,7 +31,6 @@ const subscriptionCreator: StateCreator<SubscriptionState> = (set, get) => ({
   subscriptions: [],
 
   add: (data: SubscriptionFormData): SaveResult => {
-    // 上限チェックは撤廃（FREE_LIMIT_COUNT は new.tsx の型整合性のために app.ts に残置）
     try {
       const now = nowISOString();
       const newSub: Subscription = {
@@ -51,6 +50,7 @@ const subscriptionCreator: StateCreator<SubscriptionState> = (set, get) => ({
         customCancelUrl: data.customCancelUrl,
         lastReviewedDate: null,
         cancelledAt: data.status === 'stopped' ? now : null,
+        cancelPlannedAt: data.status === 'cancel_planned' ? now : null,
         isArchived: data.isArchived,
         createdAt: now,
         updatedAt: now,
@@ -81,6 +81,14 @@ const subscriptionCreator: StateCreator<SubscriptionState> = (set, get) => ({
         cancelledAt = nowISOString();
       }
 
+      // cancelPlannedAt: cancel_planned への遷移時にセット。他ステータスに戻ったらリセット。
+      let cancelPlannedAt = current.cancelPlannedAt ?? null;
+      if (data.status === 'cancel_planned' && current.status !== 'cancel_planned') {
+        cancelPlannedAt = nowISOString();
+      } else if (data.status !== 'cancel_planned') {
+        cancelPlannedAt = null;
+      }
+
       const updated: Subscription = {
         ...current,
         serviceName: data.serviceName,
@@ -97,6 +105,7 @@ const subscriptionCreator: StateCreator<SubscriptionState> = (set, get) => ({
         cancelMemo: data.cancelMemo,
         customCancelUrl: data.customCancelUrl,
         cancelledAt,
+        cancelPlannedAt,
         isArchived: data.isArchived,
         updatedAt: nowISOString(),
       };

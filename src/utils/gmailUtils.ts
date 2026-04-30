@@ -20,8 +20,40 @@ interface MessageMeta {
   date: string;
 }
 
+// ── PKCE ヘルパー ───────────────────────────────────────────────
+
+/** バイト列を base64url エンコードする */
+function base64url(bytes: Uint8Array): string {
+  return btoa(String.fromCharCode(...bytes))
+    .replace(/\+/g, '-')
+    .replace(/\//g, '_')
+    .replace(/=/g, '');
+}
+
+/** PKCE の code_verifier を生成する（32バイト = 43文字の base64url） */
+function generateCodeVerifier(): string {
+  const array = new Uint8Array(32);
+  crypto.getRandomValues(array);
+  return base64url(array);
+}
+
+/** code_verifier から code_challenge（SHA-256 + base64url）を生成する */
+async function generateCodeChallenge(verifier: string): Promise<string> {
+  const data = new TextEncoder().encode(verifier);
+  const digest = await crypto.subtle.digest('SHA-256', data);
+  return base64url(new Uint8Array(digest));
+}
+
+/** CSRF 対策用の state パラメータを生成する */
+function generateState(): string {
+  const array = new Uint8Array(16);
+  crypto.getRandomValues(array);
+  return base64url(array);
+}
+
 /**
  * Googleアカウントにポップアップでサインインし、アクセストークンを返す。
+ * - フロー: Authorization Code + PKCE（Implicit Flow から移行）
  * - スコープ: gmail.readonly（件名・差出人・日付のみ取得）
  * - トークンはメモリのみ保持（LocalStorageへの書き込みなし）
  */
@@ -31,6 +63,10 @@ export async function signInWithGoogle(): Promise<string> {
     throw new Error('Google Client IDが設定されていません（EXPO_PUBLIC_GOOGLE_CLIENT_ID）');
   }
 
+  const codeVerifier = generateCodeVerifier();
+  const codeChallenge = await generateCodeChallenge(codeVerifier);
+  const state = generateState();
+
   const redirectUri = window.location.origin + '/oauth-callback.html';
   const scope = 'https://www.googleapis.com/auth/gmail.readonly';
 
@@ -38,8 +74,11 @@ export async function signInWithGoogle(): Promise<string> {
     'https://accounts.google.com/o/oauth2/v2/auth?' +
     `client_id=${encodeURIComponent(clientId)}` +
     `&redirect_uri=${encodeURIComponent(redirectUri)}` +
-    `&response_type=token` +
+    `&response_type=code` +
     `&scope=${encodeURIComponent(scope)}` +
+    `&code_challenge=${encodeURIComponent(codeChallenge)}` +
+    `&code_challenge_method=S256` +
+    `&state=${encodeURIComponent(state)}` +
     `&prompt=consent`;
 
   return new Promise((resolve, reject) => {
@@ -54,18 +93,52 @@ export async function signInWithGoogle(): Promise<string> {
       return;
     }
 
-    // oauth-callback.html からのpostMessageでトークンを受け取る
-    const onMessage = (event: MessageEvent) => {
+    // oauth-callback.html からの postMessage でコードを受け取る
+    const onMessage = async (event: MessageEvent) => {
       if (event.origin !== window.location.origin) return;
       if (!event.data || event.data.type !== 'oauth_callback') return;
       cleanup();
-      const hash: string = event.data.hash ?? '';
-      const params = new URLSearchParams(hash.slice(1));
-      const token = params.get('access_token');
-      if (token) {
-        resolve(token);
-      } else {
-        reject(new Error('アクセストークンの取得に失敗しました'));
+
+      // state 検証（CSRF 対策）
+      if (event.data.state !== state) {
+        reject(new Error('認証セッションが無効です。もう一度お試しください。'));
+        return;
+      }
+
+      const code: string = event.data.code ?? '';
+      if (!code) {
+        reject(new Error('認証コードの取得に失敗しました'));
+        return;
+      }
+
+      // トークンエンドポイントで認証コードをアクセストークンに交換
+      try {
+        const tokenRes = await fetch('https://oauth2.googleapis.com/token', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          body: new URLSearchParams({
+            code,
+            client_id: clientId,
+            redirect_uri: redirectUri,
+            code_verifier: codeVerifier,
+            grant_type: 'authorization_code',
+          }),
+        });
+
+        if (!tokenRes.ok) {
+          const errText = await tokenRes.text().catch(() => '');
+          reject(new Error(`トークン取得に失敗しました（${tokenRes.status}）${errText ? ': ' + errText : ''}`));
+          return;
+        }
+
+        const tokenData = (await tokenRes.json()) as { access_token?: string };
+        if (!tokenData.access_token) {
+          reject(new Error('アクセストークンが取得できませんでした'));
+          return;
+        }
+        resolve(tokenData.access_token);
+      } catch (e) {
+        reject(new Error('トークン交換中にエラーが発生しました'));
       }
     };
 
@@ -95,36 +168,54 @@ export async function signInWithGoogle(): Promise<string> {
 }
 
 /**
+ * 指定ラベルのメッセージIDリストを取得する。
+ * 401 は呼び出し元に伝播させ、その他エラーは空配列を返す（タブが存在しない場合を考慮）。
+ */
+async function listMessageIds(
+  accessToken: string,
+  labelId: string,
+  maxResults: number,
+): Promise<{ id: string }[]> {
+  const res = await fetch(
+    `https://gmail.googleapis.com/gmail/v1/users/me/messages?maxResults=${maxResults}&labelIds=${labelId}`,
+    { headers: { Authorization: `Bearer ${accessToken}` } },
+  );
+  if (res.status === 401) throw new Error('認証の有効期限が切れました。再スキャンしてください。');
+  if (!res.ok) return []; // ラベル未存在など非致命的エラーは無視
+  const data = (await res.json()) as { messages?: { id: string }[] };
+  return data.messages ?? [];
+}
+
+/**
  * Gmail APIでメタデータを取得し、サブスク候補リストを返す。
- * クエリなしで直近メールを取得し、JavaScriptで差出人ドメインを絞り込む。
- * （gmail.metadata スコープでの検索クエリ制限を回避するため）
+ * INBOX とプロモーションタブを並列取得し差出人ドメインで絞り込む。
+ * 請求メールの大半はGmailによりプロモーションタブに自動分類されるため両方をスキャンする。
  */
 export async function scanGmailForSubscriptions(
   accessToken: string,
 ): Promise<GmailCandidate[]> {
-  const headers = { Authorization: `Bearer ${accessToken}` };
+  // INBOX とプロモーションタブを並列取得（各200件）
+  const [inboxMessages, promoMessages] = await Promise.all([
+    listMessageIds(accessToken, 'INBOX', 200),
+    listMessageIds(accessToken, 'CATEGORY_PROMOTIONS', 200),
+  ]);
 
-  // INBOXの直近200件を取得（クエリなし・スコープ制限を回避）
-  const res = await fetch(
-    `https://gmail.googleapis.com/gmail/v1/users/me/messages?maxResults=200&labelIds=INBOX`,
-    { headers },
-  );
-
-  if (!res.ok) {
-    if (res.status === 401) throw new Error('認証の有効期限が切れました。再スキャンしてください。');
-    const body = await res.text().catch(() => '');
-    throw new Error(`Gmailの取得に失敗しました（${res.status}）${body ? ': ' + body : ''}`);
+  // IDで重複除去してマージ
+  const seen = new Set<string>();
+  const allMessages: { id: string }[] = [];
+  for (const msg of [...inboxMessages, ...promoMessages]) {
+    if (!seen.has(msg.id)) {
+      seen.add(msg.id);
+      allMessages.push(msg);
+    }
   }
 
-  const data = (await res.json()) as { messages?: { id: string }[] };
-  const messages = data.messages ?? [];
-
-  if (messages.length === 0) {
-    throw new Error('受信トレイにメールが見つかりませんでした。スコープの権限を確認してください。');
+  if (allMessages.length === 0) {
+    throw new Error('メールが見つかりませんでした。スコープの権限を確認してください。');
   }
 
-  // メタデータを取得してドメイン照合
-  const metaList = await fetchMessagesMetadata(messages.slice(0, 100), accessToken);
+  // メタデータを取得してドメイン照合（最大400件）
+  const metaList = await fetchMessagesMetadata(allMessages, accessToken);
   return matchCandidates(metaList);
 }
 

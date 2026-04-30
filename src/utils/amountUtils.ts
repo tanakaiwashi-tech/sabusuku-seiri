@@ -11,9 +11,9 @@ export function toYearlyAmount(monthlyAmount: number): number {
   return monthlyAmount * 12;
 }
 
-/** USD を JPY に換算する（固定レート。集計・合計表示用）。JPY はそのまま返す。 */
-export function toJPY(amount: number, currency: Currency = 'JPY'): number {
-  if (currency === 'USD') return Math.round(amount * USD_TO_JPY_RATE);
+/** USD を JPY に換算する。rate 省略時は定数フォールバック。JPY はそのまま返す。 */
+export function toJPY(amount: number, currency: Currency = 'JPY', rate: number = USD_TO_JPY_RATE): number {
+  if (currency === 'USD') return Math.round(amount * rate);
   return amount;
 }
 

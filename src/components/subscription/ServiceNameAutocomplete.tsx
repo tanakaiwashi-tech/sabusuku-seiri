@@ -61,6 +61,7 @@ function calcScore(entry: ServiceDictionaryEntry, query: string): number {
 function getSuggestions(query: string): ServiceDictionaryEntry[] {
   if (query.trim().length === 0) return [];
   return ENTRIES
+    .filter((e) => !e.defunct)
     .map((e) => ({ entry: e, score: calcScore(e, query) }))
     .filter(({ score }) => score !== Infinity)
     .sort((a, b) => a.score - b.score)

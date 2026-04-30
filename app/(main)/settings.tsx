@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import {
   View,
   Text,
@@ -19,6 +19,8 @@ import {
   parseImportFile,
   type ExportData,
 } from '@/src/utils/exportUtils';
+import { toMonthlyAmount, toJPY, formatAmount } from '@/src/utils/amountUtils';
+import { USD_TO_JPY_RATE } from '@/src/constants/app';
 
 type ImportPhase =
   | { phase: 'idle' }
@@ -40,8 +42,43 @@ export default function SettingsScreen() {
   const subscriptions = useSubscriptionStore((s) => s.subscriptions);
   const importSubscriptions = useSubscriptionStore((s) => s.importSubscriptions);
   const lastGmailScanAt = useUiPrefsStore((s) => s.lastGmailScanAt);
+  const lastExportedAt = useUiPrefsStore((s) => s.lastExportedAt);
+  const setLastExportedAt = useUiPrefsStore((s) => s.setLastExportedAt);
+  const usdRate = useUiPrefsStore((s) => s.usdToJpyRate ?? USD_TO_JPY_RATE);
   const [isExporting, setIsExporting] = useState(false);
   const [importPhase, setImportPhase] = useState<ImportPhase>({ phase: 'idle' });
+  // 通知許可ステータス（ブラウザ API が使えない環境では null）
+  const [notifPermission, setNotifPermission] = useState<NotificationPermission | null>(() => {
+    if (typeof window !== 'undefined' && 'Notification' in window) {
+      return Notification.permission;
+    }
+    return null;
+  });
+
+  const handleRequestNotification = async () => {
+    if (typeof window === 'undefined' || !('Notification' in window)) return;
+    const result = await Notification.requestPermission();
+    setNotifPermission(result);
+    if (result === 'granted') {
+      Alert.alert('通知を許可しました', '更新日が近づくとお知らせします。');
+    }
+  };
+
+  // 解約済みサブスクの件数と月額合計（整理実績表示用）
+  const stoppedCount = useMemo(
+    () => subscriptions.filter((s) => s.status === 'stopped').length,
+    [subscriptions],
+  );
+  const savedMonthlyAmount = useMemo(() => {
+    let total = 0;
+    for (const s of subscriptions) {
+      if (s.status !== 'stopped') continue;
+      const monthly = toMonthlyAmount(s.amount, s.billingCycle);
+      if (monthly === null) continue;
+      total += toJPY(monthly, s.currency ?? 'JPY', usdRate);
+    }
+    return total;
+  }, [subscriptions, usdRate]);
 
   // ─── JSON エクスポート ───────────────────────────────────────
   const handleExportJSON = () => {
@@ -60,6 +97,7 @@ export default function SettingsScreen() {
             try {
               setIsExporting(true);
               exportSubscriptionsAsJSON(subscriptions);
+              setLastExportedAt(new Date().toISOString());
             } catch {
               Alert.alert('エラー', 'エクスポートに失敗しました。');
             } finally {
@@ -87,6 +125,7 @@ export default function SettingsScreen() {
           onPress: () => {
             try {
               exportSubscriptionsAsCSV(subscriptions);
+              setLastExportedAt(new Date().toISOString());
             } catch {
               Alert.alert('エラー', 'エクスポートに失敗しました。');
             }
@@ -142,6 +181,22 @@ export default function SettingsScreen() {
 
       <ScrollView contentContainerStyle={styles.scroll}>
 
+        {/* 整理実績カード */}
+        {stoppedCount > 0 && (
+          <View style={styles.achievementCard}>
+            <View style={styles.achievementIcon}>
+              <Ionicons name="checkmark-circle" size={26} color={COLORS.primary} />
+            </View>
+            <View style={styles.achievementBody}>
+              <Text style={styles.achievementLabel}>これまでに整理したサブスク</Text>
+              <Text style={styles.achievementValue}>
+                {stoppedCount}件
+                {savedMonthlyAmount > 0 ? `  ·  ${formatAmount(savedMonthlyAmount)}/月分` : ''}
+              </Text>
+            </View>
+          </View>
+        )}
+
         {/* Gmail連携 */}
         <Text style={styles.groupLabel}>Gmail連携</Text>
         <View style={styles.group}>
@@ -184,6 +239,18 @@ export default function SettingsScreen() {
         </View>
 
         <View style={styles.group}>
+          {/* 最終バックアップ日時 */}
+          <View style={[styles.row, styles.rowBorder]}>
+            <View style={styles.rowLeft}>
+              <View style={styles.iconWrap}>
+                <Ionicons name="checkmark-done-outline" size={19} color={COLORS.textMuted} />
+              </View>
+              <Text style={styles.rowLabel}>最終バックアップ</Text>
+            </View>
+            <Text style={[styles.rowValue, !lastExportedAt && styles.rowValueMissing]}>
+              {formatScanDate(lastExportedAt)}
+            </Text>
+          </View>
 
           {/* JSON エクスポート */}
           <TouchableOpacity
@@ -291,6 +358,54 @@ export default function SettingsScreen() {
           </View>
         )}
 
+        {/* 通知設定 */}
+        {notifPermission !== null && (
+          <>
+            <Text style={[styles.groupLabel, styles.groupLabelGap]}>通知</Text>
+            <View style={styles.group}>
+              {notifPermission === 'granted' ? (
+                <View style={styles.row}>
+                  <View style={styles.rowLeft}>
+                    <View style={styles.iconWrap}>
+                      <Ionicons name="notifications-outline" size={19} color={COLORS.primary} />
+                    </View>
+                    <View style={styles.rowTexts}>
+                      <Text style={styles.rowLabel}>更新日リマインダー</Text>
+                      <Text style={styles.rowDesc}>更新日7日前にブラウザ通知でお知らせします</Text>
+                    </View>
+                  </View>
+                  <Ionicons name="checkmark-circle" size={18} color={COLORS.primary} />
+                </View>
+              ) : notifPermission === 'denied' ? (
+                <View style={styles.row}>
+                  <View style={styles.rowLeft}>
+                    <View style={styles.iconWrap}>
+                      <Ionicons name="notifications-off-outline" size={19} color={COLORS.textMuted} />
+                    </View>
+                    <View style={styles.rowTexts}>
+                      <Text style={styles.rowLabel}>更新日リマインダー</Text>
+                      <Text style={styles.rowDesc}>ブラウザの設定から通知を許可してください</Text>
+                    </View>
+                  </View>
+                </View>
+              ) : (
+                <TouchableOpacity style={styles.row} onPress={handleRequestNotification} activeOpacity={0.7}>
+                  <View style={styles.rowLeft}>
+                    <View style={styles.iconWrap}>
+                      <Ionicons name="notifications-outline" size={19} color={COLORS.primary} />
+                    </View>
+                    <View style={styles.rowTexts}>
+                      <Text style={styles.rowLabel}>更新日リマインダーを有効にする</Text>
+                      <Text style={styles.rowDesc}>更新日7日前にブラウザ通知でお知らせします</Text>
+                    </View>
+                  </View>
+                  <Ionicons name="chevron-forward" size={16} color={COLORS.textMuted} />
+                </TouchableOpacity>
+              )}
+            </View>
+          </>
+        )}
+
         {/* このアプリについて */}
         <Text style={[styles.groupLabel, styles.groupLabelGap]}>このアプリについて</Text>
         <View style={styles.group}>
@@ -346,6 +461,40 @@ const styles = StyleSheet.create({
     paddingHorizontal: 4,
   },
   groupLabelGap: { marginTop: 28 },
+  achievementCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    backgroundColor: COLORS.primaryLight,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+    padding: 14,
+    marginBottom: 20,
+  },
+  achievementIcon: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: COLORS.surface,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  achievementBody: {
+    flex: 1,
+    gap: 2,
+  },
+  achievementLabel: {
+    fontSize: 11,
+    color: COLORS.primary,
+    fontWeight: '600',
+    letterSpacing: 0.3,
+  },
+  achievementValue: {
+    fontSize: 15,
+    color: COLORS.text,
+    fontWeight: '700',
+  },
   group: {
     backgroundColor: COLORS.surface,
     borderRadius: 12,
@@ -394,6 +543,10 @@ const styles = StyleSheet.create({
   rowValue: {
     fontSize: 14,
     color: COLORS.textMuted,
+  },
+  rowValueMissing: {
+    color: COLORS.warning.text,
+    fontStyle: 'italic',
   },
   exportReminder: {
     flexDirection: 'row',

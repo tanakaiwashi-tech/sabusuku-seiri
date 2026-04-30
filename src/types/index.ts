@@ -40,6 +40,8 @@ export interface Subscription {
   lastReviewedDate: string | null;
   /** stopped へ初回遷移した日時。再開しても消さない（履歴として保持） */
   cancelledAt: string | null;
+  /** cancel_planned へ初回遷移した日時。updatedAt に依存しない放置チェック用 */
+  cancelPlannedAt?: string | null;
   createdAt: string;
   updatedAt: string;
   /** UI表示フラグ。status とは独立 */
@@ -80,6 +82,8 @@ export interface SubscriptionSummary {
   overdueRenewalCount: number;
   /** cancel_planned で STALE_CANCEL_DAYS 日以上放置されているサブスク数 */
   staleCancelCount: number;
+  /** active で試用終了日が UPCOMING_RENEWAL_DAYS 日以内のサブスク数 */
+  trialEndingSoonCount: number;
 }
 
 /** サービス辞書内で複数価格帯がある場合のプラン選択肢 */
@@ -90,6 +94,12 @@ export interface PricingPlan {
   billingCycle?: BillingCycle;
   /** 省略時は entry の currency を引き継ぐ */
   currency?: Currency;
+  /**
+   * プラン選択時に登録するサービス名。
+   * 省略時は親パターンの displayName を使用。
+   * 例: Amazon のプランなら "Amazon Prime"、Apple Music なら "Apple Music"。
+   */
+  serviceName?: string;
 }
 
 export interface ServiceDictionaryEntry {
@@ -112,6 +122,11 @@ export interface ServiceDictionaryEntry {
    * ロゴ不要なサービスは省略。
    */
   domain?: string;
+  /**
+   * サービスが終了・廃止済みの場合 true。
+   * オートコンプリートの候補から除外される。
+   */
+  defunct?: boolean;
 }
 
 export interface SubscriptionFormData {
