@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, ScrollView } from 'react-native';
 import type { SubscriptionSummary } from '@/src/types';
 import { COLORS } from '@/src/constants/colors';
 import { USD_TO_JPY_RATE } from '@/src/constants/app';
 import { formatAmount, toYearlyAmount } from '@/src/utils/amountUtils';
+import { useUiPrefsStore } from '@/src/stores/uiPrefsStore';
 
 interface StatCellProps {
   label: string;
@@ -16,24 +17,25 @@ interface StatCellProps {
 }
 
 function StatCell({ label, value, bold = false, accent = false, dimmed = false, onPress }: StatCellProps) {
+  const inner = (
+    <View style={[styles.statPill, accent && styles.statPillAccent, dimmed && styles.statPillDimmed]}>
+      <Text style={[styles.statLabel, accent && styles.statLabelAccent]}>{label}</Text>
+      <Text style={[styles.statValue, bold && styles.statValueBold, accent && styles.statValueAccent]}>
+        {value}
+      </Text>
+      {onPress && (
+        <Text style={[styles.statArrow, accent && styles.statArrowAccent]}>›</Text>
+      )}
+    </View>
+  );
   if (onPress) {
     return (
-      <TouchableOpacity style={[styles.cell, dimmed && styles.cellDimmed]} onPress={onPress} activeOpacity={0.7}>
-        <Text style={[styles.value, bold && styles.valueBold, accent && styles.valueAccent]}>
-          {value}
-        </Text>
-        <Text style={[styles.cellLabel, styles.cellLabelTappable]}>{label} →</Text>
+      <TouchableOpacity onPress={onPress} activeOpacity={0.7}>
+        {inner}
       </TouchableOpacity>
     );
   }
-  return (
-    <View style={[styles.cell, dimmed && styles.cellDimmed]}>
-      <Text style={[styles.value, bold && styles.valueBold, accent && styles.valueAccent]}>
-        {value}
-      </Text>
-      <Text style={styles.cellLabel}>{label}</Text>
-    </View>
-  );
+  return inner;
 }
 
 interface SummaryBarProps {
@@ -44,8 +46,12 @@ interface SummaryBarProps {
   hasIrregular?: boolean;
   /** 「見直す」セルをタップしたときのコールバック */
   onReviewingPress?: () => void;
+  /** 「解約する」セルをタップしたときのコールバック */
+  onCancelPlannedPress?: () => void;
   /** 「更新が近い / 要確認」セルをタップしたときのコールバック */
   onRenewalAlertPress?: () => void;
+  /** 「試用終了が近い」セルをタップしたときのコールバック */
+  onTrialAlertPress?: () => void;
 }
 
 export function SummaryBar({
@@ -53,9 +59,12 @@ export function SummaryBar({
   hasNonMonthly = false,
   hasIrregular = false,
   onReviewingPress,
+  onCancelPlannedPress,
   onRenewalAlertPress,
+  onTrialAlertPress,
 }: SummaryBarProps) {
-  const { totalMonthlyAmount, pendingCancellationMonthlyAmount, hasUSD, reviewingCount, upcomingRenewalCount, overdueRenewalCount } = summary;
+  const { totalMonthlyAmount, pendingCancellationMonthlyAmount, hasUSD, activeCount, reviewingCount, cancelPlannedCount, upcomingRenewalCount, overdueRenewalCount, trialEndingSoonCount } = summary;
+  const usdRate = useUiPrefsStore((s) => s.usdToJpyRate ?? USD_TO_JPY_RATE);
   // 更新日セルは「超過」優先表示。超過がない場合のみ「更新が近い」を表示。
   // 合算することで件数とラベルの意味がずれるのを防ぐ。
   const renewalAlertCount = overdueRenewalCount > 0 ? overdueRenewalCount : upcomingRenewalCount;
@@ -63,6 +72,8 @@ export function SummaryBar({
 
   // 現在実際に課金されている合計 = active + reviewing + cancel_planned
   const currentMonthlyAmount = totalMonthlyAmount + pendingCancellationMonthlyAmount;
+  // 表示金額と一致する件数（課金中の全ステータス）
+  const payingCount = activeCount + reviewingCount + cancelPlannedCount;
 
   // 月額 ↔ 年額トグル
   const [showYearly, setShowYearly] = useState(false);
@@ -77,31 +88,48 @@ export function SummaryBar({
     ? toYearlyAmount(pendingCancellationMonthlyAmount)
     : pendingCancellationMonthlyAmount;
   const savingsUnit = showYearly ? '/年' : '/月';
-  const displayLabel = showYearly ? '年額合計（概算）' : '月額合計（概算）';
+  const displayLabel = showYearly ? '年額合計（概算）' : '現在の月額（概算）';
 
   return (
     <View style={styles.container}>
-      <TouchableOpacity
-        style={styles.totalRow}
-        onPress={() => setShowYearly((v) => !v)}
-        activeOpacity={0.7}
-      >
+      <View style={styles.totalRow}>
         <View style={styles.totalLabelRow}>
           <Text style={styles.totalLabel}>{displayLabel}</Text>
-          <Text style={styles.toggleHint}>
-            {showYearly ? '← 月額に切り替え' : '年額でも見る →'}
-          </Text>
+          {pendingCancellationMonthlyAmount > 0 && (
+            <Text style={styles.pendingNote}>
+              {reviewingCount > 0 && cancelPlannedCount > 0
+                ? '見直し中・解約予定を含む'
+                : reviewingCount > 0
+                ? '見直し中を含む'
+                : '解約予定を含む'}
+            </Text>
+          )}
+          {/* 月/年ピルトグル */}
+          <TouchableOpacity
+            style={styles.togglePill}
+            onPress={() => setShowYearly((v) => !v)}
+            activeOpacity={0.75}
+          >
+            <View style={[styles.toggleSeg, !showYearly && styles.toggleSegActive]}>
+              <Text style={[styles.toggleSegText, !showYearly && styles.toggleSegTextActive]}>月</Text>
+            </View>
+            <View style={[styles.toggleSeg, showYearly && styles.toggleSegActive]}>
+              <Text style={[styles.toggleSegText, showYearly && styles.toggleSegTextActive]}>年</Text>
+            </View>
+          </TouchableOpacity>
         </View>
-        <Text style={styles.totalAmount}>{formatAmount(displayAmount)}</Text>
-      </TouchableOpacity>
+        <View style={styles.totalAmountCol}>
+          <Text style={styles.totalAmount}>{formatAmount(displayAmount)}</Text>
+          <Text style={styles.activeCount}>契約中 {payingCount}件</Text>
+        </View>
+      </View>
 
       {/* 解約後の金額比較: 見直す/解約する が存在する場合のみ表示 */}
       {pendingCancellationMonthlyAmount > 0 && (
         <View style={styles.savingsRow}>
           <Text style={styles.savingsLabel}>解約後</Text>
-          <Text style={styles.savingsArrow}>→</Text>
           <Text style={styles.savingsAfterAmount}>{formatAmount(afterCancellationAmount)}</Text>
-          <Text style={styles.savingsDiff}>{`${formatAmount(savingsAmount)}${savingsUnit}削減`}</Text>
+          <Text style={styles.savingsDiff}>{`（${formatAmount(savingsAmount)}${savingsUnit}削減）`}</Text>
         </View>
       )}
 
@@ -109,32 +137,55 @@ export function SummaryBar({
       {(hasNonMonthly || hasUSD || hasIrregular) && (
         <Text style={styles.hint}>
           {'※ ' + [
-            hasNonMonthly && '年払い換算含む',
-            hasUSD && `USD=¥${USD_TO_JPY_RATE}換算`,
+            hasNonMonthly && '年/3ヶ月払い換算含む',
+            hasUSD && `USD=¥${usdRate}換算`,
             hasIrregular && '不定期除く',
           ].filter(Boolean).join(' · ')}
         </Text>
       )}
 
-      {(reviewingCount > 0 || renewalAlertCount > 0) && (
-        <View style={styles.statsRow}>
-          <StatCell
-            label="見直す"
-            value={`${reviewingCount}件`}
-            bold={reviewingCount > 0}
-            accent={reviewingCount > 0}
-            dimmed={reviewingCount === 0}
-            onPress={reviewingCount > 0 ? onReviewingPress : undefined}
-          />
-          <View style={styles.divider} />
-          <StatCell
-            label={renewalAlertLabel}
-            value={`${renewalAlertCount}件`}
-            bold={renewalAlertCount > 0}
-            accent={overdueRenewalCount > 0}
-            onPress={renewalAlertCount > 0 ? onRenewalAlertPress : undefined}
-          />
-        </View>
+      {(reviewingCount > 0 || cancelPlannedCount > 0 || renewalAlertCount > 0 || trialEndingSoonCount > 0) && (
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          style={styles.statsScroll}
+          contentContainerStyle={styles.statsRow}
+        >
+          {reviewingCount > 0 && (
+            <StatCell
+              label="見直す"
+              value={`${reviewingCount}件`}
+              bold
+              accent
+              onPress={onReviewingPress}
+            />
+          )}
+          {cancelPlannedCount > 0 && (
+            <StatCell
+              label="解約手続き中"
+              value={`${cancelPlannedCount}件`}
+              bold
+              onPress={onCancelPlannedPress}
+            />
+          )}
+          {renewalAlertCount > 0 && (
+            <StatCell
+              label={renewalAlertLabel}
+              value={`${renewalAlertCount}件`}
+              bold
+              accent={overdueRenewalCount > 0}
+              onPress={onRenewalAlertPress}
+            />
+          )}
+          {trialEndingSoonCount > 0 && (
+            <StatCell
+              label="試用終了が近い"
+              value={`${trialEndingSoonCount}件`}
+              bold
+              onPress={onTrialAlertPress}
+            />
+          )}
+        </ScrollView>
       )}
     </View>
   );
@@ -163,10 +214,40 @@ const styles = StyleSheet.create({
     fontSize: 13,
     color: COLORS.textSecondary,
   },
-  toggleHint: {
+  activeCount: {
     fontSize: 12,
+    color: COLORS.textMuted,
+    fontWeight: '400',
+    textAlign: 'right',
+  },
+  togglePill: {
+    flexDirection: 'row',
+    borderRadius: 6,
+    borderWidth: 1,
+    borderColor: COLORS.primary,
+    overflow: 'hidden',
+    alignSelf: 'flex-start',
+    marginTop: 4,
+  },
+  toggleSeg: {
+    paddingHorizontal: 10,
+    paddingVertical: 3,
+    backgroundColor: 'transparent',
+  },
+  toggleSegActive: {
+    backgroundColor: COLORS.primary,
+  },
+  toggleSegText: {
+    fontSize: 11,
+    fontWeight: '600',
     color: COLORS.primary,
-    fontWeight: '500',
+  },
+  toggleSegTextActive: {
+    color: '#FFFFFF',
+  },
+  totalAmountCol: {
+    alignItems: 'flex-end',
+    gap: 2,
   },
   totalAmount: {
     fontSize: 22,
@@ -178,55 +259,71 @@ const styles = StyleSheet.create({
     color: COLORS.textMuted,
     marginTop: -2,
     lineHeight: 16,
+    opacity: 0.8,
+  },
+  statsScroll: {
+    marginTop: 2,
+    flexShrink: 0,
+    marginHorizontal: -16, // paddingHorizontal 分だけ左右に広げてエッジまで使う
   },
   statsRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginTop: 2,
+    gap: 6,
+    paddingHorizontal: 16,
   },
-  cell: {
-    flex: 1,
+  statPill: {
+    flexDirection: 'row',
     alignItems: 'center',
-    gap: 2,
+    gap: 5,
+    paddingVertical: 5,
+    paddingHorizontal: 10,
+    borderRadius: 8,
+    backgroundColor: COLORS.surfaceMuted,
+    borderWidth: 1,
+    borderColor: COLORS.border,
   },
-  cellDimmed: {
-    opacity: 0.35,
+  statPillAccent: {
+    backgroundColor: COLORS.destructiveLight,
+    borderColor: COLORS.destructiveBorder,
   },
-  divider: {
-    width: 1,
-    height: 24,
-    backgroundColor: COLORS.border,
+  statPillDimmed: {
+    opacity: 0.4,
   },
-  value: {
-    fontSize: 15,
+  statLabel: {
+    fontSize: 12,
     color: COLORS.textSecondary,
   },
-  valueBold: {
-    fontWeight: '700',
-    color: COLORS.text,
-  },
-  valueAccent: {
+  statLabelAccent: {
     color: COLORS.destructive,
   },
-  cellLabel: {
-    fontSize: 11,
-    color: COLORS.textMuted,
-    textAlign: 'center',
+  statValue: {
+    fontSize: 13,
+    color: COLORS.text,
   },
-  cellLabelTappable: {
+  statValueBold: {
+    fontWeight: '700',
+  },
+  statValueAccent: {
+    color: COLORS.destructive,
+  },
+  statArrow: {
+    fontSize: 15,
+    fontWeight: '600',
     color: COLORS.primary,
+    lineHeight: 16,
+  },
+  statArrowAccent: {
+    color: COLORS.destructive,
   },
   savingsRow: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 5,
     marginTop: -2,
+    opacity: 0.75,
   },
   savingsLabel: {
-    fontSize: 12,
-    color: COLORS.textMuted,
-  },
-  savingsArrow: {
     fontSize: 12,
     color: COLORS.textMuted,
   },
@@ -240,5 +337,9 @@ const styles = StyleSheet.create({
     fontWeight: '500',
     color: COLORS.primary,
     marginLeft: 2,
+  },
+  pendingNote: {
+    fontSize: 11,
+    color: COLORS.textMuted,
   },
 });
