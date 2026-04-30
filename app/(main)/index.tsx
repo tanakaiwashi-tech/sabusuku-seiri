@@ -570,13 +570,16 @@ const styles = StyleSheet.create({
   filterBarScroll: {
     borderBottomWidth: 1,
     borderBottomColor: COLORS.border,
+    // Web (RN Web) では flex column 内で高さが正しく計算されないケースがあるため明示する
+    flexShrink: 0,
   },
   filterBar: {
     flexDirection: 'row',
     paddingHorizontal: 12,
     paddingVertical: 8,
     gap: 6,
-    alignItems: 'center',
+    // alignItems: 'center' は Web 環境で ScrollView の高さを誤って引き伸ばすことがあるため除去
+    alignItems: 'flex-start',
   },
   chip: {
     flexDirection: 'row',
@@ -588,6 +591,8 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: COLORS.border,
     backgroundColor: COLORS.surface,
+    // flexShrink: 0 でチップが横方向に潰れないようにする
+    flexShrink: 0,
   },
   chipActive: {
     backgroundColor: COLORS.primary,
