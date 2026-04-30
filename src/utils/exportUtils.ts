@@ -1,5 +1,6 @@
 import type { Subscription } from '@/src/types';
 import { BILLING_CYCLE_LABELS, STATUS_LABELS } from '@/src/constants/app';
+import { isSafeUrl } from '@/src/utils/validationUtils';
 
 /** エクスポートJSONのルート構造（将来のインポート機能でも使用） */
 export interface ExportData {
@@ -79,11 +80,20 @@ export function validateImportData(raw: unknown): ExportData {
       typeof (item as Record<string, unknown>).id === 'string' &&
       typeof (item as Record<string, unknown>).serviceName === 'string',
   );
+  // customCancelUrl が unsafe スキーム（javascript:, data: など）を含む場合は null に置換する。
+  // フォーム入力時と異なり、インポートパスでは isSafeUrl() が通らないため、ここで明示的にサニタイズする。
+  const sanitized = valid.map((sub) => {
+    const url = (sub as unknown as Record<string, unknown>).customCancelUrl;
+    if (typeof url === 'string' && url.length > 0 && !isSafeUrl(url)) {
+      return { ...sub, customCancelUrl: null };
+    }
+    return sub;
+  });
   return {
     formatVersion: 1,
     exportedAt: typeof d.exportedAt === 'string' ? d.exportedAt : new Date().toISOString(),
-    subscriptionCount: valid.length,
-    subscriptions: valid,
+    subscriptionCount: sanitized.length,
+    subscriptions: sanitized,
   };
 }
 
