@@ -646,18 +646,36 @@ export function buildFaviconFallbackUrl(domain: string): string {
 /**
  * normalizedName → ドメインを解決する。
  * 優先順:
- *   1. SERVICE_LOGO_DOMAINS（手動マッピング）
- *   2. ENTRY_DOMAIN_MAP（辞書の normalizedName フィールド）
- *   3. ENTRY_NAME_MAP（辞書の name を normalizeServiceName したキー）
+ *   1. SERVICE_LOGO_DOMAINS（手動マッピング）—— 完全一致
+ *   2. ENTRY_DOMAIN_MAP（辞書の normalizedName フィールド）—— 完全一致
+ *   3. ENTRY_NAME_MAP（辞書の name を normalizeServiceName したキー）—— 完全一致
+ *   4. SERVICE_LOGO_DOMAINS —— 最長プレフィックス一致
+ *      "Render | The cloud for builders" → "render|thecloudforbuilders" が
+ *      辞書の normalizedName "render" と完全一致しない場合のフォールバック。
+ *      サービス名の後に「|」「-」などの区切り文字が続くケースに対応。
  */
 function resolveDomain(normalizedName: string): string | null {
   if (!normalizedName) return null;
-  return (
+  // 完全一致
+  const exact =
     SERVICE_LOGO_DOMAINS[normalizedName] ??
     ENTRY_DOMAIN_MAP[normalizedName] ??
     ENTRY_NAME_MAP[normalizedName] ??
-    null
-  );
+    null;
+  if (exact) return exact;
+  // 最長プレフィックス一致（4文字以上のキーのみ対象、誤検知を最小化）
+  // キーの直後の文字が英数字でないことを確認し、別サービスへの誤マッチを防ぐ。
+  // 例: "render" キーが "renderforest" にマッチしないようにする。
+  const prefixMatch = Object.entries(SERVICE_LOGO_DOMAINS)
+    .filter(([key]) => {
+      if (key.length < 4 || !normalizedName.startsWith(key)) return false;
+      if (normalizedName.length === key.length) return true;
+      const nextChar = normalizedName[key.length];
+      return !/[a-z0-9]/.test(nextChar);
+    })
+    .sort(([a], [b]) => b.length - a.length)[0];
+  if (prefixMatch) return prefixMatch[1];
+  return null;
 }
 
 /**

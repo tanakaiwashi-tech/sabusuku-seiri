@@ -81,17 +81,14 @@ export function SubscriptionListItem({ subscription, onPress }: SubscriptionList
             source={{ uri: currentLogoUrl! }}
             style={styles.logoImage}
             onLoad={(e) => {
-              // プライマリ(Google S2)が 1×1 の空ピクセルを返した場合に DuckDuckGo へフォールバック。
-              // source?.width は React Native Web では naturalWidth にマップされる。
+              // Google S2（プライマリ）は正常サイズを返すため寸法チェック不要。
+              // DuckDuckGo（フォールバック）は未知ドメインで 1×1 blank PNG を返すためチェックが必要。
+              if (!useFallback) return;
               const source = e.nativeEvent.source;
               const width = source?.width;
               const height = source?.height;
               if (typeof width === 'number' && typeof height === 'number' && (width <= 2 || height <= 2)) {
-                if (!useFallback && logoFallbackUrl) {
-                  setUseFallback(true);
-                } else {
-                  setLogoError(true);
-                }
+                setLogoError(true);
               }
             }}
             onError={() => {
