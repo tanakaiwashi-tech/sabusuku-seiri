@@ -2,6 +2,7 @@ import React, { useState, useMemo } from 'react';
 import {
   View,
   Text,
+  TextInput,
   ScrollView,
   StyleSheet,
   SafeAreaView,
@@ -21,6 +22,7 @@ import {
 } from '@/src/utils/exportUtils';
 import { toMonthlyAmount, toJPY, formatAmount } from '@/src/utils/amountUtils';
 import { USD_TO_JPY_RATE } from '@/src/constants/app';
+import { fetchUsdJpyRate } from '@/src/hooks/useExchangeRate';
 
 type ImportPhase =
   | { phase: 'idle' }
@@ -45,7 +47,11 @@ export default function SettingsScreen() {
   const lastExportedAt = useUiPrefsStore((s) => s.lastExportedAt);
   const setLastExportedAt = useUiPrefsStore((s) => s.setLastExportedAt);
   const usdRate = useUiPrefsStore((s) => s.usdToJpyRate ?? USD_TO_JPY_RATE);
+  const usdRateFetchedAt = useUiPrefsStore((s) => s.usdRateFetchedAt);
+  const setUsdRate = useUiPrefsStore((s) => s.setUsdRate);
   const [isExporting, setIsExporting] = useState(false);
+  const [isRefreshingRate, setIsRefreshingRate] = useState(false);
+  const [manualRateText, setManualRateText] = useState('');
   const [importPhase, setImportPhase] = useState<ImportPhase>({ phase: 'idle' });
   // 通知許可ステータス（ブラウザ API が使えない環境では null）
   const [notifPermission, setNotifPermission] = useState<NotificationPermission | null>(() => {
@@ -62,6 +68,34 @@ export default function SettingsScreen() {
     if (result === 'granted') {
       Alert.alert('通知を許可しました', '更新日が近づくとお知らせします。');
     }
+  };
+
+  // ─── USD換算レート ───────────────────────────────────────────
+  const handleRefreshRate = async () => {
+    if (isRefreshingRate) return;
+    setIsRefreshingRate(true);
+    try {
+      const rate = await fetchUsdJpyRate();
+      if (rate !== null) {
+        setUsdRate(rate, new Date().toISOString());
+        Alert.alert('更新完了', `現在のレート: ¥${rate} を取得しました。`);
+      } else {
+        Alert.alert('取得失敗', 'レートを取得できませんでした。\nネットワーク接続を確認してください。');
+      }
+    } finally {
+      setIsRefreshingRate(false);
+    }
+  };
+
+  const handleApplyManualRate = () => {
+    const rate = parseInt(manualRateText, 10);
+    if (isNaN(rate) || rate < 50 || rate > 999) {
+      Alert.alert('入力エラー', '50〜999 の範囲で整数を入力してください。');
+      return;
+    }
+    setUsdRate(rate, new Date().toISOString());
+    setManualRateText('');
+    Alert.alert('設定完了', `USD換算レートを ¥${rate} に設定しました。`);
   };
 
   // 解約済みサブスクの件数と月額合計（整理実績表示用）
@@ -406,6 +440,88 @@ export default function SettingsScreen() {
           </>
         )}
 
+        {/* USD換算レート */}
+        <Text style={[styles.groupLabel, styles.groupLabelGap]}>USD換算レート</Text>
+        <View style={styles.group}>
+          {/* 現在のレート表示 */}
+          <View style={[styles.row, styles.rowBorder]}>
+            <View style={styles.rowLeft}>
+              <View style={styles.iconWrap}>
+                <Ionicons name="swap-horizontal-outline" size={19} color={COLORS.textMuted} />
+              </View>
+              <View style={styles.rowTexts}>
+                <Text style={styles.rowLabel}>現在のレート</Text>
+                <Text style={styles.rowDesc}>
+                  {usdRateFetchedAt
+                    ? `最終取得: ${formatScanDate(usdRateFetchedAt)}`
+                    : 'フォールバック値を使用中（自動取得を試みています）'}
+                </Text>
+              </View>
+            </View>
+            <Text style={[styles.rowValue, !usdRateFetchedAt && styles.rowValueMissing]}>
+              ¥{usdRate}
+            </Text>
+          </View>
+
+          {/* 今すぐ更新 */}
+          <TouchableOpacity
+            style={[styles.row, styles.rowBorder]}
+            onPress={handleRefreshRate}
+            activeOpacity={0.7}
+            disabled={isRefreshingRate}
+          >
+            <View style={styles.rowLeft}>
+              <View style={styles.iconWrap}>
+                <Ionicons
+                  name="refresh-outline"
+                  size={19}
+                  color={isRefreshingRate ? COLORS.textMuted : COLORS.primary}
+                />
+              </View>
+              <Text style={styles.rowLabel}>
+                {isRefreshingRate ? 'レートを取得中...' : '今すぐ更新'}
+              </Text>
+            </View>
+            {!isRefreshingRate && (
+              <Ionicons name="chevron-forward" size={16} color={COLORS.textMuted} />
+            )}
+          </TouchableOpacity>
+
+          {/* 手動入力 */}
+          <View style={styles.row}>
+            <View style={styles.rowLeft}>
+              <View style={styles.iconWrap}>
+                <Ionicons name="create-outline" size={19} color={COLORS.textMuted} />
+              </View>
+              <Text style={styles.rowLabel}>手動で設定</Text>
+            </View>
+            <View style={styles.rateManualRow}>
+              <Text style={styles.ratePrefix}>¥</Text>
+              <TextInput
+                style={styles.rateInput}
+                value={manualRateText}
+                onChangeText={setManualRateText}
+                keyboardType="number-pad"
+                placeholder={String(usdRate)}
+                placeholderTextColor={COLORS.textMuted}
+                maxLength={3}
+                returnKeyType="done"
+                onSubmitEditing={handleApplyManualRate}
+              />
+              <TouchableOpacity
+                style={styles.rateApplyBtn}
+                onPress={handleApplyManualRate}
+                activeOpacity={0.75}
+              >
+                <Text style={styles.rateApplyText}>適用</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+        <Text style={styles.hint}>
+          USDで登録したサブスクの円換算に使用します。クレジットカードの実際のレートに合わせると精度が上がります。
+        </Text>
+
         {/* このアプリについて */}
         <Text style={[styles.groupLabel, styles.groupLabelGap]}>このアプリについて</Text>
         <View style={styles.group}>
@@ -654,5 +770,39 @@ const styles = StyleSheet.create({
     color: COLORS.destructive,
     textAlign: 'center',
     lineHeight: 20,
+  },
+  // ─── レート手動設定 ───
+  rateManualRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+  },
+  ratePrefix: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: COLORS.textMuted,
+  },
+  rateInput: {
+    width: 60,
+    height: 34,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+    borderRadius: 8,
+    paddingHorizontal: 8,
+    fontSize: 15,
+    color: COLORS.text,
+    textAlign: 'center',
+    backgroundColor: COLORS.background,
+  },
+  rateApplyBtn: {
+    backgroundColor: COLORS.primary,
+    paddingHorizontal: 12,
+    paddingVertical: 7,
+    borderRadius: 8,
+  },
+  rateApplyText: {
+    color: '#FFFFFF',
+    fontSize: 13,
+    fontWeight: '600',
   },
 });
